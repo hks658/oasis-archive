@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>绿洲 · 游戏与电影档案馆</title>
+<style>
+:root {
+  --bg-deep:#000;--bg-card:rgba(255,255,255,0.04);
+  --neon-pink:#ff375f;--neon-cyan:#64d2ff;--neon-purple:#bf5af2;--neon-gold:#ffd60a;
+  --tomato-red:#ff6961;--tomato-green:#30d158;
+  --text-primary:#f5f5f7;--text-secondary:#86868b;--text-muted:#48484a;
+  --radius-sm:12px;--radius-md:18px;--radius-lg:22px;--radius-xl:28px;
+  --shadow-neon-pink:0 4px 30px rgba(255,55,95,.18),0 0 80px rgba(255,55,95,.06);
+  --shadow-neon-cyan:0 4px 30px rgba(100,210,255,.18),0 0 80px rgba(100,210,255,.06);
+  --font-main:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','PingFang SC','Helvetica Neue','Microsoft YaHei',sans-serif;
+  --ease:cubic-bezier(.25,.46,.45,.94);--spring:cubic-bezier(.34,1.56,.64,1);--page:cubic-bezier(.76,0,.24,1);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{overflow:hidden;height:100%}
+body{font-family:var(--font-main);background:var(--bg-deep);color:var(--text-primary);overflow:hidden;height:100%;line-height:1.6;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+
+/* ═══ FULLPAGE ═══ */
+#fullpage-wrapper{position:fixed;inset:0;transition:transform 1.1s var(--page);will-change:transform}
+.fp-section{width:100%;height:100vh;position:relative;overflow:hidden}
+.fp-section-inner{width:100%;height:100%;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:rgba(255,55,95,.3) transparent}
+.fp-section-inner::-webkit-scrollbar{width:5px}
+.fp-section-inner::-webkit-scrollbar-track{background:transparent}
+.fp-section-inner::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--neon-pink),var(--neon-purple));border-radius:10px}
+.fp-section .anim{opacity:0;transform:translateY(60px) scale(.98);transition:opacity 1s var(--ease),transform 1s var(--ease)}
+.fp-section.active .anim{opacity:1;transform:none}
+.fp-section .anim.d1{transition-delay:.12s}.fp-section .anim.d2{transition-delay:.22s}
+.fp-section .anim.d3{transition-delay:.32s}.fp-section .anim.d4{transition-delay:.42s}
+.fp-section .anim.d5{transition-delay:.52s}.fp-section .anim.d7{transition-delay:.72s}
+
+/* ═══ PAGE INDICATOR ═══ */
+#page-indicator{position:fixed;right:32px;top:50%;transform:translateY(-50%);z-index:1000;display:flex;flex-direction:column;align-items:center;gap:10px}
+.page-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.08);cursor:pointer;transition:all .6s var(--page);position:relative}
+.page-dot::after{content:attr(data-label);position:absolute;right:24px;top:50%;transform:translateY(-50%) translateX(6px);font-size:11px;font-weight:500;color:var(--text-muted);white-space:nowrap;opacity:0;pointer-events:none;background:rgba(28,28,30,.8);padding:4px 12px;border-radius:8px;backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.06);transition:opacity .4s,transform .4s var(--spring)}
+.page-dot:hover::after{opacity:1;transform:translateY(-50%) translateX(0)}
+.page-dot.active{background:var(--neon-pink);border-color:transparent;box-shadow:0 0 16px rgba(255,55,95,.5),0 0 4px rgba(255,55,95,.8);height:32px;border-radius:4px;width:8px}
+
+/* ═══ NAV ═══ */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 clamp(20px,4vw,56px);height:54px;display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,.5);backdrop-filter:saturate(180%) blur(40px);-webkit-backdrop-filter:saturate(180%) blur(40px);border-bottom:.5px solid rgba(255,255,255,.08);transition:all .6s var(--ease)}
+nav.nav-solid{background:rgba(0,0,0,.82);border-bottom-color:rgba(255,255,255,.05)}
+.nav-logo{font-size:17px;font-weight:700;letter-spacing:5px;background:linear-gradient(135deg,var(--neon-pink),#ff6b9d,var(--neon-cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;cursor:pointer;text-transform:uppercase;transition:opacity .3s}
+.nav-logo:hover{opacity:.8}
+.nav-links{display:flex;gap:36px;align-items:center}
+.nav-links a{color:var(--text-secondary);text-decoration:none;font-size:14px;font-weight:400;letter-spacing:.3px;transition:color .4s;position:relative;padding:4px 0;cursor:pointer}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:50%;width:0;height:2px;background:linear-gradient(90deg,var(--neon-pink),var(--neon-purple));border-radius:2px;transition:width .4s var(--spring),left .4s var(--spring)}
+.nav-links a:hover{color:var(--text-primary)}
+.nav-links a:hover::after,.nav-links a.active::after{width:100%;left:0}
+.nav-links a.active{color:var(--text-primary)}
+.nav-settings{width:34px;height:34px;border:none;background:rgba(255,255,255,.06);border-radius:50%;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .4s var(--spring);backdrop-filter:blur(8px)}
+.nav-settings:hover{background:rgba(255,255,255,.12);color:var(--neon-cyan);transform:rotate(90deg) scale(1.05);box-shadow:0 0 20px rgba(100,210,255,.15)}
+.nav-settings svg{width:16px;height:16px}
+
+/* ═══ HERO ═══ */
+#page-hero{display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#000 0%,#010812 8%,#030f28 18%,#071d4a 30%,#112a6a 42%,#1e2268 50%,#371a68 58%,#521858 66%,#701a4a 74%,#8a1a38 84%,#9a1a2a 94%,#a21a26 100%);overflow:hidden}
+#page-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 140% 60% at 50% 110%,rgba(162,26,38,.15) 0%,transparent 50%),radial-gradient(ellipse 120% 50% at 50% -5%,rgba(0,0,0,.5) 0%,transparent 45%),radial-gradient(circle at 30% 40%,rgba(100,210,255,.03) 0%,transparent 50%),radial-gradient(circle at 70% 60%,rgba(191,90,242,.03) 0%,transparent 50%);pointer-events:none;z-index:1}
+#page-hero::after{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");pointer-events:none;z-index:2;opacity:.6}
+.hero-particles{position:absolute;inset:0;overflow:hidden;z-index:1}
+.hero-particle{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:0;animation:particleFade 5s ease-in-out infinite}
+@keyframes particleFade{0%,100%{opacity:0;transform:translateY(0) scale(.3)}50%{opacity:.6;transform:translateY(-30px) scale(1)}}
+.hero-grid{position:absolute;bottom:0;left:-50%;width:200%;height:35%;background:linear-gradient(180deg,transparent,rgba(162,26,38,.04)),repeating-linear-gradient(90deg,rgba(255,255,255,.018) 0 1px,transparent 1px 100px),repeating-linear-gradient(0deg,rgba(255,255,255,.01) 0 1px,transparent 1px 80px);transform:perspective(600px) rotateX(68deg);transform-origin:center top;animation:heroGrid 5s linear infinite;z-index:1;opacity:.5}
+@keyframes heroGrid{to{background-position:0 0,0 0,0 80px}}
+.hero-center{position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 24px}
+.hero-eyebrow{font-size:13px;font-weight:500;letter-spacing:8px;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:28px}
+.hero-title{font-size:clamp(60px,11vw,130px);font-weight:800;letter-spacing:-4px;line-height:.92;margin-bottom:32px;color:#fff;text-shadow:0 0 120px rgba(255,55,95,.1)}
+.hero-title .title-line{display:block}
+.hero-title .title-accent{background:linear-gradient(135deg,#ff6b9d,#ffa07a,#ff4757,#ff375f);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 60px rgba(255,107,157,.15))}
+.hero-title .title-cn{letter-spacing:0.1em}
+.hero-title .title-sub{display:block;font-size:clamp(18px,3vw,32px);font-weight:300;letter-spacing:10px;color:rgba(255,255,255,.3);margin-top:16px;-webkit-text-fill-color:initial;background:none;-webkit-background-clip:initial;background-clip:initial;filter:none;text-transform:uppercase}
+.hero-desc{font-size:clamp(16px,2vw,20px);color:rgba(255,255,255,.42);font-weight:300;max-width:540px;line-height:1.75;margin-bottom:56px;letter-spacing:.3px}
+.hero-desc .quote-source{font-size:12px;opacity:.55;margin-top:10px;display:inline-block;letter-spacing:2px}
+.hero-actions{display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
+.hero-actions a{padding:17px 48px;border-radius:980px;font-size:16px;font-weight:600;text-decoration:none;transition:all .5s var(--spring);cursor:pointer;letter-spacing:.3px}
+.btn-games{background:rgba(255,255,255,.95);color:#1a0a2e;box-shadow:0 2px 20px rgba(255,255,255,.1)}
+.btn-games:hover{background:#fff;transform:translateY(-3px) scale(1.04);box-shadow:0 10px 48px rgba(255,255,255,.2)}
+.btn-games:active{transform:translateY(-1px) scale(1.01)}
+.btn-movies{background:rgba(255,255,255,.06);color:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(20px)}
+.btn-movies:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25);transform:translateY(-3px);box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.btn-movies:active{transform:translateY(-1px)}
+.hero-scroll-hint{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);z-index:10;display:flex;flex-direction:column;align-items:center;gap:12px;animation:hintFloat 3s ease-in-out infinite}
+.hero-scroll-hint span{font-size:10px;letter-spacing:5px;color:rgba(255,255,255,.16);text-transform:uppercase;font-weight:500}
+.scroll-line{width:1px;height:32px;background:linear-gradient(180deg,rgba(255,255,255,.2),transparent);position:relative}
+.scroll-line::after{content:'';position:absolute;top:0;left:-1px;width:3px;height:8px;background:rgba(255,255,255,.4);border-radius:4px;animation:scrollDot 2.5s ease-in-out infinite}
+@keyframes scrollDot{0%{top:0;opacity:1}80%{top:24px;opacity:.2}100%{top:0;opacity:1}}
+@keyframes hintFloat{0%,100%{transform:translateX(-50%)}50%{transform:translateX(-50%) translateY(8px)}}
+
+/* ═══ SECTION COMMONS ═══ */
+.section-pad{padding:110px clamp(24px,5vw,56px) 60px;max-width:1440px;margin:0 auto}
+.section-label{font-size:13px;font-weight:600;letter-spacing:5px;text-transform:uppercase;color:var(--neon-pink);margin-bottom:14px;display:block;opacity:.9}
+.section-title{font-size:clamp(38px,5.5vw,68px);font-weight:800;letter-spacing:-2px;line-height:1.08;margin-bottom:18px;background:linear-gradient(180deg,#fff,rgba(255,255,255,.8));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.section-desc{font-size:18px;color:var(--text-secondary);font-weight:300;max-width:600px;line-height:1.75;margin-bottom:52px;letter-spacing:.2px}
+.tab-controls{display:flex;gap:2px;padding:3px;background:rgba(255,255,255,.05);border-radius:14px;border:.5px solid rgba(255,255,255,.06);width:fit-content;margin-bottom:40px;backdrop-filter:blur(12px)}
+.tab-btn{padding:10px 28px;border:none;background:transparent;color:var(--text-secondary);font-size:14px;font-weight:500;border-radius:11px;cursor:pointer;transition:all .4s var(--ease);font-family:var(--font-main);letter-spacing:.2px}
+.tab-btn.active{background:rgba(255,55,95,.15);color:var(--text-primary);box-shadow:0 2px 16px rgba(255,55,95,.1),inset 0 .5px 0 rgba(255,255,255,.06)}
+.tab-btn:hover:not(.active){color:var(--text-primary);background:rgba(255,255,255,.04)}
+.tab-panel{display:none;animation:panelIn .6s var(--ease)}.tab-panel.active{display:block}
+@keyframes panelIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.add-btn-container{margin-bottom:32px}
+.add-btn{display:inline-flex;align-items:center;gap:10px;padding:13px 32px;border:1px solid rgba(255,55,95,.2);background:rgba(255,55,95,.04);color:var(--neon-pink);border-radius:980px;font-size:14px;font-weight:500;cursor:pointer;transition:all .4s var(--spring);font-family:var(--font-main);letter-spacing:.2px}
+.add-btn:hover{background:rgba(255,55,95,.1);border-color:rgba(255,55,95,.4);box-shadow:var(--shadow-neon-pink);transform:translateY(-2px) scale(1.02)}
+.add-btn:active{transform:translateY(0) scale(.99)}
+
+/* ═══ CARDS ═══ */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:28px}
+.game-card,.wishlist-card,.movie-card{position:relative;border-radius:var(--radius-lg);overflow:hidden;background:var(--bg-card);border:.5px solid rgba(255,255,255,.06);cursor:pointer;transition:all .6s var(--ease)}
+.game-card:hover{transform:translateY(-10px) scale(1.02);border-color:rgba(255,55,95,.15);box-shadow:0 20px 60px rgba(0,0,0,.4),0 4px 24px rgba(255,55,95,.12)}
+.game-card-cover,.movie-card-cover{width:100%;object-fit:cover;display:block;transition:transform .7s var(--ease),filter .7s var(--ease)}
+.game-card-cover{aspect-ratio:3/4}
+.movie-card-cover{aspect-ratio:2/3}
+.game-card:hover .game-card-cover,.movie-card:hover .movie-card-cover,.wishlist-card:hover .game-card-cover{transform:scale(1.06)}
+.game-card-overlay,.movie-card-overlay{position:absolute;bottom:0;left:0;right:0;padding:40px 20px 22px;background:linear-gradient(transparent,rgba(0,0,0,.85) 60%)}
+.game-card-title{font-size:15px;font-weight:600;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.game-card-rating{display:flex;gap:2px;margin-bottom:6px}
+.star{color:var(--text-muted);font-size:14px;transition:color .3s}
+.star.filled{color:var(--neon-gold);text-shadow:0 0 10px rgba(255,214,10,.4)}
+.music-indicator{position:absolute;top:18px;right:18px;display:flex;align-items:flex-end;gap:3px;height:20px;opacity:0;transition:opacity .4s;z-index:5;background:rgba(0,0,0,.3);padding:6px 8px;border-radius:10px;backdrop-filter:blur(8px)}
+.game-card.playing .music-indicator{opacity:1}
+.music-bar{width:3px;background:var(--neon-cyan);border-radius:3px;box-shadow:0 0 8px rgba(100,210,255,.4);animation:mBounce .8s ease-in-out infinite}
+.music-bar:nth-child(1){height:8px}.music-bar:nth-child(2){height:14px;animation-delay:.15s}
+.music-bar:nth-child(3){height:10px;animation-delay:.3s}.music-bar:nth-child(4){height:16px;animation-delay:.45s}
+@keyframes mBounce{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}
+
+/* ── Wishlist Card: grayscale → color ── */
+.wishlist-card:hover{transform:translateY(-8px) scale(1.01);border-color:rgba(100,210,255,.15);box-shadow:0 20px 60px rgba(0,0,0,.4),0 4px 24px rgba(100,210,255,.1)}
+.wishlist-card .game-card-cover{filter:grayscale(1) brightness(.85);transition:transform .7s var(--ease),filter .7s var(--ease)}
+.wishlist-card:hover .game-card-cover{filter:grayscale(0) brightness(1);transform:scale(1.06)}
+.wishlist-badge{position:absolute;top:16px;left:16px;background:rgba(100,210,255,.12);backdrop-filter:blur(16px);border:.5px solid rgba(100,210,255,.2);color:var(--neon-cyan);font-size:10px;font-weight:600;padding:5px 14px;border-radius:980px;letter-spacing:1.5px;z-index:5}
+
+/* ── Movie Card ── */
+.movie-card:hover{transform:translateY(-10px) scale(1.02);border-color:rgba(255,105,97,.15);box-shadow:0 20px 60px rgba(0,0,0,.4),0 4px 24px rgba(255,105,97,.1)}
+.tomato-rating{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.tomato-dot,.tomato-dot-lg{border-radius:50%;display:inline-block;flex-shrink:0}
+.tomato-dot{width:12px;height:12px}.tomato-dot-lg{width:16px;height:16px}
+.tomato-dot.t-fresh,.tomato-dot-lg.t-fresh{background:var(--tomato-red);box-shadow:0 0 10px rgba(255,105,97,.4)}
+.tomato-dot.t-rotten,.tomato-dot-lg.t-rotten{background:var(--tomato-green);box-shadow:0 0 10px rgba(48,209,88,.4)}
+.tomato-score{font-size:15px;font-weight:700}
+.tomato-fresh{color:var(--tomato-red)}.tomato-rotten{color:var(--tomato-green)}
+.anticipation-bar{width:100%;height:3px;background:rgba(255,255,255,.06);border-radius:3px;margin-top:10px;overflow:hidden}
+.anticipation-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--neon-pink),var(--neon-purple),var(--neon-cyan));background-size:200% 100%;animation:shimmer 3s ease-in-out infinite;transition:width 1.2s var(--ease);box-shadow:0 0 12px rgba(255,55,95,.4)}
+@keyframes shimmer{0%{background-position:100% 0}50%{background-position:0 0}100%{background-position:100% 0}}
+.upcoming-badge{position:absolute;top:16px;left:16px;background:rgba(255,55,95,.12);backdrop-filter:blur(16px);border:.5px solid rgba(255,55,95,.2);color:var(--neon-pink);font-size:10px;font-weight:600;padding:5px 14px;border-radius:980px;letter-spacing:1.5px;z-index:5}
+
+/* ═══ CARD CONTEXT MENU ═══ */
+.card-menu-wrap{position:absolute;top:10px;left:10px;z-index:15}
+.card-menu-btn{width:30px;height:30px;border-radius:50%;border:.5px solid rgba(255,255,255,.12);background:rgba(0,0,0,.55);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:rgba(255,255,255,.85);cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:all .3s var(--ease);padding:0}
+.card-menu-btn svg{width:16px;height:16px;fill:currentColor;pointer-events:none}
+.game-card:hover .card-menu-btn,.wishlist-card:hover .card-menu-btn,.movie-card:hover .card-menu-btn,.card-menu-btn.active{opacity:1}
+.card-menu-btn:hover,.card-menu-btn.active{background:rgba(0,0,0,.78);color:#fff;transform:scale(1.1);border-color:rgba(255,255,255,.2)}
+.card-menu-dropdown{position:absolute;top:36px;left:0;min-width:124px;background:rgba(28,28,30,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:.5px solid rgba(255,255,255,.1);border-radius:14px;padding:4px;opacity:0;transform:translateY(-6px) scale(.96);pointer-events:none;transition:all .25s var(--spring);box-shadow:0 8px 32px rgba(0,0,0,.6)}
+.card-menu-dropdown.show{opacity:1;transform:none;pointer-events:all}
+.card-menu-item{display:flex;align-items:center;gap:9px;width:100%;padding:9px 14px;border:none;background:transparent;color:var(--text-primary);font-size:13px;font-weight:500;font-family:var(--font-main);cursor:pointer;border-radius:10px;transition:background .2s;white-space:nowrap}
+.card-menu-item:hover{background:rgba(255,255,255,.08)}
+.card-menu-item.danger{color:#ff5050}
+.card-menu-item.danger:hover{background:rgba(255,80,80,.1)}
+.card-menu-item svg{width:14px;height:14px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.card-menu-wrap~.wishlist-badge,.card-menu-wrap~.upcoming-badge{left:48px}
+
+.empty-state{text-align:center;padding:72px 20px;color:var(--text-muted)}
+.empty-state p{font-size:15px;max-width:400px;margin:0 auto;line-height:1.7;letter-spacing:.2px}
+.empty-ring{width:80px;height:80px;border:1.5px solid rgba(255,255,255,.05);border-radius:50%;margin:0 auto 24px;position:relative;background:radial-gradient(circle,rgba(255,255,255,.01),transparent)}
+.empty-ring::after,.empty-ring::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(255,255,255,.08);border-radius:1px}
+.empty-ring::after{width:22px;height:1.5px}
+.empty-ring::before{width:1.5px;height:22px}
+.spinner{width:44px;height:44px;border:2.5px solid rgba(255,255,255,.06);border-top-color:var(--neon-pink);border-radius:50%;animation:spin .9s cubic-bezier(.5,0,.5,1) infinite;margin:40px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.bg-games{background:linear-gradient(180deg,#000,#0a0118 40%,#080014)}
+.bg-games::before{content:'';position:absolute;top:5%;right:-15%;width:600px;height:600px;background:radial-gradient(circle,rgba(255,55,95,.04),transparent 65%);pointer-events:none}
+.bg-games::after{content:'';position:absolute;bottom:10%;left:-10%;width:400px;height:400px;background:radial-gradient(circle,rgba(191,90,242,.03),transparent 65%);pointer-events:none}
+.bg-movies{background:linear-gradient(180deg,#080014,#0a0020 40%,#060012)}
+.bg-movies::before{content:'';position:absolute;top:15%;left:-12%;width:600px;height:600px;background:radial-gradient(circle,rgba(100,210,255,.035),transparent 65%);pointer-events:none}
+.bg-movies::after{content:'';position:absolute;bottom:5%;right:-10%;width:400px;height:400px;background:radial-gradient(circle,rgba(191,90,242,.025),transparent 65%);pointer-events:none}
+.bg-footer-section{background:#000;display:flex;align-items:center;justify-content:center}
+
+/* ═══ MODAL ═══ */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(20px) saturate(150%);-webkit-backdrop-filter:blur(20px) saturate(150%);z-index:2000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .5s var(--ease);padding:20px}
+.modal-backdrop.show{opacity:1;pointer-events:all}
+.modal{background:rgba(22,12,48,.35);backdrop-filter:saturate(200%) blur(60px);-webkit-backdrop-filter:saturate(200%) blur(60px);border:.5px solid rgba(255,255,255,.1);border-radius:var(--radius-xl);max-width:720px;width:100%;max-height:85vh;overflow-y:auto;padding:44px;position:relative;transform:scale(.92) translateY(24px);transition:transform .6s var(--spring);box-shadow:0 40px 100px rgba(0,0,0,.5),inset 0 .5px 0 rgba(255,255,255,.05);scrollbar-width:thin;scrollbar-color:rgba(191,90,242,.3) transparent}
+.modal::-webkit-scrollbar{width:5px}
+.modal::-webkit-scrollbar-track{background:transparent}
+.modal::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--neon-purple),var(--neon-pink));border-radius:10px}
+.modal-backdrop.show .modal{transform:none}
+.modal-close{position:sticky;top:0;float:right;width:36px;height:36px;border:.5px solid rgba(255,255,255,.06);background:rgba(255,255,255,.06);color:var(--text-secondary);border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .4s var(--spring);z-index:10;backdrop-filter:blur(16px)}
+.modal-close:hover{background:rgba(255,55,95,.15);color:var(--neon-pink);transform:rotate(90deg) scale(1.1);border-color:rgba(255,55,95,.2)}
+.modal-title{font-size:26px;font-weight:700;margin-bottom:36px;padding-right:44px;letter-spacing:-.5px;background:linear-gradient(135deg,var(--text-primary),var(--neon-cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* ═══ FORM ═══ */
+.form-group{margin-bottom:26px}
+.form-label{display:block;font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:10px;letter-spacing:.5px}
+.form-input,.form-textarea{width:100%;padding:13px 18px;background:rgba(255,255,255,.04);border:.5px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);color:var(--text-primary);font-size:15px;font-family:var(--font-main);transition:all .4s var(--ease);outline:none}
+.form-input:focus,.form-textarea:focus{border-color:rgba(255,55,95,.3);box-shadow:0 0 0 4px rgba(255,55,95,.06),0 0 20px rgba(255,55,95,.05);background:rgba(255,255,255,.06)}
+.form-textarea{min-height:120px;resize:vertical;line-height:1.7}
+.form-input::placeholder,.form-textarea::placeholder{color:var(--text-muted)}
+.file-upload{border:1.5px dashed rgba(255,255,255,.08);border-radius:var(--radius-md);padding:32px;text-align:center;cursor:pointer;transition:all .4s var(--ease);position:relative;overflow:hidden;background:rgba(255,255,255,.01)}
+.file-upload:hover{border-color:rgba(255,55,95,.2);background:rgba(255,55,95,.02);transform:translateY(-1px)}
+.file-upload.has-file{border-color:rgba(100,210,255,.2);background:rgba(100,210,255,.02)}
+.file-upload input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.upload-icon{width:48px;height:48px;border-radius:50%;border:1.5px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;background:rgba(255,255,255,.02);transition:all .3s}
+.file-upload:hover .upload-icon{border-color:rgba(255,55,95,.2);background:rgba(255,55,95,.04)}
+.upload-icon svg{width:18px;height:18px;stroke:var(--text-muted);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.file-upload-text{font-size:14px;color:var(--text-secondary)}
+.file-upload-hint{font-size:12px;color:var(--text-muted);margin-top:6px}
+.preview-container{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.preview-thumb{width:80px;height:80px;border-radius:var(--radius-sm);object-fit:cover;border:.5px solid rgba(255,255,255,.08);transition:transform .3s}
+.preview-thumb:hover{transform:scale(1.05)}
+.rating-select{display:flex;gap:8px;margin-top:8px}
+.rating-select .star-btn{background:none;border:none;font-size:30px;cursor:pointer;color:var(--text-muted);transition:all .25s var(--spring);padding:2px}
+.rating-select .star-btn:hover,.rating-select .star-btn.active{color:var(--neon-gold);text-shadow:0 0 16px rgba(255,214,10,.5);transform:scale(1.2)}
+.submit-btn{width:100%;padding:15px;border:none;border-radius:var(--radius-md);background:linear-gradient(135deg,var(--neon-pink),var(--neon-purple));color:#fff;font-size:15px;font-weight:600;cursor:pointer;transition:all .4s var(--spring);font-family:var(--font-main);margin-top:10px;letter-spacing:.3px;box-shadow:0 4px 20px rgba(255,55,95,.2)}
+.submit-btn:hover{transform:translateY(-2px) scale(1.01);box-shadow:0 8px 36px rgba(255,55,95,.35)}
+.submit-btn:active{transform:translateY(0) scale(.99)}
+.delete-btn{width:100%;padding:13px;border:.5px solid rgba(255,80,80,.2);border-radius:var(--radius-md);background:rgba(255,80,80,.04);color:#ff5050;font-size:14px;font-weight:500;cursor:pointer;transition:all .4s;font-family:var(--font-main);margin-top:14px}
+.delete-btn:hover{background:rgba(255,80,80,.1);border-color:rgba(255,80,80,.4);box-shadow:0 4px 20px rgba(255,80,80,.1)}
+
+/* ═══ DETAIL — movie/upcoming ═══ */
+.detail-modal .modal{max-width:860px}
+.detail-hero{width:calc(100% + 88px);margin:-44px -44px 36px;height:320px;position:relative;overflow:hidden;border-radius:var(--radius-xl) var(--radius-xl) 0 0}
+.detail-hero > img{width:100%;height:100%;object-fit:cover}
+.detail-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:65%;background:linear-gradient(transparent,rgba(22,12,48,.98))}
+.detail-hero-info{position:absolute;bottom:28px;left:44px;right:44px;z-index:2;display:flex;align-items:flex-end;gap:24px}
+.detail-poster{width:120px;height:160px;border-radius:var(--radius-md);object-fit:cover;border:1px solid rgba(255,255,255,.1);box-shadow:0 12px 40px rgba(0,0,0,.5);flex-shrink:0;transition:transform .3s}
+.detail-poster:hover{transform:scale(1.03)}
+.detail-meta h2{font-size:28px;font-weight:700;margin-bottom:8px;letter-spacing:-.5px}
+.detail-section{margin-bottom:36px}
+.detail-section-title{font-size:12px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--neon-pink);margin-bottom:18px;opacity:.9}
+.detail-review{font-size:16px;line-height:1.85;color:var(--text-secondary);letter-spacing:.2px}
+.screenshot-gallery{display:flex;gap:14px;overflow-x:auto;padding-bottom:14px;scroll-snap-type:x mandatory;scroll-behavior:smooth}
+.screenshot-gallery::-webkit-scrollbar{height:4px}
+.screenshot-gallery::-webkit-scrollbar-thumb{background:linear-gradient(90deg,var(--neon-purple),var(--neon-pink));border-radius:10px}
+.screenshot-gallery img{height:200px;border-radius:var(--radius-md);object-fit:cover;scroll-snap-align:start;flex-shrink:0;transition:all .4s var(--ease);cursor:pointer;border:.5px solid rgba(255,255,255,.06)}
+.screenshot-gallery img:hover{transform:scale(1.04);box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.range-slider{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:rgba(255,255,255,.06);border-radius:6px;outline:none;margin-top:10px}
+.range-slider::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--neon-pink),var(--neon-purple));cursor:pointer;box-shadow:0 2px 10px rgba(255,55,95,.4),0 0 0 4px rgba(255,55,95,.08);transition:box-shadow .3s}
+.range-slider::-webkit-slider-thumb:hover{box-shadow:0 4px 16px rgba(255,55,95,.5),0 0 0 6px rgba(255,55,95,.1)}
+.range-value{font-size:36px;font-weight:800;background:linear-gradient(135deg,var(--neon-pink),var(--neon-cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center;margin-bottom:4px;letter-spacing:-1px}
+.settings-info{padding:18px;background:rgba(100,210,255,.03);border:.5px solid rgba(100,210,255,.08);border-radius:var(--radius-md);margin-bottom:24px;backdrop-filter:blur(8px)}
+.settings-info p{font-size:13px;color:var(--text-secondary);line-height:1.7}
+.settings-info a{color:var(--neon-cyan);text-decoration:none;transition:opacity .3s}
+.settings-info a:hover{opacity:.8}
+
+/* ═══ GAME/WISHLIST DETAIL — SPLIT LAYOUT ═══ */
+#modal-game-detail .modal,#modal-wishlist-detail .modal{max-width:980px}
+.gdl-header{margin-bottom:32px;padding-right:44px}
+.gdl-header h2{font-size:28px;font-weight:700;line-height:1.2;letter-spacing:-.5px}
+.game-detail-layout{display:flex;gap:44px;align-items:flex-start}
+.gdl-gallery{flex:1;min-width:0;display:flex;flex-direction:column;gap:16px;position:sticky;top:0}
+.gdl-viewport{position:relative;width:100%;aspect-ratio:16/10;border-radius:var(--radius-lg);overflow:hidden;background:rgba(0,0,0,.4);cursor:zoom-in;border:.5px solid rgba(255,255,255,.06)}
+.gdl-viewport img#gdl-main-img{width:100%;height:100%;object-fit:contain;transition:opacity .4s ease}
+.gdl-viewport img#gdl-main-img.fading{opacity:0}
+.gdl-arrow{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:.5px solid rgba(255,255,255,.08);background:rgba(0,0,0,.5);backdrop-filter:blur(16px);color:rgba(255,255,255,.6);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .4s var(--spring);z-index:5;opacity:0}
+.gdl-viewport:hover .gdl-arrow{opacity:1}
+.gdl-arrow:hover{background:rgba(255,55,95,.2);border-color:rgba(255,55,95,.2);color:#fff;transform:translateY(-50%) scale(1.1)}
+.gdl-arrow.prev{left:14px}.gdl-arrow.next{right:14px}
+.gdl-arrow svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.gdl-counter{position:absolute;bottom:14px;right:14px;background:rgba(0,0,0,.55);backdrop-filter:blur(12px);padding:5px 16px;border-radius:980px;font-size:12px;color:rgba(255,255,255,.5);z-index:5;letter-spacing:1.5px;border:.5px solid rgba(255,255,255,.06);font-variant-numeric:tabular-nums}
+.gdl-thumbs{display:flex;gap:10px;overflow-x:auto;padding:2px 0;scrollbar-width:none}
+.gdl-thumbs::-webkit-scrollbar{display:none}
+.gdl-thumb{width:60px;height:60px;border-radius:12px;object-fit:cover;cursor:pointer;border:2px solid transparent;opacity:.38;transition:all .4s var(--spring);flex-shrink:0}
+.gdl-thumb.active{border-color:var(--neon-pink);opacity:1;box-shadow:0 0 18px rgba(255,55,95,.3);transform:scale(1.05)}
+.gdl-thumb:hover:not(.active){opacity:.65;transform:scale(1.03)}
+.gdl-info{width:300px;flex-shrink:0;display:flex;flex-direction:column}
+.gdl-score-block{text-align:center;padding:32px 0 28px;margin-bottom:28px;background:rgba(255,255,255,.015);border:.5px solid rgba(255,255,255,.04);border-radius:var(--radius-lg);position:relative;overflow:hidden}
+.gdl-score-block::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 20%,rgba(255,214,10,.04),transparent 70%);pointer-events:none}
+.gdl-score-label{font-size:11px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:var(--text-muted);margin-bottom:14px}
+.gdl-score-num{font-size:80px;font-weight:800;line-height:1;letter-spacing:-4px;background:linear-gradient(180deg,#fff 0%,#ffd60a 55%,#ffaa33 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 30px rgba(255,214,10,.15));margin-bottom:16px;font-variant-numeric:tabular-nums}
+.gdl-score-num .score-suffix{font-size:26px;font-weight:600;letter-spacing:0;opacity:.45}
+.gdl-score-none{font-size:54px;letter-spacing:0;background:linear-gradient(180deg,rgba(255,255,255,.25),rgba(255,255,255,.08));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:none}
+.gdl-score-stars{display:flex;justify-content:center;gap:10px}
+.gdl-score-stars .star{font-size:22px;transition:none}
+.gdl-divider{height:.5px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);margin:0 0 28px}
+.gdl-review-block{flex:1}
+.gdl-review-label{font-size:12px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:var(--neon-pink);margin-bottom:16px;opacity:.9}
+.gdl-review-text{font-size:15px;line-height:1.95;color:var(--text-secondary);word-break:break-word;letter-spacing:.2px}
+.gdl-review-empty{font-size:14px;color:var(--text-muted);font-style:italic}
+.gdl-music-block{margin-top:28px;padding-top:28px;border-top:.5px solid rgba(255,255,255,.04)}
+.gdl-music-block audio{width:100%;margin-top:12px;border-radius:10px;height:36px}
+.gdl-actions{margin-top:32px;padding-top:24px;border-top:.5px solid rgba(255,255,255,.04)}
+.gdl-actions .delete-btn{margin-top:0}
+.game-detail-layout.stacked{flex-direction:column}
+.game-detail-layout.stacked .gdl-gallery{position:static;width:100%}
+.game-detail-layout.stacked .gdl-info{width:100%}
+
+/* ═══ LIGHTBOX / TOAST / FOOTER ═══ */
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.94);backdrop-filter:blur(30px);z-index:3000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .4s;cursor:zoom-out}
+.lightbox.show{opacity:1;pointer-events:all}
+.lightbox img{max-width:90vw;max-height:90vh;object-fit:contain;border-radius:var(--radius-lg);transform:scale(.9);transition:transform .5s var(--spring);box-shadow:0 40px 100px rgba(0,0,0,.6)}
+.lightbox.show img{transform:none}
+.toast-container{position:fixed;top:76px;right:24px;z-index:3000;display:flex;flex-direction:column;gap:12px}
+.toast{padding:15px 26px;background:rgba(22,12,48,.6);backdrop-filter:saturate(200%) blur(40px);border:.5px solid rgba(255,255,255,.08);border-radius:var(--radius-md);font-size:14px;color:var(--text-primary);box-shadow:0 12px 40px rgba(0,0,0,.3);transform:translateX(120%);transition:transform .5s var(--spring);max-width:380px;letter-spacing:.2px}
+.toast.show{transform:none}
+.toast.success{border-color:rgba(100,210,255,.15)}.toast.error{border-color:rgba(255,80,80,.15)}
+.footer-content{text-align:center;color:var(--text-muted);font-size:13px}
+.footer-content .footer-logo{font-size:40px;font-weight:800;letter-spacing:5px;background:linear-gradient(135deg,var(--neon-pink),#ff6b9d,var(--neon-cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:20px;filter:drop-shadow(0 0 40px rgba(255,55,95,.1))}
+.footer-content .footer-sub{font-size:16px;font-weight:300;letter-spacing:6px;color:rgba(255,255,255,.2);margin-bottom:12px}
+
+@media(max-width:768px){
+  nav{padding:0 20px}.section-pad{padding:88px 20px 40px}.modal{padding:28px}
+  .detail-hero{height:220px;width:calc(100% + 56px);margin:-28px -28px 24px}
+  .detail-hero-info{left:20px;right:20px}.detail-poster{width:80px;height:107px}.detail-meta h2{font-size:20px}
+  .card-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px}
+  .hero-actions{flex-direction:column;width:80%}.hero-actions a{text-align:center}
+  .nav-links{gap:18px}.nav-links a{font-size:13px}
+  #page-indicator{right:14px}.page-dot::after{display:none}
+  .game-detail-layout,.game-detail-layout.stacked{flex-direction:column;gap:28px}
+  .gdl-gallery{position:static}
+  .gdl-info{width:100%}.gdl-score-num{font-size:56px}
+  #modal-game-detail .modal,#modal-wishlist-detail .modal{padding:24px}
+  .gdl-header h2{font-size:22px}
+  .card-menu-btn{opacity:.6}
+}
+</style>
+</head>
+<body>
+
+<nav id="navbar">
+  <div class="nav-logo" onclick="goToPage(0)">绿洲 OASIS</div>
+  <div class="nav-links">
+    <a class="nav-link" data-page="1" onclick="goToPage(1)">游戏</a>
+    <a class="nav-link" data-page="2" onclick="goToPage(2)">电影</a>
+  </div>
+  <button class="nav-settings" onclick="openSettings()" title="设置"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.2 4.2l2.8 2.8M17 17l2.8 2.8M1 12h4M19 12h4M4.2 19.8l2.8-2.8M17 7l2.8-2.8"/></svg></button>
+</nav>
+<div id="page-indicator"></div>
+<div id="fullpage-wrapper">
+
+  <section class="fp-section active" id="page-hero" data-label="首页">
+    <div class="hero-particles" id="hero-particles"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-center">
+      <p class="hero-eyebrow anim">Personal Archive</p>
+      <h1 class="hero-title anim d1"><span class="title-line title-accent title-cn">绿洲</span><span class="title-sub">Oasis</span></h1>
+      <p class="hero-desc anim d3">在这里，唯一限制你的是你自己的想象力。<br><span class="quote-source">—— 《头号玩家》Ready Player One</span></p>
+      <div class="hero-actions anim d5"><a class="btn-games" onclick="goToPage(1)">探索游戏库</a><a class="btn-movies" onclick="goToPage(2)">浏览电影集</a></div>
+    </div>
+    <div class="hero-scroll-hint anim d7"><span>Scroll</span><div class="scroll-line"></div></div>
+  </section>
+
+  <section class="fp-section bg-games" id="page-games" data-label="游戏">
+    <div class="fp-section-inner">
+      <div class="section-pad">
+        <span class="section-label anim">Games Collection</span>
+        <h2 class="section-title anim d1">游戏档案馆</h2>
+        <p class="section-desc anim d2">记录你征服过的每一个世界，收藏每一段难忘的旅程。</p>
+        <div class="tab-controls anim d3"><button class="tab-btn active" data-tab="games-played">已玩过</button><button class="tab-btn" data-tab="games-wishlist">愿望单</button></div>
+        <div id="games-played" class="tab-panel active anim d4">
+          <div class="add-btn-container"><button class="add-btn" onclick="startAddGame()">+ 添加游戏</button></div>
+          <div id="played-grid" class="card-grid"></div>
+          <div id="played-empty" class="empty-state" style="display:none"><div class="empty-ring"></div><p>还没有记录任何游戏<br>点击上方按钮添加你的第一款游戏吧</p></div>
+        </div>
+        <div id="games-wishlist" class="tab-panel anim d4">
+          <div class="add-btn-container"><button class="add-btn" onclick="startAddWishlist()">+ 添加到愿望单</button></div>
+          <div id="wishlist-grid" class="card-grid"></div>
+          <div id="wishlist-empty" class="empty-state" style="display:none"><div class="empty-ring"></div><p>愿望单空空如也<br>把你期待的游戏加进来吧</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="fp-section bg-movies" id="page-movies" data-label="电影">
+    <div class="fp-section-inner">
+      <div class="section-pad">
+        <span class="section-label anim">Cinema Archive</span>
+        <h2 class="section-title anim d1">电影放映厅</h2>
+        <p class="section-desc anim d2">银幕之上的光影世界，每一帧都是一段记忆。</p>
+        <div class="tab-controls anim d3"><button class="tab-btn active" data-tab="movies-watched">已观影</button><button class="tab-btn" data-tab="movies-upcoming">即将上映</button></div>
+        <div id="movies-watched" class="tab-panel active anim d4">
+          <div class="add-btn-container"><button class="add-btn" onclick="startAddMovie()">+ 添加电影</button></div>
+          <div id="watched-grid" class="card-grid"></div>
+          <div id="watched-empty" class="empty-state" style="display:none"><div class="empty-ring"></div><p>还没有记录任何电影<br>开始记录你的观影旅程吧</p></div>
+        </div>
+        <div id="movies-upcoming" class="tab-panel anim d4">
+          <div id="upcoming-grid" class="card-grid"></div>
+          <div id="upcoming-loading" class="empty-state"><div class="spinner"></div><p>正在获取即将上映的电影...</p></div>
+          <div id="upcoming-empty" class="empty-state" style="display:none"><div class="empty-ring"></div><p>请在设置中配置 TMDB API Key<br>以获取即将上映的电影信息</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="fp-section bg-footer-section" id="page-footer" data-label="关于">
+    <div class="footer-content anim">
+      <div class="footer-logo">绿洲</div>
+      <div class="footer-sub">O A S I S</div>
+      <p style="font-size:16px;color:var(--text-secondary);margin-bottom:8px">你的专属游戏与电影档案馆</p>
+      <p style="opacity:.4">所有数据保存在本地浏览器中</p>
+    </div>
+  </section>
+</div>
+
+<!-- MODALS -->
+<div id="modal-add-game" class="modal-backdrop" onclick="handleBackdropClick(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeAllModals()">✕</button>
+    <h3 class="modal-title">添加游戏</h3>
+    <form id="form-add-game" onsubmit="handleAddGame(event)">
+      <div class="form-group"><label class="form-label">游戏名称</label><input class="form-input" name="title" placeholder="输入游戏名称" required></div>
+      <div class="form-group"><label class="form-label">游戏封面</label><div class="file-upload"><div class="upload-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div><div class="file-upload-text">点击或拖拽上传封面图</div><div class="file-upload-hint">推荐比例 3:4</div><input type="file" accept="image/*" onchange="handleFilePreview(this,'game-cover-preview','single')"></div><div id="game-cover-preview" class="preview-container"></div></div>
+      <div class="form-group"><label class="form-label">游戏截图（可多选）</label><div class="file-upload"><div class="upload-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div><div class="file-upload-text">点击上传截图</div><div class="file-upload-hint">最多6张</div><input type="file" accept="image/*" multiple onchange="handleFilePreview(this,'game-screenshots-preview','multi')"></div><div id="game-screenshots-preview" class="preview-container"></div></div>
+      <div class="form-group"><label class="form-label">游戏音乐（鼠标悬停封面时播放）</label><div class="file-upload"><div class="upload-icon"><svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div><div class="file-upload-text">点击上传一首游戏音乐</div><div class="file-upload-hint">MP3 / OGG / WAV</div><input type="file" accept="audio/*" onchange="handleMusicPreview(this)"></div><div id="game-music-name" style="margin-top:8px;font-size:13px;color:var(--neon-cyan)"></div></div>
+      <div class="form-group"><label class="form-label">评分</label><div class="rating-select" id="game-rating-select"><button type="button" class="star-btn" data-value="1">★</button><button type="button" class="star-btn" data-value="2">★</button><button type="button" class="star-btn" data-value="3">★</button><button type="button" class="star-btn" data-value="4">★</button><button type="button" class="star-btn" data-value="5">★</button></div><input type="hidden" name="rating" id="game-rating-value" value="0"></div>
+      <div class="form-group"><label class="form-label">详细评测</label><textarea class="form-textarea" name="review" placeholder="写下你的游戏评测..."></textarea></div>
+      <button type="submit" class="submit-btn">保存游戏</button>
+    </form>
+  </div>
+</div>
+
+<div id="modal-add-wishlist" class="modal-backdrop" onclick="handleBackdropClick(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeAllModals()">✕</button>
+    <h3 class="modal-title">添加到愿望单</h3>
+    <form id="form-add-wishlist" onsubmit="handleAddWishlist(event)">
+      <div class="form-group"><label class="form-label">游戏名称</label><input class="form-input" name="title" placeholder="输入游戏名称" required></div>
+      <div class="form-group"><label class="form-label">游戏封面</label><div class="file-upload"><div class="upload-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div><div class="file-upload-text">点击上传封面图</div><input type="file" accept="image/*" onchange="handleFilePreview(this,'wishlist-cover-preview','single')"></div><div id="wishlist-cover-preview" class="preview-container"></div></div>
+      <div class="form-group"><label class="form-label">加入愿望单的理由</label><textarea class="form-textarea" name="reason" placeholder="为什么期待这款游戏？"></textarea></div>
+      <button type="submit" class="submit-btn">加入愿望单</button>
+    </form>
+  </div>
+</div>
+
+<div id="modal-add-movie" class="modal-backdrop" onclick="handleBackdropClick(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeAllModals()">✕</button>
+    <h3 class="modal-title">添加电影</h3>
+    <form id="form-add-movie" onsubmit="handleAddMovie(event)">
+      <div class="form-group"><label class="form-label">电影名称</label><input class="form-input" name="title" placeholder="输入电影名称" required></div>
+      <div class="form-group"><label class="form-label">电影海报</label><div class="file-upload"><div class="upload-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div><div class="file-upload-text">点击上传海报</div><input type="file" accept="image/*" onchange="handleFilePreview(this,'movie-poster-preview','single')"></div><div id="movie-poster-preview" class="preview-container"></div></div>
+      <div class="form-group"><label class="form-label">剧照（可多选）</label><div class="file-upload"><div class="upload-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div><div class="file-upload-text">点击上传剧照</div><input type="file" accept="image/*" multiple onchange="handleFilePreview(this,'movie-stills-preview','multi')"></div><div id="movie-stills-preview" class="preview-container"></div></div>
+      <div class="form-group"><label class="form-label">烂番茄评分</label><div class="range-value" id="movie-rating-display">50%</div><input type="range" class="range-slider" name="rating" min="0" max="100" value="50" oninput="document.getElementById('movie-rating-display').textContent=this.value+'%'"></div>
+      <div class="form-group"><label class="form-label">详细评测</label><textarea class="form-textarea" name="review" placeholder="写下你的影评..."></textarea></div>
+      <button type="submit" class="submit-btn">保存电影</button>
+    </form>
+  </div>
+</div>
+
+<div id="modal-game-detail" class="modal-backdrop detail-modal" onclick="handleBackdropClick(event)"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeAllModals()">✕</button><div id="game-detail-content"></div></div></div>
+<div id="modal-movie-detail" class="modal-backdrop detail-modal" onclick="handleBackdropClick(event)"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeAllModals()">✕</button><div id="movie-detail-content"></div></div></div>
+<div id="modal-upcoming-detail" class="modal-backdrop detail-modal" onclick="handleBackdropClick(event)"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeAllModals()">✕</button><div id="upcoming-detail-content"></div></div></div>
+<div id="modal-wishlist-detail" class="modal-backdrop detail-modal" onclick="handleBackdropClick(event)"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeAllModals()">✕</button><div id="wishlist-detail-content"></div></div></div>
+
+<div id="modal-settings" class="modal-backdrop" onclick="handleBackdropClick(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeAllModals()">✕</button>
+    <h3 class="modal-title">设置</h3>
+    <div class="settings-info"><p>获取「即将上映」的电影需要 TMDB API Key。<br>请前往 <a href="https://www.themoviedb.org/settings/api" target="_blank">TMDB 官网</a> 免费注册获取。</p></div>
+    <div class="form-group"><label class="form-label">TMDB API Key</label><input class="form-input" id="tmdb-api-key" placeholder="输入你的 TMDB API Key"></div>
+    <button class="submit-btn" onclick="saveSettings()">保存设置</button>
+    <hr style="border:none;border-top:.5px solid rgba(255,255,255,.05);margin:28px 0">
+    <div class="form-group"><label class="form-label" style="color:#ff5050">危险操作</label><button class="delete-btn" onclick="if(confirm('确定要清除所有数据吗？')){clearAllData();}">清除所有数据</button></div>
+  </div>
+</div>
+
+<div id="lightbox" class="lightbox" onclick="closeLightbox()"><img id="lightbox-img" src="" alt=""></div>
+<div id="toast-container" class="toast-container"></div>
+
+<script>
+/* ═══ PARTICLES ═══ */
+!function(){const c=document.getElementById('hero-particles'),cl=['#fff','#fff','#fff','#7eb8ff','#a07eff','#ff6b9d'];for(let i=0;i<55;i++){const p=document.createElement('div');p.className='hero-particle';const s=1+Math.random()*2;Object.assign(p.style,{left:Math.random()*100+'%',top:Math.random()*75+'%',animationDelay:Math.random()*6+'s',animationDuration:3+Math.random()*4+'s',width:s+'px',height:s+'px',background:cl[Math.random()*cl.length|0]});c.appendChild(p)}}();
+
+/* ═══ FULLPAGE ═══ */
+const fpW=document.getElementById('fullpage-wrapper'),fpS=document.querySelectorAll('.fp-section'),tP=fpS.length;
+let cP=0,isA=false,aD=0;const AD=1000,DT=80;
+
+function buildPI(){const c=document.getElementById('page-indicator');c.innerHTML='';fpS.forEach((s,i)=>{const d=document.createElement('div');d.className='page-dot'+(i===0?' active':'');d.dataset.label=s.dataset.label||'';d.onclick=()=>goToPage(i);c.appendChild(d)})}
+function upPI(){document.querySelectorAll('.page-dot').forEach((d,i)=>d.classList.toggle('active',i===cP))}
+function upNL(){document.querySelectorAll('.nav-link').forEach(a=>a.classList.toggle('active',+a.dataset.page===cP));document.getElementById('navbar').classList.toggle('nav-solid',cP>0)}
+function goToPage(i){if(i<0||i>=tP||i===cP||isA)return;isA=true;fpS[cP].classList.remove('active');cP=i;fpW.style.transform=`translateY(-${cP*100}vh)`;upPI();upNL();setTimeout(()=>fpS[cP].classList.add('active'),200);setTimeout(()=>isA=false,AD)}
+
+fpW.addEventListener('wheel',e=>{if(document.querySelector('.modal-backdrop.show'))return;const inner=fpS[cP].querySelector('.fp-section-inner');if(inner){const t=inner.scrollTop<=2,b=inner.scrollTop+inner.clientHeight>=inner.scrollHeight-2;if(e.deltaY>0&&!b||e.deltaY<0&&!t)return}e.preventDefault();aD+=e.deltaY;if(Math.abs(aD)>=DT){goToPage(cP+(aD>0?1:-1));aD=0}clearTimeout(window._wr);window._wr=setTimeout(()=>aD=0,300)},{passive:false});
+
+let tsy=0,tst=0;
+fpW.addEventListener('touchstart',e=>{if(!document.querySelector('.modal-backdrop.show')){tsy=e.touches[0].clientY;tst=Date.now()}},{passive:true});
+fpW.addEventListener('touchend',e=>{if(document.querySelector('.modal-backdrop.show'))return;const dy=tsy-e.changedTouches[0].clientY,inner=fpS[cP].querySelector('.fp-section-inner');if(inner&&(dy>0&&inner.scrollTop+inner.clientHeight<inner.scrollHeight-2||dy<0&&inner.scrollTop>2))return;if(Math.abs(dy)>60&&Date.now()-tst<600)goToPage(cP+(dy>0?1:-1))},{passive:true});
+
+document.addEventListener('keydown',e=>{if(document.querySelector('.modal-backdrop.show')){e.key==='Escape'&&(closeLightbox(),closeAllModals());return}const m={ArrowDown:1,PageDown:1,ArrowUp:-1,PageUp:-1}[e.key];if(m!==undefined){e.preventDefault();goToPage(cP+m)}else if(e.key==='Home'){e.preventDefault();goToPage(0)}else if(e.key==='End'){e.preventDefault();goToPage(tP-1)}else e.key==='Escape'&&(closeLightbox(),closeAllModals())});
+
+/* ═══ DB ═══ */
+const DN='NeonVaultDB';let db=null;
+function openDB(){return new Promise((r,j)=>{const q=indexedDB.open(DN,1);q.onerror=()=>j(q.error);q.onsuccess=()=>{db=q.result;r(db)};q.onupgradeneeded=e=>{const d=e.target.result;['games','wishlist','movies','upcoming_ratings'].forEach(s=>{if(!d.objectStoreNames.contains(s))d.createObjectStore(s,{keyPath:'id'})})}})}
+function dbP(s,d){return new Promise((r,j)=>{const t=db.transaction(s,'readwrite');t.objectStore(s).put(d);t.oncomplete=r;t.onerror=()=>j(t.error)})}
+function dbA(s){return new Promise((r,j)=>{const q=db.transaction(s,'readonly').objectStore(s).getAll();q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)})}
+function dbG(s,id){return new Promise((r,j)=>{const q=db.transaction(s,'readonly').objectStore(s).get(id);q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)})}
+function dbD(s,id){return new Promise((r,j)=>{const t=db.transaction(s,'readwrite');t.objectStore(s).delete(id);t.oncomplete=r;t.onerror=()=>j(t.error)})}
+function dbC(s){return new Promise((r,j)=>{const t=db.transaction(s,'readwrite');t.objectStore(s).clear();t.oncomplete=r;t.onerror=()=>j(t.error)})}
+
+/* ═══ UTILS ═══ */
+const gid=()=>Date.now().toString(36)+Math.random().toString(36).substr(2,9);
+const f2b=f=>new Promise((r,j)=>{const rd=new FileReader;rd.onload=()=>r(rd.result);rd.onerror=j;rd.readAsDataURL(f)});
+function showToast(m,t='success'){const c=document.getElementById('toast-container'),el=document.createElement('div');el.className=`toast ${t}`;el.textContent=m;c.appendChild(el);requestAnimationFrame(()=>el.classList.add('show'));setTimeout(()=>{el.classList.remove('show');setTimeout(()=>el.remove(),400)},3000)}
+function renderStars(r,sz='14px'){let h='';for(let i=1;i<=5;i++)h+=`<span class="star${i<=r?' filled':''}" style="font-size:${sz}">★</span>`;return h}
+const tDot=s=>`<span class="tomato-dot ${s>=60?'t-fresh':'t-rotten'}"></span>`;
+const tDotL=s=>`<span class="tomato-dot-lg ${s>=60?'t-fresh':'t-rotten'}"></span>`;
+const tClass=s=>s>=60?'tomato-fresh':'tomato-rotten';
+const tLabel=s=>s>=60?'新鲜':'腐烂';
+const PH="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 400'><rect fill='%231a0a2e' width='300' height='400'/></svg>";
+const PHM="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 450'><rect fill='%231a0a2e' width='300' height='450'/></svg>";
+
+/* ═══ CARD CONTEXT MENU ═══ */
+let editingGameId=null,editingWishlistId=null,editingMovieId=null;
+const cardMenuHTML=(type,id)=>`<div class="card-menu-wrap" onclick="event.stopPropagation()"><button class="card-menu-btn" onclick="toggleCardMenu(this)"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button><div class="card-menu-dropdown"><button class="card-menu-item" onclick="handleCardEdit('${type}','${id}')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>编辑</button><button class="card-menu-item danger" onclick="handleCardDelete('${type}','${id}')"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>删除</button></div></div>`;
+function toggleCardMenu(btn){const dd=btn.nextElementSibling,isOpen=dd.classList.contains('show');closeCardMenus();if(!isOpen){dd.classList.add('show');btn.classList.add('active')}}
+function closeCardMenus(){document.querySelectorAll('.card-menu-dropdown.show').forEach(d=>{d.classList.remove('show');d.previousElementSibling.classList.remove('active')})}
+document.addEventListener('click',e=>{if(!e.target.closest('.card-menu-wrap'))closeCardMenus()});
+function handleCardEdit(type,id){closeCardMenus();if(type==='game')editGame(id);else if(type==='wishlist')editWishlist(id);else if(type==='movie')editMovie(id)}
+function handleCardDelete(type,id){closeCardMenus();if(type==='game')deleteGame(id);else if(type==='wishlist')deleteWishlist(id);else if(type==='movie')deleteMovie(id)}
+
+/* ═══ START ADD (reset & open) ═══ */
+function startAddGame(){editingGameId=null;resetGF();document.querySelector('#modal-add-game .modal-title').textContent='添加游戏';document.querySelector('#modal-add-game .submit-btn').textContent='保存游戏';openModal('add-game')}
+function startAddWishlist(){editingWishlistId=null;document.getElementById('form-add-wishlist').reset();tf={};document.querySelectorAll('#modal-add-wishlist .preview-container').forEach(c=>c.innerHTML='');document.querySelectorAll('#modal-add-wishlist .file-upload').forEach(f=>f.classList.remove('has-file'));document.querySelector('#modal-add-wishlist .modal-title').textContent='添加到愿望单';document.querySelector('#modal-add-wishlist .submit-btn').textContent='加入愿望单';openModal('add-wishlist')}
+function startAddMovie(){editingMovieId=null;document.getElementById('form-add-movie').reset();tf={};document.querySelectorAll('#modal-add-movie .preview-container').forEach(c=>c.innerHTML='');document.querySelectorAll('#modal-add-movie .file-upload').forEach(f=>f.classList.remove('has-file'));document.getElementById('movie-rating-display').textContent='50%';document.querySelector('#modal-add-movie .modal-title').textContent='添加电影';document.querySelector('#modal-add-movie .submit-btn').textContent='保存电影';openModal('add-movie')}
+
+/* ═══ EDIT ITEM (prefill & open) ═══ */
+async function editGame(id){
+  closeCardMenus();stopGM();const g=await dbG('games',id);if(!g)return;
+  editingGameId=id;resetGF();
+  const form=document.getElementById('form-add-game');
+  form.title.value=g.title||'';form.review.value=g.review||'';
+  document.getElementById('game-rating-value').value=g.rating||0;
+  document.querySelectorAll('#game-rating-select .star-btn').forEach(b=>b.classList.toggle('active',+b.dataset.value<=(g.rating||0)));
+  if(g.cover){tf['game-cover-preview']=g.cover;document.getElementById('game-cover-preview').innerHTML=`<img class="preview-thumb" src="${g.cover}">`}
+  if(g.screenshots?.length){tf['game-screenshots-preview']=[...g.screenshots];document.getElementById('game-screenshots-preview').innerHTML=g.screenshots.map(s=>`<img class="preview-thumb" src="${s}">`).join('')}
+  if(g.music){tf['game-music']=g.music;document.getElementById('game-music-name').textContent='已有音乐文件'}
+  document.querySelector('#modal-add-game .modal-title').textContent='编辑游戏';
+  document.querySelector('#modal-add-game .submit-btn').textContent='保存修改';
+  openModal('add-game');
+}
+async function editWishlist(id){
+  closeCardMenus();const item=await dbG('wishlist',id);if(!item)return;
+  editingWishlistId=id;
+  document.getElementById('form-add-wishlist').reset();tf={};
+  document.querySelectorAll('#modal-add-wishlist .preview-container').forEach(c=>c.innerHTML='');
+  document.querySelectorAll('#modal-add-wishlist .file-upload').forEach(f=>f.classList.remove('has-file'));
+  const form=document.getElementById('form-add-wishlist');
+  form.title.value=item.title||'';form.reason.value=item.reason||'';
+  if(item.cover){tf['wishlist-cover-preview']=item.cover;document.getElementById('wishlist-cover-preview').innerHTML=`<img class="preview-thumb" src="${item.cover}">`}
+  document.querySelector('#modal-add-wishlist .modal-title').textContent='编辑愿望单';
+  document.querySelector('#modal-add-wishlist .submit-btn').textContent='保存修改';
+  openModal('add-wishlist');
+}
+async function editMovie(id){
+  closeCardMenus();const m=await dbG('movies',id);if(!m)return;
+  editingMovieId=id;
+  document.getElementById('form-add-movie').reset();tf={};
+  document.querySelectorAll('#modal-add-movie .preview-container').forEach(c=>c.innerHTML='');
+  document.querySelectorAll('#modal-add-movie .file-upload').forEach(f=>f.classList.remove('has-file'));
+  const form=document.getElementById('form-add-movie');
+  form.title.value=m.title||'';form.review.value=m.review||'';
+  form.rating.value=m.rating!=null?m.rating:50;
+  document.getElementById('movie-rating-display').textContent=(m.rating!=null?m.rating:50)+'%';
+  if(m.poster){tf['movie-poster-preview']=m.poster;document.getElementById('movie-poster-preview').innerHTML=`<img class="preview-thumb" src="${m.poster}">`}
+  if(m.stills?.length){tf['movie-stills-preview']=[...m.stills];document.getElementById('movie-stills-preview').innerHTML=m.stills.map(s=>`<img class="preview-thumb" src="${s}">`).join('')}
+  document.querySelector('#modal-add-movie .modal-title').textContent='编辑电影';
+  document.querySelector('#modal-add-movie .submit-btn').textContent='保存修改';
+  openModal('add-movie');
+}
+
+/* ═══ TABS ═══ */
+document.querySelectorAll('.tab-btn').forEach(btn=>btn.onclick=function(){const p=this.closest('.section-pad');p.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');p.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));document.getElementById(this.dataset.tab).classList.add('active')});
+
+/* ═══ MODALS ═══ */
+function openModal(n){const m=document.getElementById(`modal-${n}`);m&&(m.classList.add('show'),document.body.style.overflow='hidden')}
+function closeAllModals(){document.querySelectorAll('.modal-backdrop').forEach(m=>m.classList.remove('show'));document.body.style.overflow='';editingGameId=null;editingWishlistId=null;editingMovieId=null}
+function handleBackdropClick(e){e.target===e.currentTarget&&closeAllModals()}
+
+/* ═══ FILES ═══ */
+let tf={};
+function handleFilePreview(input,pid,mode){const pv=document.getElementById(pid),files=input.files;if(!files.length)return;if(mode==='single'){pv.innerHTML='';tf[pid]=null;f2b(files[0]).then(d=>{tf[pid]=d;pv.innerHTML=`<img class="preview-thumb" src="${d}">`;input.closest('.file-upload').classList.add('has-file')})}else{pv.innerHTML='';tf[pid]=[];for(let i=0;i<Math.min(files.length,6);i++)f2b(files[i]).then(d=>{tf[pid].push(d);const img=document.createElement('img');img.src=d;img.className='preview-thumb';pv.appendChild(img)});input.closest('.file-upload').classList.add('has-file')}}
+function handleMusicPreview(input){const f=input.files[0];if(!f)return;f2b(f).then(d=>{tf['game-music']=d;document.getElementById('game-music-name').textContent=f.name;input.closest('.file-upload').classList.add('has-file')})}
+
+/* ═══ RATING ═══ */
+document.querySelectorAll('.rating-select').forEach(c=>{const bs=c.querySelectorAll('.star-btn');bs.forEach(b=>{b.onmouseenter=()=>{const v=+b.dataset.value;bs.forEach(x=>x.classList.toggle('active',+x.dataset.value<=v))};b.onclick=()=>{document.getElementById('game-rating-value').value=b.dataset.value;const v=+b.dataset.value;bs.forEach(x=>x.classList.toggle('active',+x.dataset.value<=v))}});c.onmouseleave=()=>{const cur=+(document.getElementById('game-rating-value').value)||0;bs.forEach(x=>x.classList.toggle('active',+x.dataset.value<=cur))}});
+
+/* ═══ GAME CRUD ═══ */
+function resetGF(){document.getElementById('form-add-game').reset();tf={};document.querySelectorAll('#modal-add-game .preview-container').forEach(c=>c.innerHTML='');document.querySelectorAll('#modal-add-game .file-upload').forEach(f=>f.classList.remove('has-file'));document.getElementById('game-music-name').textContent='';document.querySelectorAll('#game-rating-select .star-btn').forEach(b=>b.classList.remove('active'));document.getElementById('game-rating-value').value='0'}
+async function handleAddGame(e){e.preventDefault();const f=e.target,isEditing=!!editingGameId;let createdAt=Date.now();if(isEditing){const ex=await dbG('games',editingGameId);if(ex)createdAt=ex.createdAt}const g={id:isEditing?editingGameId:gid(),title:f.title.value.trim(),cover:tf['game-cover-preview']||null,screenshots:tf['game-screenshots-preview']||[],music:tf['game-music']||null,rating:+(document.getElementById('game-rating-value').value)||0,review:f.review.value.trim(),createdAt:createdAt};if(!g.title)return showToast('请输入游戏名称','error');await dbP('games',g);const msg=isEditing?'游戏已更新':'游戏已添加';editingGameId=null;resetGF();closeAllModals();showToast(msg);renderGames()}
+async function deleteGame(id){if(!confirm('确定删除这个游戏吗？'))return;await dbD('games',id);closeAllModals();showToast('游戏已删除');renderGames()}
+async function renderGames(){const games=await dbA('games'),grid=document.getElementById('played-grid'),emp=document.getElementById('played-empty');if(!games.length){grid.innerHTML='';emp.style.display='block';return}emp.style.display='none';grid.innerHTML=games.sort((a,b)=>b.createdAt-a.createdAt).map(g=>`<div class="game-card" onclick="showGameDetail('${g.id}')" ${g.music?`onmouseenter="playGM('${g.id}',this)" onmouseleave="stopGM()"`:''}>${g.music?'<div class="music-indicator"><div class="music-bar"></div><div class="music-bar"></div><div class="music-bar"></div><div class="music-bar"></div></div>':''}${cardMenuHTML('game',g.id)}<img class="game-card-cover" src="${g.cover||PH}" alt="${g.title}"><div class="game-card-overlay"><div class="game-card-rating">${renderStars(g.rating)}</div><div class="game-card-title">${g.title}</div></div></div>`).join('')}
+
+/* ═══ AUDIO UNLOCK ═══ */
+let audioUnlocked=false;
+function unlockAudio(){
+  if(audioUnlocked)return;
+  audioUnlocked=true;
+  try{
+    const c=new(window.AudioContext||window.webkitAudioContext)();
+    if(c.state==='suspended')c.resume();
+    const b=c.createBuffer(1,1,22050),s=c.createBufferSource();
+    s.buffer=b;s.connect(c.destination);s.start(0);
+  }catch(e){}
+  ['click','keydown','touchstart','mousedown','pointerdown'].forEach(ev=>document.removeEventListener(ev,unlockAudio,true));
+}
+['click','keydown','touchstart','mousedown','pointerdown'].forEach(ev=>document.addEventListener(ev,unlockAudio,true));
+
+/* ═══ MUSIC: Fade In / Fade Out ═══ */
+let cA=null,fadeInTimer=null,fadeOutTimer=null,fadingAudio=null,playGen=0;
+const FADE_MS=600,FADE_STEP=30,TARGET_VOL=0.4;
+
+async function playGM(id,el){
+  try{
+    const gen=++playGen;
+    const g=await dbG('games',id);
+    if(!g?.music||gen!==playGen)return;
+    if(fadingAudio){clearInterval(fadeOutTimer);fadingAudio.pause();fadingAudio.currentTime=0;fadingAudio=null}
+    clearInterval(fadeInTimer);
+    if(cA){cA.pause();cA.currentTime=0;cA=null}
+    document.querySelectorAll('.game-card.playing').forEach(c=>c.classList.remove('playing'));
+    cA=new Audio(g.music);cA.volume=0;cA.loop=true;cA.play().catch(()=>{});el.classList.add('playing');
+    const steps=FADE_MS/FADE_STEP,inc=TARGET_VOL/steps;
+    fadeInTimer=setInterval(()=>{if(!cA||gen!==playGen)return clearInterval(fadeInTimer);cA.volume=Math.min(cA.volume+inc,TARGET_VOL);if(cA.volume>=TARGET_VOL)clearInterval(fadeInTimer)},FADE_STEP);
+  }catch(e){}
+}
+
+function stopGM(){
+  playGen++;clearInterval(fadeInTimer);
+  if(fadingAudio){clearInterval(fadeOutTimer);fadingAudio.pause();fadingAudio.currentTime=0;fadingAudio=null}
+  document.querySelectorAll('.game-card.playing').forEach(c=>c.classList.remove('playing'));
+  if(!cA)return;
+  fadingAudio=cA;cA=null;const audio=fadingAudio,vol=audio.volume;
+  const steps=FADE_MS/FADE_STEP,dec=vol>0?vol/steps:0.01;
+  fadeOutTimer=setInterval(()=>{audio.volume=Math.max(audio.volume-dec,0);if(audio.volume<=0){clearInterval(fadeOutTimer);audio.pause();audio.currentTime=0;if(fadingAudio===audio)fadingAudio=null}},FADE_STEP);
+}
+
+/* ═══ GAME DETAIL — SPLIT LAYOUT ═══ */
+let gdlImgs=[],gdlIdx=0;
+
+function gdlNav(dir){const img=document.getElementById('gdl-main-img');img.classList.add('fading');gdlIdx=(gdlIdx+dir+gdlImgs.length)%gdlImgs.length;setTimeout(()=>{img.src=gdlImgs[gdlIdx];img.classList.remove('fading');upGdl()},250)}
+function gdlSelect(i){if(i===gdlIdx)return;const img=document.getElementById('gdl-main-img');img.classList.add('fading');gdlIdx=i;setTimeout(()=>{img.src=gdlImgs[gdlIdx];img.classList.remove('fading');upGdl()},250)}
+function upGdl(){document.querySelectorAll('.gdl-thumb').forEach((t,i)=>t.classList.toggle('active',i===gdlIdx));const ct=document.getElementById('gdl-counter');if(ct)ct.textContent=`${gdlIdx+1} / ${gdlImgs.length}`}
+
+function buildDetailHTML(title, imgs, scoreBlock, reviewLabel, reviewContent, musicSrc, deleteAction, editAction){
+  const hasMultiple=imgs.length>1;
+  const isLong=reviewContent&&reviewContent.length>200;
+  const aL=`<svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>`;
+  const aR=`<svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>`;
+  const thumbs=hasMultiple?imgs.map((s,i)=>`<img class="gdl-thumb${i===0?' active':''}" src="${s}" alt="" onclick="event.stopPropagation();gdlSelect(${i})">`).join(''):'';
+
+  return `
+    <div class="gdl-header"><h2>${title}</h2></div>
+    <div class="game-detail-layout${isLong?' stacked':''}">
+      <div class="gdl-gallery">
+        <div class="gdl-viewport" onclick="openLB(gdlImgs[gdlIdx])">
+          <img id="gdl-main-img" src="${imgs[0]}" alt="${title}">
+          ${hasMultiple?`
+            <button class="gdl-arrow prev" onclick="event.stopPropagation();gdlNav(-1)">${aL}</button>
+            <button class="gdl-arrow next" onclick="event.stopPropagation();gdlNav(1)">${aR}</button>
+            <div class="gdl-counter" id="gdl-counter">1 / ${imgs.length}</div>`:''}
+        </div>
+        ${hasMultiple?`<div class="gdl-thumbs">${thumbs}</div>`:''}
+      </div>
+      <div class="gdl-info">
+        <div class="gdl-score-block">${scoreBlock}</div>
+        <div class="gdl-divider"></div>
+        <div class="gdl-review-block">
+          <div class="gdl-review-label">${reviewLabel}</div>
+          ${reviewContent
+            ?`<div class="gdl-review-text">${reviewContent.replace(/\n/g,'<br>')}</div>`
+            :`<div class="gdl-review-empty">暂无内容</div>`}
+        </div>
+        ${musicSrc?`<div class="gdl-music-block"><div class="gdl-review-label">游戏音乐</div><audio controls src="${musicSrc}"></audio></div>`:''}
+        <div class="gdl-actions">${editAction?`<button class="submit-btn" style="margin-top:0;margin-bottom:10px" onclick="${editAction}">编辑</button>`:''}<button class="delete-btn" onclick="${deleteAction}">删除</button></div>
+      </div>
+    </div>`;
+}
+
+async function showGameDetail(id){
+  const g=await dbG('games',id);if(!g)return;
+  gdlImgs=[];gdlIdx=0;
+  if(g.cover)gdlImgs.push(g.cover);
+  if(g.screenshots?.length)gdlImgs.push(...g.screenshots);
+  if(!gdlImgs.length)gdlImgs.push(PH);
+
+  let scoreHTML;
+  if(g.rating>0){
+    scoreHTML=`<div class="gdl-score-label">评分</div><div class="gdl-score-num">${g.rating}<span class="score-suffix"> / 5</span></div><div class="gdl-score-stars">${renderStars(g.rating,'22px')}</div>`;
+  }else{
+    scoreHTML=`<div class="gdl-score-label">评分</div><div class="gdl-score-num gdl-score-none">—</div><div style="font-size:13px;color:var(--text-muted)">未评分</div>`;
+  }
+
+  document.getElementById('game-detail-content').innerHTML=buildDetailHTML(g.title,gdlImgs,scoreHTML,'评测',g.review,g.music,`deleteGame('${g.id}')`,`closeAllModals();setTimeout(()=>editGame('${g.id}'),400)`);
+  openModal('game-detail');
+}
+
+/* ═══ WISHLIST ═══ */
+async function handleAddWishlist(e){e.preventDefault();const f=e.target,isEditing=!!editingWishlistId;let createdAt=Date.now();if(isEditing){const ex=await dbG('wishlist',editingWishlistId);if(ex)createdAt=ex.createdAt}const item={id:isEditing?editingWishlistId:gid(),title:f.title.value.trim(),cover:tf['wishlist-cover-preview']||null,reason:f.reason.value.trim(),createdAt:createdAt};if(!item.title)return showToast('请输入游戏名称','error');await dbP('wishlist',item);const msg=isEditing?'愿望单已更新':'已加入愿望单';editingWishlistId=null;f.reset();tf={};document.querySelectorAll('#modal-add-wishlist .preview-container').forEach(c=>c.innerHTML='');document.querySelectorAll('#modal-add-wishlist .file-upload').forEach(fl=>fl.classList.remove('has-file'));closeAllModals();showToast(msg);renderWishlist()}
+async function deleteWishlist(id){if(!confirm('确定移除？'))return;await dbD('wishlist',id);closeAllModals();showToast('已移除');renderWishlist()}
+async function renderWishlist(){const items=await dbA('wishlist'),grid=document.getElementById('wishlist-grid'),emp=document.getElementById('wishlist-empty');if(!items.length){grid.innerHTML='';emp.style.display='block';return}emp.style.display='none';grid.innerHTML=items.sort((a,b)=>b.createdAt-a.createdAt).map(i=>`<div class="wishlist-card" onclick="showWishlistDetail('${i.id}')">${cardMenuHTML('wishlist',i.id)}<span class="wishlist-badge">WISHLIST</span><img class="game-card-cover" src="${i.cover||PH}" alt="${i.title}"><div class="game-card-overlay"><div class="game-card-title">${i.title}</div></div></div>`).join('')}
+
+async function showWishlistDetail(id){
+  const i=await dbG('wishlist',id);if(!i)return;
+  gdlImgs=[];gdlIdx=0;
+  if(i.cover)gdlImgs.push(i.cover);
+  if(!gdlImgs.length)gdlImgs.push(PH);
+
+  const scoreHTML=`<div class="gdl-score-label">状态</div><div class="gdl-score-num gdl-score-none" style="font-size:40px;margin-bottom:8px">🎮</div><div style="font-size:14px;color:var(--neon-cyan);font-weight:600;letter-spacing:2px">WISHLIST</div>`;
+
+  document.getElementById('wishlist-detail-content').innerHTML=buildDetailHTML(i.title,gdlImgs,scoreHTML,'愿望理由',i.reason,null,`deleteWishlist('${i.id}')`,`closeAllModals();setTimeout(()=>editWishlist('${i.id}'),400)`);
+  openModal('wishlist-detail');
+}
+
+/* ═══ MOVIE CRUD ═══ */
+async function handleAddMovie(e){e.preventDefault();const f=e.target,isEditing=!!editingMovieId;let createdAt=Date.now();if(isEditing){const ex=await dbG('movies',editingMovieId);if(ex)createdAt=ex.createdAt}const m={id:isEditing?editingMovieId:gid(),title:f.title.value.trim(),poster:tf['movie-poster-preview']||null,stills:tf['movie-stills-preview']||[],rating:parseInt(f.rating.value),review:f.review.value.trim(),createdAt:createdAt};if(!m.title)return showToast('请输入电影名称','error');await dbP('movies',m);const msg=isEditing?'电影已更新':'电影已添加';editingMovieId=null;f.reset();tf={};document.querySelectorAll('#modal-add-movie .preview-container').forEach(c=>c.innerHTML='');document.querySelectorAll('#modal-add-movie .file-upload').forEach(fl=>fl.classList.remove('has-file'));document.getElementById('movie-rating-display').textContent='50%';closeAllModals();showToast(msg);renderMovies()}
+async function deleteMovie(id){if(!confirm('确定删除？'))return;await dbD('movies',id);closeAllModals();showToast('电影已删除');renderMovies()}
+async function renderMovies(){const movies=await dbA('movies'),grid=document.getElementById('watched-grid'),emp=document.getElementById('watched-empty');if(!movies.length){grid.innerHTML='';emp.style.display='block';return}emp.style.display='none';grid.innerHTML=movies.sort((a,b)=>b.createdAt-a.createdAt).map(m=>`<div class="movie-card" onclick="showMovieDetail('${m.id}')">${cardMenuHTML('movie',m.id)}<img class="movie-card-cover" src="${m.poster||PHM}" alt="${m.title}"><div class="movie-card-overlay"><div class="tomato-rating">${tDot(m.rating)}<span class="tomato-score ${tClass(m.rating)}">${m.rating}%</span></div><div class="game-card-title">${m.title}</div></div></div>`).join('')}
+async function showMovieDetail(id){const m=await dbG('movies',id);if(!m)return;const st=m.stills?.length?`<div class="detail-section"><div class="detail-section-title">剧照</div><div class="screenshot-gallery">${m.stills.map(s=>`<img src="${s}" alt="" onclick="event.stopPropagation();openLB('${s}')">`).join('')}</div></div>`:'';document.getElementById('movie-detail-content').innerHTML=`<div class="detail-hero"><img src="${m.stills?.[0]||m.poster||''}" alt="" ${!m.stills?.length?'style="filter:blur(6px) brightness(.4);transform:scale(1.1)"':''}><div class="detail-hero-info"><img class="detail-poster" src="${m.poster||''}" alt="${m.title}"><div class="detail-meta"><div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">${tDotL(m.rating)}<span style="font-size:22px;font-weight:800" class="${tClass(m.rating)}">${m.rating}%</span><span style="font-size:12px;color:var(--text-secondary)">${tLabel(m.rating)}</span></div><h2>${m.title}</h2></div></div></div>${st}${m.review?`<div class="detail-section"><div class="detail-section-title">影评</div><div class="detail-review">${m.review.replace(/\n/g,'<br>')}</div></div>`:''}<div style="display:flex;gap:12px"><button class="submit-btn" style="margin-top:0" onclick="closeAllModals();setTimeout(()=>editMovie('${m.id}'),400)">编辑此电影</button></div><button class="delete-btn" onclick="deleteMovie('${m.id}')">删除此电影</button>`;openModal('movie-detail')}
+
+/* ═══ UPCOMING ═══ */
+let uC=[];
+async function fetchUpcoming(){const key=localStorage.getItem('tmdb_api_key'),ld=document.getElementById('upcoming-loading'),emp=document.getElementById('upcoming-empty'),grid=document.getElementById('upcoming-grid');if(!key){ld.style.display='none';emp.style.display='block';return}ld.style.display='block';emp.style.display='none';grid.innerHTML='';try{let r=await fetch(`https://api.themoviedb.org/3/movie/upcoming?api_key=${key}&language=zh-CN&region=CN&page=1`);if(!r.ok)throw 0;let d=await r.json();if(!d.results?.length){r=await fetch(`https://api.themoviedb.org/3/movie/upcoming?api_key=${key}&language=zh-CN&page=1`);d=await r.json()}uC=d.results||[];ld.style.display='none';if(!uC.length){emp.innerHTML='<div class="empty-ring"></div><p>暂无即将上映的电影</p>';emp.style.display='block';return}renderUpcoming()}catch(e){ld.style.display='none';emp.innerHTML='<div class="empty-ring"></div><p>获取失败，请检查 API Key</p>';emp.style.display='block'}}
+async function renderUpcoming(){const grid=document.getElementById('upcoming-grid'),ratings=await dbA('upcoming_ratings'),map={};ratings.forEach(r=>map[r.id]=r);grid.innerHTML=uC.map(m=>{const ur=map[String(m.id)],ant=ur?ur.anticipation:0,poster=m.poster_path?`https://image.tmdb.org/t/p/w500${m.poster_path}`:PHM;return`<div class="movie-card" onclick="showUpcomingDetail(${m.id})"><span class="upcoming-badge">${m.release_date||'即将上映'}</span><img class="movie-card-cover" src="${poster}" alt="${m.title}" onerror="this.src='${PHM}'"><div class="movie-card-overlay"><div class="game-card-title">${m.title||m.original_title}</div>${ant?`<div class="anticipation-bar"><div class="anticipation-fill" style="width:${ant}%"></div></div>`:''}</div></div>`}).join('')}
+async function showUpcomingDetail(tid){const m=uC.find(x=>x.id===tid);if(!m)return;const key=localStorage.getItem('tmdb_api_key'),poster=m.poster_path?`https://image.tmdb.org/t/p/w500${m.poster_path}`:'',bd=m.backdrop_path?`https://image.tmdb.org/t/p/w1280${m.backdrop_path}`:poster;let ur=null;try{ur=await dbG('upcoming_ratings',String(tid))}catch(e){}const ant=ur?ur.anticipation:50,reason=ur?ur.reason:'';let imgH='';if(key){try{const r=await fetch(`https://api.themoviedb.org/3/movie/${tid}/images?api_key=${key}`),d=await r.json(),bds=(d.backdrops||[]).slice(0,8);if(bds.length)imgH=`<div class="detail-section"><div class="detail-section-title">剧照</div><div class="screenshot-gallery">${bds.map(b=>`<img src="https://image.tmdb.org/t/p/w780${b.file_path}" alt="" onclick="event.stopPropagation();openLB('https://image.tmdb.org/t/p/original${b.file_path}')">`).join('')}</div></div>`}catch(e){}}document.getElementById('upcoming-detail-content').innerHTML=`<div class="detail-hero"><img src="${bd}" alt="" ${!m.backdrop_path?'style="filter:blur(6px) brightness(.4);transform:scale(1.1)"':''}><div class="detail-hero-info">${poster?`<img class="detail-poster" src="${poster}" alt="${m.title}">`:''}<div class="detail-meta"><span style="color:var(--neon-pink);font-size:12px;letter-spacing:2px">${m.release_date||'即将上映'}</span><h2>${m.title||m.original_title}</h2></div></div></div>${imgH}${m.overview?`<div class="detail-section"><div class="detail-section-title">简介</div><div class="detail-review">${m.overview}</div></div>`:''}<div class="detail-section"><div class="detail-section-title">期待程度</div><div class="range-value" id="ad-${tid}">${ant}%</div><input type="range" class="range-slider" min="0" max="100" value="${ant}" id="as-${tid}" oninput="document.getElementById('ad-${tid}').textContent=this.value+'%'"></div><div class="detail-section"><div class="detail-section-title">期待理由</div><textarea class="form-textarea" id="ar-${tid}" placeholder="为什么期待这部电影？">${reason}</textarea></div><button class="submit-btn" onclick="saveAnt(${tid})">保存期待评分</button>`;openModal('upcoming-detail')}
+async function saveAnt(tid){await dbP('upcoming_ratings',{id:String(tid),anticipation:parseInt(document.getElementById(`as-${tid}`).value),reason:document.getElementById(`ar-${tid}`).value.trim(),updatedAt:Date.now()});showToast('期待评分已保存');renderUpcoming()}
+
+/* ═══ LIGHTBOX ═══ */
+function openLB(src){document.getElementById('lightbox-img').src=src;document.getElementById('lightbox').classList.add('show')}
+function closeLightbox(){document.getElementById('lightbox').classList.remove('show')}
+
+/* ═══ SETTINGS ═══ */
+function openSettings(){document.getElementById('tmdb-api-key').value=localStorage.getItem('tmdb_api_key')||'';openModal('settings')}
+function saveSettings(){localStorage.setItem('tmdb_api_key',document.getElementById('tmdb-api-key').value.trim());closeAllModals();showToast('设置已保存');fetchUpcoming()}
+async function clearAllData(){await dbC('games');await dbC('wishlist');await dbC('movies');await dbC('upcoming_ratings');localStorage.removeItem('tmdb_api_key');closeAllModals();showToast('所有数据已清除');renderGames();renderWishlist();renderMovies();fetchUpcoming()}
+
+/* ═══ INIT ═══ */
+async function init(){buildPI();fpS[0].classList.add('active');upNL();try{await openDB();await Promise.all([renderGames(),renderWishlist(),renderMovies(),fetchUpcoming()])}catch(e){console.error(e);showToast('初始化失败','error')}}
+init();
+</script>
+</body>
+</html>
