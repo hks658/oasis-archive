@@ -1,0 +1,1900 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>绿洲 · 游戏与电影档案馆</title>
+<style>
+:root {
+  --bg-deep:#000;--bg-card:rgba(255,255,255,0.04);
+  --neon-pink:#ff375f;--neon-cyan:#64d2ff;--neon-purple:#bf5af2;--neon-gold:#ffd60a;
+  --tomato-red:#ff6961;--tomato-green:#30d158;
+  --text-primary:#f5f5f7;--text-secondary:#86868b;--text-muted:#48484a;
+  --radius-sm:12px;--radius-md:18px;--radius-lg:22px;--radius-xl:28px;
+  --shadow-neon-pink:0 4px 30px rgba(255,55,95,.18),0 0 80px rgba(255,55,95,.06);
+  --shadow-neon-cyan:0 4px 30px rgba(100,210,255,.18),0 0 80px rgba(100,210,255,.06);
+  --font-main:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','PingFang SC','Helvetica Neue','Microsoft YaHei',sans-serif;
+  --ease:cubic-bezier(.25,.46,.45,.94);--spring:cubic-bezier(.34,1.56,.64,1);--page:cubic-bezier(.76,0,.24,1);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{overflow:hidden;height:100%}
+body{font-family:var(--font-main);background:var(--bg-deep);color:var(--text-primary);overflow:hidden;height:100%;line-height:1.6;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+
+/* ═══ FULLPAGE ═══ */
+#fullpage-wrapper{position:fixed;inset:0;transition:transform 1.1s var(--page)}
+.fp-section{width:100%;height:100vh;position:relative;overflow:hidden;contain:layout style}
+.fp-section-inner{width:100%;height:100%;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:rgba(255,55,95,.3) transparent}
+.fp-section-inner::-webkit-scrollbar{width:5px}
+.fp-section-inner::-webkit-scrollbar-track{background:transparent}
+.fp-section-inner::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--neon-pink),var(--neon-purple));border-radius:10px}
+.fp-section .anim{opacity:0;transform:translateY(60px) scale(.98);transition:opacity 1s var(--ease),transform 1s var(--ease)}
+.fp-section.active .anim{opacity:1;transform:none}
+.fp-section .anim.d1{transition-delay:.12s}.fp-section .anim.d2{transition-delay:.22s}
+.fp-section .anim.d3{transition-delay:.32s}.fp-section .anim.d4{transition-delay:.42s}
+.fp-section .anim.d5{transition-delay:.52s}.fp-section .anim.d7{transition-delay:.72s}
+
+/* ═══ PAGE INDICATOR ═══ */
+#page-indicator{position:fixed;right:32px;top:50%;transform:translateY(-50%);z-index:1000;display:flex;flex-direction:column;align-items:center;gap:10px}
+.page-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.08);cursor:pointer;transition:all .6s var(--page);position:relative}
+.page-dot::after{content:attr(data-label);position:absolute;right:24px;top:50%;transform:translateY(-50%) translateX(6px);font-size:11px;font-weight:500;color:var(--text-muted);white-space:nowrap;opacity:0;pointer-events:none;background:rgba(28,28,30,.8);padding:4px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.06);transition:opacity .4s,transform .4s var(--spring)}
+.page-dot:hover::after{opacity:1;transform:translateY(-50%) translateX(0);backdrop-filter:blur(16px)}
+.page-dot.active{background:var(--neon-pink);border-color:transparent;box-shadow:0 0 16px rgba(255,55,95,.5),0 0 4px rgba(255,55,95,.8);height:32px;border-radius:4px;width:8px}
+
+/* ═══ NAV ═══ */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 clamp(20px,4vw,56px);height:54px;display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,.6);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:.5px solid rgba(255,255,255,.08);transition:all .6s var(--ease)}
+nav.nav-solid{background:rgba(0,0,0,.88);backdrop-filter:none;-webkit-backdrop-filter:none;border-bottom-color:rgba(255,255,255,.05)}
+.nav-logo{font-size:17px;font-weight:700;letter-spacing:5px;background:linear-gradient(135deg,var(--neon-pink),#ff6b9d,var(--neon-cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;cursor:pointer;text-transform:uppercase;transition:opacity .3s}
+.nav-logo:hover{opacity:.8}
+.nav-links{display:flex;gap:36px;align-items:center}
+.nav-links a{color:var(--text-secondary);text-decoration:none;font-size:14px;font-weight:400;letter-spacing:.3px;transition:color .4s;position:relative;padding:4px 0;cursor:pointer}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:50%;width:0;height:2px;background:linear-gradient(90deg,var(--neon-pink),var(--neon-purple));border-radius:2px;transition:width .4s var(--spring),left .4s var(--spring)}
+.nav-links a:hover{color:var(--text-primary)}
+.nav-links a:hover::after,.nav-links a.active::after{width:100%;left:0}
+.nav-links a.active{color:var(--text-primary)}
+.nav-settings{width:34px;height:34px;border:none;background:rgba(255,255,255,.06);border-radius:50%;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .4s var(--spring)}
+.nav-settings:hover{background:rgba(255,255,255,.12);color:var(--neon-cyan);transform:rotate(90deg) scale(1.05);box-shadow:0 0 20px rgba(100,210,255,.15)}
+.nav-settings svg{width:16px;height:16px}
+
+/* ═══ HERO ═══ */
+#page-hero{display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#000 0%,#010812 8%,#030f28 18%,#071d4a 30%,#112a6a 42%,#1e2268 50%,#371a68 58%,#521858 66%,#701a4a 74%,#8a1a38 84%,#9a1a2a 94%,#a21a26 100%);overflow:hidden}
+#page-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 140% 60% at 50% 110%,rgba(162,26,38,.15) 0%,transparent 50%),radial-gradient(ellipse 120% 50% at 50% -5%,rgba(0,0,0,.5) 0%,transparent 45%);pointer-events:none;z-index:1}
+#page-hero::after{content:'';position:absolute;inset:0;background-image:var(--noise-bg);pointer-events:none;z-index:2;opacity:.6}
+
+.hero-particles{position:absolute;inset:0;overflow:hidden;z-index:1}
+.hero-particle{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:0;animation:particleFade 5s ease-in-out infinite}
+.fp-section:not(.active) .hero-particle{animation-play-state:paused}
+@keyframes particleFade{0%,100%{opacity:0;transform:translateY(0) scale(.3)}50%{opacity:.6;transform:translateY(-30px) scale(1)}}
+
+.hero-grid-wrapper{position:absolute;bottom:0;left:-50%;width:200%;height:35%;transform:perspective(600px) rotateX(68deg);transform-origin:center top;z-index:1;opacity:.5;overflow:hidden}
+.hero-grid{width:100%;height:200%;
+  background:linear-gradient(180deg,transparent,rgba(162,26,38,.04)),repeating-linear-gradient(90deg,rgba(255,255,255,.018) 0 1px,transparent 1px 100px),repeating-linear-gradient(0deg,rgba(255,255,255,.01) 0 1px,transparent 1px 80px);
+  animation:heroGrid 5s linear infinite;will-change:transform}
+@keyframes heroGrid{0%{transform:translateY(-50%)}100%{transform:translateY(0%)}}
+.fp-section:not(.active) .hero-grid{animation-play-state:paused}
+
+.hero-center{position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 24px}
+.hero-eyebrow{font-size:13px;font-weight:500;letter-spacing:8px;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:28px}
+.hero-title{font-size:clamp(60px,11vw,130px);font-weight:800;letter-spacing:-4px;line-height:.92;margin-bottom:32px;color:#fff;text-shadow:0 0 120px rgba(255,55,95,.1)}
+.hero-title .title-line{display:block}
+.hero-title .title-accent{background:linear-gradient(135deg,#ff6b9d,#ffa07a,#ff4757,#ff375f);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-shadow:none}
+.hero-title .title-cn{letter-spacing:0.1em}
+.hero-title .title-sub{display:block;font-size:clamp(18px,3vw,32px);font-weight:300;letter-spacing:10px;color:rgba(255,255,255,.3);margin-top:16px;-webkit-text-fill-color:initial;background:none;-webkit-background-clip:initial;background-clip:initial;filter:none;text-transform:uppercase}
+.hero-desc{font-size:clamp(16px,2vw,20px);color:rgba(255,255,255,.42);font-weight:300;max-width:540px;line-height:1.75;margin-bottom:56px;letter-spacing:.3px}
+.hero-desc .quote-source{font-size:12px;opacity:.55;margin-top:10px;display:inline-block;letter-spacing:2px}
+.hero-actions{display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
+.hero-actions a{padding:17px 48px;border-radius:980px;font-size:16px;font-weight:600;text-decoration:none;transition:all .5s var(--spring);cursor:pointer;letter-spacing:.3px}
+.btn-games{background:rgba(255,255,255,.95);color:#1a0a2e;box-shadow:0 2px 20px rgba(255,255,255,.1)}
+.btn-games:hover{background:#fff;transform:translateY(-3px) scale(1.04);box-shadow:0 10px 48px rgba(255,255,255,.2)}
+.btn-games:active{transform:translateY(-1px) scale(1.01)}
+.btn-movies{background:rgba(255,255,255,.08);color:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.12)}
+.btn-movies:hover{background:rgba(255,255,255,.13);border-color:rgba(255,255,255,.25);transform:translateY(-3px);box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.btn-movies:active{transform:translateY(-1px)}
+.hero-scroll-hint{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);z-index:10;display:flex;flex-direction:column;align-items:center;gap:12px;animation:hintFloat 3s ease-in-out infinite}
+.fp-section:not(.active) .hero-scroll-hint{animation-play-state:paused}
+.hero-scroll-hint span{font-size:10px;letter-spacing:5px;color:rgba(255,255,255,.16);text-transform:uppercase;font-weight:500}
+.scroll-line{width:1px;height:32px;background:linear-gradient(180deg,rgba(255,255,255,.2),transparent);position:relative}
+.scroll-line::after{content:'';position:absolute;top:0;left:-1px;width:3px;height:8px;background:rgba(255,255,255,.4);border-radius:4px;animation:scrollDot 2.5s ease-in-out infinite}
+.fp-section:not(.active) .scroll-line::after{animation-play-state:paused}
+@keyframes scrollDot{0%{top:0;opacity:1}80%{top:24px;opacity:.2}100%{top:0;opacity:1}}
+@keyframes hintFloat{0%,100%{transform:translateX(-50%)}50%{transform:translateX(-50%) translateY(8px)}}
+
+/* ═══ SECTION COMMONS ═══ */
+.section-pad{padding:110px clamp(24px,5vw,56px) 60px;max-width:1440px;margin:0 auto}
+.section-label{font-size:13px;font-weight:600;letter-spacing:5px;text-transform:uppercase;color:var(--neon-pink);margin-bottom:14px;display:block;opacity:.9}
+.section-title{font-size:clamp(38px,5.5vw,68px);font-weight:800;letter-spacing:-2px;line-height:1.08;margin-bottom:18px;background:linear-gradient(180deg,#fff,rgba(255,255,255,.8));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.section-desc{font-size:18px;color:var(--text-secondary);font-weight:300;max-width:600px;line-height:1.75;margin-bottom:52px;letter-spacing:.2px}
+.tab-controls{display:flex;gap:2px;padding:3px;background:rgba(255,255,255,.05);border-radius:14px;border:.5px solid rgba(255,255,255,.06);width:fit-content;margin-bottom:40px}
+.tab-btn{padding:10px 28px;border:none;background:transparent;color:var(--text-secondary);font-size:14px;font-weight:500;border-radius:11px;cursor:pointer;transition:all .4s var(--ease);font-family:var(--font-main);letter-spacing:.2px}
+.tab-btn.active{background:rgba(255,55,95,.15);color:var(--text-primary);box-shadow:0 2px 16px rgba(255,55,95,.1),inset 0 .5px 0 rgba(255,255,255,.06)}
+.tab-btn:hover:not(.active){color:var(--text-primary);background:rgba(255,255,255,.04)}
+.tab-panel{display:none;animation:panelIn .6s var(--ease)}.tab-panel.active{display:block}
+@keyframes panelIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.add-btn-container{margin-bottom:32px}
+.add-btn{display:inline-flex;align-items:center;gap:10px;padding:13px 32px;border:1px solid rgba(255,55,95,.2);background:rgba(255,55,95,.04);color:var(--neon-pink);border-radius:980px;font-size:14px;font-weight:500;cursor:pointer;transition:all .4s var(--spring);font-family:var(--font-main);letter-spacing:.2px}
+.add-btn:hover{background:rgba(255,55,95,.1);border-color:rgba(255,55,95,.4);box-shadow:var(--shadow-neon-pink);transform:translateY(-2px) scale(1.02)}
+.add-btn:active{transform:translateY(0) scale(.99)}
+
+/* ═══ CARDS ═══ */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:28px}
+.game-card,.wishlist-card,.movie-card{position:relative;border-radius:var(--radius-lg);overflow:hidden;background:var(--bg-card);border:.5px solid rgba(255,255,255,.06);cursor:pointer;transition:all .6s var(--ease);contain:content}
+.game-card:hover{transform:translateY(-10px) scale(1.02);border-color:rgba(255,55,95,.15);box-shadow:0 20px 60px rgba(0,0,0,.4),0 4px 24px rgba(255,55,95,.12)}
+.game-card-cover,.movie-card-cover{width:100%;object-fit:cover;display:block;transition:transform .7s var(--ease),filter .7s var(--ease)}
+.game-card-cover{aspect-ratio:3/4}
+.movie-card-cover{aspect-ratio:2/3}
+.game-card:hover .game-card-cover,.movie-card:hover .movie-card-cover,.wishlist-card:hover .game-card-cover{transform:scale(1.06)}
+.game-card-overlay,.movie-card-overlay{position:absolute;bottom:0;left:0;right:0;padding:40px 20px 22px;background:linear-gradient(transparent,rgba(0,0,0,.85) 60%)}
+.game-card-title{font-size:15px;font-weight:600;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.game-card-rating{display:flex;gap:2px;margin-bottom:6px}
+.star{color:var(--text-muted);font-size:14px;transition:color .3s}
+.star.filled{color:var(--neon-gold);text-shadow:0 0 10px rgba(255,214,10,.4)}
+.music-indicator{position:absolute;top:18px;right:18px;display:flex;align-items:flex-end;gap:3px;height:20px;opacity:0;transition:opacity .4s;z-index:5;background:rgba(0,0,0,.55);padding:6px 8px;border-radius:10px}
+.game-card.playing .music-indicator{opacity:1}
+.music-bar{width:3px;background:var(--neon-cyan);border-radius:3px;box-shadow:0 0 8px rgba(100,210,255,.4);animation:mBounce .8s ease-in-out infinite}
+.music-bar:nth-child(1){height:8px}.music-bar:nth-child(2){height:14px;animation-delay:.15s}
+.music-bar:nth-child(3){height:10px;animation-delay:.3s}.music-bar:nth-child(4){height:16px;animation-delay:.45s}
+@keyframes mBounce{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}
+
+.wishlist-card:hover{transform:translateY(-8px) scale(1.01);border-color:rgba(100,210,255,.15);box-shadow:0 20px 60px rgba(0,0,0,.4),0 4px 24px rgba(100,210,255,.1)}
+.wishlist-card .game-card-cover{filter:grayscale(1) brightness(.85);transition:transform .7s var(--ease),filter .7s var(--ease)}
+.wishlist-card:hover .game-card-cover{filter:grayscale(0) brightness(1);transform:scale(1.06)}
+.wishlist-badge{position:absolute;top:16px;left:16px;background:rgba(20,50,65,.85);border:.5px solid rgba(100,210,255,.2);color:var(--neon-cyan);font-size:10px;font-weight:600;padding:5px 14px;border-radius:980px;letter-spacing:1.5px;z-index:5}
+
+.movie-card:hover{transform:translateY(-10px) scale(1.02);border-color:rgba(255,105,97,.15);box-shadow:0 20px 60px rgba(0,0,0,.4),0 4px 24px rgba(255,105,97,.1)}
+.tomato-rating{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.tomato-dot,.tomato-dot-lg{border-radius:50%;display:inline-block;flex-shrink:0}
+.tomato-dot{width:12px;height:12px}.tomato-dot-lg{width:16px;height:16px}
+.tomato-dot.t-fresh,.tomato-dot-lg.t-fresh{background:var(--tomato-red);box-shadow:0 0 10px rgba(255,105,97,.4)}
+.tomato-dot.t-rotten,.tomato-dot-lg.t-rotten{background:var(--tomato-green);box-shadow:0 0 10px rgba(48,209,88,.4)}
+.tomato-score{font-size:15px;font-weight:700}
+.tomato-fresh{color:var(--tomato-red)}.tomato-rotten{color:var(--tomato-green)}
+.anticipation-bar{width:100%;height:3px;background:rgba(255,255,255,.06);border-radius:3px;margin-top:10px;overflow:hidden}
+.anticipation-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--neon-pink),var(--neon-purple),var(--neon-cyan));background-size:200% 100%;animation:shimmer 3s ease-in-out infinite;transition:width 1.2s var(--ease);box-shadow:0 0 12px rgba(255,55,95,.4)}
+@keyframes shimmer{0%{background-position:100% 0}50%{background-position:0 0}100%{background-position:100% 0}}
+.upcoming-badge{position:absolute;top:16px;left:16px;background:rgba(50,15,25,.85);border:.5px solid rgba(255,55,95,.2);color:var(--neon-pink);font-size:10px;font-weight:600;padding:5px 14px;border-radius:980px;letter-spacing:1.5px;z-index:5}
+.now-playing-badge{position:absolute;top:16px;left:16px;background:rgba(15,40,50,.85);border:.5px solid rgba(100,210,255,.2);color:var(--neon-cyan);font-size:10px;font-weight:600;padding:5px 14px;border-radius:980px;letter-spacing:1.5px;z-index:5}
+
+/* ═══ CARD CONTEXT MENU ═══ */
+.card-menu-wrap{position:absolute;top:10px;left:10px;z-index:15}
+.card-menu-btn{width:30px;height:30px;border-radius:50%;border:.5px solid rgba(255,255,255,.12);background:rgba(0,0,0,.7);color:rgba(255,255,255,.85);cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:all .3s var(--ease);padding:0}
+.card-menu-btn svg{width:16px;height:16px;fill:currentColor;pointer-events:none}
+.game-card:hover .card-menu-btn,.wishlist-card:hover .card-menu-btn,.movie-card:hover .card-menu-btn,.card-menu-btn.active{opacity:1}
+.card-menu-btn:hover,.card-menu-btn.active{background:rgba(0,0,0,.85);color:#fff;transform:scale(1.1);border-color:rgba(255,255,255,.2)}
+.card-menu-dropdown{position:absolute;top:36px;left:0;min-width:124px;background:rgba(28,28,30,.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:.5px solid rgba(255,255,255,.1);border-radius:14px;padding:4px;opacity:0;transform:translateY(-6px) scale(.96);pointer-events:none;transition:all .25s var(--spring);box-shadow:0 8px 32px rgba(0,0,0,.6)}
+.card-menu-dropdown.show{opacity:1;transform:none;pointer-events:all}
+.card-menu-item{display:flex;align-items:center;gap:9px;width:100%;padding:9px 14px;border:none;background:transparent;color:var(--text-primary);font-size:13px;font-weight:500;font-family:var(--font-main);cursor:pointer;border-radius:10px;transition:background .2s;white-space:nowrap}
+.card-menu-item:hover{background:rgba(255,255,255,.08)}
+.card-menu-item.danger{color:#ff5050}
+.card-menu-item.danger:hover{background:rgba(255,80,80,.1)}
+.card-menu-item svg{width:14px;height:14px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.card-menu-wrap~.wishlist-badge,.card-menu-wrap~.upcoming-badge,.card-menu-wrap~.now-playing-badge{left:48px}
+
+.empty-state{text-align:center;padding:72px 20px;color:var(--text-muted)}
+.empty-state p{font-size:15px;max-width:400px;margin:0 auto;line-height:1.7;letter-spacing:.2px}
+.empty-ring{width:80px;height:80px;border:1.5px solid rgba(255,255,255,.05);border-radius:50%;margin:0 auto 24px;position:relative;background:radial-gradient(circle,rgba(255,255,255,.01),transparent)}
+.empty-ring::after,.empty-ring::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(255,255,255,.08);border-radius:1px}
+.empty-ring::after{width:22px;height:1.5px}
+.empty-ring::before{width:1.5px;height:22px}
+.spinner{width:44px;height:44px;border:2.5px solid rgba(255,255,255,.06);border-top-color:var(--neon-pink);border-radius:50%;animation:spin .9s cubic-bezier(.5,0,.5,1) infinite;margin:40px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.bg-games{background:linear-gradient(180deg,#000,#0a0118 40%,#080014)}
+.bg-games::before{content:'';position:absolute;top:5%;right:-15%;width:600px;height:600px;background:radial-gradient(circle,rgba(255,55,95,.04),transparent 65%);pointer-events:none}
+.bg-games::after{content:'';position:absolute;bottom:10%;left:-10%;width:400px;height:400px;background:radial-gradient(circle,rgba(191,90,242,.03),transparent 65%);pointer-events:none}
+.bg-movies{background:linear-gradient(180deg,#080014,#0a0020 40%,#060012)}
+.bg-movies::before{content:'';position:absolute;top:15%;left:-12%;width:600px;height:600px;background:radial-gradient(circle,rgba(100,210,255,.035),transparent 65%);pointer-events:none}
+.bg-movies::after{content:'';position:absolute;bottom:5%;right:-10%;width:400px;height:400px;background:radial-gradient(circle,rgba(191,90,242,.025),transparent 65%);pointer-events:none}
+.bg-footer-section{background:#000;display:flex;align-items:center;justify-content:center}
+
+/* ═══ MODAL ═══ */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(12px) saturate(150%);-webkit-backdrop-filter:blur(12px) saturate(150%);z-index:2000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .5s var(--ease);padding:20px}
+.modal-backdrop.show{opacity:1;pointer-events:all}
+.modal{background:rgba(22,12,48,.65);backdrop-filter:saturate(180%) blur(30px);-webkit-backdrop-filter:saturate(180%) blur(30px);border:.5px solid rgba(255,255,255,.1);border-radius:var(--radius-xl);max-width:720px;width:100%;max-height:85vh;overflow-y:auto;padding:44px;position:relative;transform:scale(.92) translateY(24px);transition:transform .6s var(--spring);box-shadow:0 40px 100px rgba(0,0,0,.5),inset 0 .5px 0 rgba(255,255,255,.05);scrollbar-width:thin;scrollbar-color:rgba(191,90,242,.3) transparent}
+.modal::-webkit-scrollbar{width:5px}
+.modal::-webkit-scrollbar-track{background:transparent}
+.modal::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--neon-purple),var(--neon-pink));border-radius:10px}
+.modal-backdrop.show .modal{transform:none}
+.modal-close{position:sticky;top:0;float:right;width:36px;height:36px;border:.5px solid rgba(255,255,255,.06);background:rgba(255,255,255,.08);color:var(--text-secondary);border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .4s var(--spring);z-index:10}
+.modal-close:hover{background:rgba(255,55,95,.15);color:var(--neon-pink);transform:rotate(90deg) scale(1.1);border-color:rgba(255,55,95,.2)}
+.modal-title{font-size:26px;font-weight:700;margin-bottom:36px;padding-right:44px;letter-spacing:-.5px;background:linear-gradient(135deg,var(--text-primary),var(--neon-cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* ═══ FORM ═══ */
+.form-group{margin-bottom:26px}
+.form-label{display:block;font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:10px;letter-spacing:.5px}
+.form-input,.form-textarea{width:100%;padding:13px 18px;background:rgba(255,255,255,.04);border:.5px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);color:var(--text-primary);font-size:15px;font-family:var(--font-main);transition:all .4s var(--ease);outline:none}
+.form-input:focus,.form-textarea:focus{border-color:rgba(255,55,95,.3);box-shadow:0 0 0 4px rgba(255,55,95,.06),0 0 20px rgba(255,55,95,.05);background:rgba(255,255,255,.06)}
+.form-textarea{min-height:120px;resize:vertical;line-height:1.7}
+.form-input::placeholder,.form-textarea::placeholder{color:var(--text-muted)}
+.file-upload{border:1.5px dashed rgba(255,255,255,.08);border-radius:var(--radius-md);padding:32px;text-align:center;cursor:pointer;transition:all .4s var(--ease);position:relative;overflow:hidden;background:rgba(255,255,255,.01)}
+.file-upload:hover{border-color:rgba(255,55,95,.2);background:rgba(255,55,95,.02);transform:translateY(-1px)}
+.file-upload.has-file{border-color:rgba(100,210,255,.2);background:rgba(100,210,255,.02)}
+.file-upload input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.upload-icon{width:48px;height:48px;border-radius:50%;border:1.5px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;background:rgba(255,255,255,.02);transition:all .3s}
+.file-upload:hover .upload-icon{border-color:rgba(255,55,95,.2);background:rgba(255,55,95,.04)}
+.upload-icon svg{width:18px;height:18px;stroke:var(--text-muted);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.file-upload-text{font-size:14px;color:var(--text-secondary)}
+.file-upload-hint{font-size:12px;color:var(--text-muted);margin-top:6px}
+.preview-container{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.preview-thumb{width:80px;height:80px;border-radius:var(--radius-sm);object-fit:cover;border:.5px solid rgba(255,255,255,.08);transition:transform .3s}
+.preview-thumb:hover{transform:scale(1.05)}
+.rating-select{display:flex;gap:8px;margin-top:8px}
+.rating-select .star-btn{background:none;border:none;font-size:30px;cursor:pointer;color:var(--text-muted);transition:all .25s var(--spring);padding:2px}
+.rating-select .star-btn:hover,.rating-select .star-btn.active{color:var(--neon-gold);text-shadow:0 0 16px rgba(255,214,10,.5);transform:scale(1.2)}
+.submit-btn{width:100%;padding:15px;border:none;border-radius:var(--radius-md);background:linear-gradient(135deg,var(--neon-pink),var(--neon-purple));color:#fff;font-size:15px;font-weight:600;cursor:pointer;transition:all .4s var(--spring);font-family:var(--font-main);margin-top:10px;letter-spacing:.3px;box-shadow:0 4px 20px rgba(255,55,95,.2)}
+.submit-btn:hover{transform:translateY(-2px) scale(1.01);box-shadow:0 8px 36px rgba(255,55,95,.35)}
+.submit-btn:active{transform:translateY(0) scale(.99)}
+.delete-btn{width:100%;padding:13px;border:.5px solid rgba(255,80,80,.2);border-radius:var(--radius-md);background:rgba(255,80,80,.04);color:#ff5050;font-size:14px;font-weight:500;cursor:pointer;transition:all .4s;font-family:var(--font-main);margin-top:14px}
+.delete-btn:hover{background:rgba(255,80,80,.1);border-color:rgba(255,80,80,.4);box-shadow:0 4px 20px rgba(255,80,80,.1)}
+.search-result-item:hover{background:rgba(255,55,95,.08)!important;border-color:rgba(255,55,95,.3)!important;transform:translateX(4px)}
+
+/* ═══ DETAIL — movie/upcoming ═══ */
+.detail-modal .modal{max-width:860px;padding:0}
+.detail-modal .modal-close{position:absolute;top:16px;right:16px;z-index:20;background:rgba(0,0,0,.5);border-color:rgba(255,255,255,.12);color:rgba(255,255,255,.8);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.detail-modal .modal-close:hover{background:rgba(255,55,95,.3);color:#fff;border-color:rgba(255,55,95,.3)}
+.detail-modal-body{padding:0 44px 44px}
+.detail-hero{width:100%;height:380px;position:relative;overflow:hidden}
+.detail-hero > img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease);transform:scale(1.02)}
+.detail-modal .modal:hover .detail-hero > img{transform:scale(1.06)}
+.detail-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:70%;background:linear-gradient(transparent,rgba(22,12,48,.95) 85%,rgba(22,12,48,1))}
+.detail-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:30%;background:linear-gradient(rgba(0,0,0,.3),transparent);z-index:1;pointer-events:none}
+.detail-hero-info{position:absolute;bottom:32px;left:44px;right:44px;z-index:2;display:flex;align-items:flex-end;gap:24px;animation:detailFadeUp .8s var(--ease) both;animation-delay:.15s}
+@keyframes detailFadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+.detail-poster{width:120px;height:170px;border-radius:var(--radius-md);object-fit:cover;border:1px solid rgba(255,255,255,.12);box-shadow:0 16px 48px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.05);flex-shrink:0;transition:transform .4s var(--spring),box-shadow .4s}
+.detail-poster:hover{transform:scale(1.04) translateY(-4px);box-shadow:0 20px 56px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.08)}
+.detail-meta h2{font-size:28px;font-weight:700;margin-bottom:8px;letter-spacing:-.5px;text-shadow:0 2px 20px rgba(0,0,0,.5)}
+.detail-section{margin-bottom:36px;animation:detailSectionIn .7s var(--ease) both}
+.detail-section:nth-child(1){animation-delay:.3s}.detail-section:nth-child(2){animation-delay:.4s}.detail-section:nth-child(3){animation-delay:.5s}
+@keyframes detailSectionIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.detail-section-title{font-size:12px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--neon-pink);margin-bottom:18px;opacity:.9}
+.detail-review{font-size:16px;line-height:1.85;color:var(--text-secondary);letter-spacing:.2px}
+.screenshot-gallery{display:flex;gap:14px;overflow-x:auto;padding-bottom:14px;scroll-snap-type:x mandatory;scroll-behavior:smooth}
+.screenshot-gallery::-webkit-scrollbar{height:4px}
+.screenshot-gallery::-webkit-scrollbar-thumb{background:linear-gradient(90deg,var(--neon-purple),var(--neon-pink));border-radius:10px}
+.screenshot-gallery img{height:200px;border-radius:var(--radius-md);object-fit:cover;scroll-snap-align:start;flex-shrink:0;transition:all .4s var(--ease);cursor:pointer;border:.5px solid rgba(255,255,255,.06)}
+.screenshot-gallery img:hover{transform:scale(1.04);box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.detail-actions{display:flex;gap:12px;margin-top:8px;animation:detailSectionIn .7s var(--ease) both;animation-delay:.5s}
+.detail-actions .submit-btn{margin-top:0;flex:1}
+.detail-actions .delete-btn{margin-top:0;width:auto;padding:15px 28px}
+.range-slider{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:rgba(255,255,255,.06);border-radius:6px;outline:none;margin-top:10px}
+.range-slider::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--neon-pink),var(--neon-purple));cursor:pointer;box-shadow:0 2px 10px rgba(255,55,95,.4),0 0 0 4px rgba(255,55,95,.08);transition:box-shadow .3s}
+.range-slider::-webkit-slider-thumb:hover{box-shadow:0 4px 16px rgba(255,55,95,.5),0 0 0 6px rgba(255,55,95,.1)}
+.range-value{font-size:36px;font-weight:800;background:linear-gradient(135deg,var(--neon-pink),var(--neon-cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center;margin-bottom:4px;letter-spacing:-1px}
+.settings-info{padding:18px;background:rgba(100,210,255,.03);border:.5px solid rgba(100,210,255,.08);border-radius:var(--radius-md);margin-bottom:24px}
+.settings-info p{font-size:13px;color:var(--text-secondary);line-height:1.7}
+.settings-info a{color:var(--neon-cyan);text-decoration:none;transition:opacity .3s}
+.settings-info a:hover{opacity:.8}
+
+/* ═══ GAME/WISHLIST DETAIL — SPLIT LAYOUT ═══ */
+#modal-wishlist-detail .modal{max-width:980px;padding:44px}
+#modal-wishlist-detail .modal-close{position:sticky;top:0;float:right;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.06);color:var(--text-secondary);backdrop-filter:none;-webkit-backdrop-filter:none}
+.gdl-header{margin-bottom:32px;padding-right:44px}
+.gdl-header h2{font-size:28px;font-weight:700;line-height:1.2;letter-spacing:-.5px}
+.game-detail-layout{display:flex;gap:44px;align-items:flex-start}
+.gdl-gallery{flex:1;min-width:0;display:flex;flex-direction:column;gap:16px;position:sticky;top:0}
+.gdl-viewport{position:relative;width:100%;aspect-ratio:16/10;border-radius:var(--radius-lg);overflow:hidden;background:rgba(0,0,0,.4);cursor:zoom-in;border:.5px solid rgba(255,255,255,.06)}
+.gdl-viewport img#gdl-main-img{width:100%;height:100%;object-fit:contain;transition:opacity .4s ease}
+.gdl-viewport img#gdl-main-img.fading{opacity:0}
+.gdl-arrow{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:.5px solid rgba(255,255,255,.08);background:rgba(0,0,0,.65);color:rgba(255,255,255,.6);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .4s var(--spring);z-index:5;opacity:0}
+.gdl-viewport:hover .gdl-arrow{opacity:1}
+.gdl-arrow:hover{background:rgba(255,55,95,.2);border-color:rgba(255,55,95,.2);color:#fff;transform:translateY(-50%) scale(1.1)}
+.gdl-arrow.prev{left:14px}.gdl-arrow.next{right:14px}
+.gdl-arrow svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.gdl-counter{position:absolute;bottom:14px;right:14px;background:rgba(0,0,0,.7);padding:5px 16px;border-radius:980px;font-size:12px;color:rgba(255,255,255,.5);z-index:5;letter-spacing:1.5px;border:.5px solid rgba(255,255,255,.06);font-variant-numeric:tabular-nums}
+.gdl-thumbs{display:flex;gap:10px;overflow-x:auto;padding:2px 0;scrollbar-width:none}
+.gdl-thumbs::-webkit-scrollbar{display:none}
+.gdl-thumb{width:60px;height:60px;border-radius:12px;object-fit:cover;cursor:pointer;border:2px solid transparent;opacity:.38;transition:all .4s var(--spring);flex-shrink:0}
+.gdl-thumb.active{border-color:var(--neon-pink);opacity:1;box-shadow:0 0 18px rgba(255,55,95,.3);transform:scale(1.05)}
+.gdl-thumb:hover:not(.active){opacity:.65;transform:scale(1.03)}
+.gdl-info{width:300px;flex-shrink:0;display:flex;flex-direction:column}
+.gdl-score-block{text-align:center;padding:32px 0 28px;margin-bottom:28px;background:rgba(255,255,255,.015);border:.5px solid rgba(255,255,255,.04);border-radius:var(--radius-lg);position:relative;overflow:hidden}
+.gdl-score-block::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 20%,rgba(255,214,10,.04),transparent 70%);pointer-events:none}
+.gdl-score-label{font-size:11px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:var(--text-muted);margin-bottom:14px}
+.gdl-score-num{font-size:80px;font-weight:800;line-height:1;letter-spacing:-4px;background:linear-gradient(180deg,#fff 0%,#ffd60a 55%,#ffaa33 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 30px rgba(255,214,10,.15));margin-bottom:16px;font-variant-numeric:tabular-nums}
+.gdl-score-num .score-suffix{font-size:26px;font-weight:600;letter-spacing:0;opacity:.45}
+.gdl-score-none{font-size:54px;letter-spacing:0;background:linear-gradient(180deg,rgba(255,255,255,.25),rgba(255,255,255,.08));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:none}
+.gdl-score-stars{display:flex;justify-content:center;gap:10px}
+.gdl-score-stars .star{font-size:22px;transition:none}
+.gdl-divider{height:.5px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);margin:0 0 28px}
+.gdl-review-block{flex:1}
+.gdl-review-label{font-size:12px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:var(--neon-pink);margin-bottom:16px;opacity:.9}
+.gdl-review-text{font-size:15px;line-height:1.95;color:var(--text-secondary);word-break:break-word;letter-spacing:.2px}
+.gdl-review-empty{font-size:14px;color:var(--text-muted);font-style:italic}
+.gdl-music-block{margin-top:28px;padding-top:28px;border-top:.5px solid rgba(255,255,255,.04)}
+.gdl-music-block audio{width:100%;margin-top:12px;border-radius:10px;height:36px}
+.gdl-actions{margin-top:32px;padding-top:24px;border-top:.5px solid rgba(255,255,255,.04)}
+.gdl-actions .delete-btn{margin-top:0}
+.game-detail-layout.stacked{flex-direction:column}
+.game-detail-layout.stacked .gdl-gallery{position:static;width:100%}
+.game-detail-layout.stacked .gdl-info{width:100%}
+
+/* ═══ GAME DETAIL — REDESIGNED ═══ */
+.game-detail-hero{width:100%;height:380px;position:relative;overflow:hidden}
+.game-detail-backdrop{width:100%;height:100%;object-fit:cover;filter:blur(24px) brightness(.3) saturate(1.4);transform:scale(1.2);transition:transform 1.2s var(--ease)}
+#modal-game-detail .modal:hover .game-detail-backdrop{transform:scale(1.25)}
+.game-detail-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:75%;background:linear-gradient(transparent,rgba(22,12,48,.95) 85%,rgba(22,12,48,1));pointer-events:none}
+.game-detail-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:35%;background:linear-gradient(rgba(0,0,0,.4),transparent);z-index:1;pointer-events:none}
+.game-detail-hero-info{position:absolute;bottom:32px;left:44px;right:44px;z-index:2;display:flex;align-items:flex-end;gap:24px;animation:detailFadeUp .8s var(--ease) both;animation-delay:.15s}
+.game-detail-poster{width:140px;height:187px;border-radius:var(--radius-md);object-fit:cover;border:1px solid rgba(255,255,255,.12);box-shadow:0 16px 48px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.05);flex-shrink:0;transition:transform .4s var(--spring),box-shadow .4s}
+.game-detail-poster:hover{transform:scale(1.04) translateY(-4px);box-shadow:0 20px 56px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.08)}
+.game-detail-meta{flex:1;min-width:0}
+.game-detail-meta h2{font-size:28px;font-weight:700;margin-bottom:8px;letter-spacing:-.5px;text-shadow:0 2px 20px rgba(0,0,0,.5)}
+.game-detail-meta-line{font-size:13px;color:rgba(255,255,255,.55);letter-spacing:.4px;margin-bottom:12px;text-shadow:0 1px 10px rgba(0,0,0,.5)}
+.game-detail-rating{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.game-detail-score{font-size:42px;font-weight:800;line-height:1;letter-spacing:-2px;background:linear-gradient(180deg,#fff 0%,#ffd60a 55%,#ffaa33 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 20px rgba(255,214,10,.15));font-variant-numeric:tabular-nums}
+.game-detail-score .score-suffix{font-size:16px;font-weight:600;letter-spacing:0;opacity:.45}
+.game-detail-stars{display:flex;gap:5px}
+.game-detail-stars .star{font-size:18px;text-shadow:0 0 10px rgba(255,214,10,.3)}
+
+/* ═══ LIGHTBOX / TOAST / FOOTER ═══ */
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.94);backdrop-filter:blur(16px);z-index:3000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .4s;cursor:zoom-out}
+.lightbox.show{opacity:1;pointer-events:all}
+.lightbox img{max-width:90vw;max-height:90vh;object-fit:contain;border-radius:var(--radius-lg);transform:scale(.9);transition:transform .5s var(--spring);box-shadow:0 40px 100px rgba(0,0,0,.6)}
+.lightbox.show img{transform:none}
+.toast-container{position:fixed;top:76px;right:24px;z-index:3000;display:flex;flex-direction:column;gap:12px}
+.toast{padding:15px 26px;background:rgba(22,12,48,.85);border:.5px solid rgba(255,255,255,.08);border-radius:var(--radius-md);font-size:14px;color:var(--text-primary);box-shadow:0 12px 40px rgba(0,0,0,.3);transform:translateX(120%);transition:transform .5s var(--spring);max-width:380px;letter-spacing:.2px}
+.toast.show{transform:none}
+.toast.success{border-color:rgba(100,210,255,.15)}.toast.error{border-color:rgba(255,80,80,.15)}
+.footer-content{text-align:center;color:var(--text-muted);font-size:13px}
+.footer-content .footer-logo{font-size:40px;font-weight:800;letter-spacing:5px;background:linear-gradient(135deg,var(--neon-pink),#ff6b9d,var(--neon-cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:20px;filter:drop-shadow(0 0 40px rgba(255,55,95,.1))}
+.footer-content .footer-sub{font-size:16px;font-weight:300;letter-spacing:6px;color:rgba(255,255,255,.2);margin-bottom:12px}
+
+/* NEW: TMDB评分样式 */
+.tmdb-score{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.tmdb-score-icon{width:18px;height:18px;border-radius:4px;background:linear-gradient(135deg,#90cea1,#01b4e4);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#081c22;flex-shrink:0}
+.tmdb-score-value{font-size:14px;font-weight:700;color:var(--text-primary)}
+
+@media(max-width:768px){
+  nav{padding:0 20px}.section-pad{padding:88px 20px 40px}.modal{padding:28px}
+  .detail-modal .modal{padding:0}
+  .detail-modal-body{padding:0 20px 28px}
+  .detail-hero{height:260px}
+  .detail-hero-info{left:20px;right:20px;bottom:20px}.detail-poster{width:80px;height:113px}.detail-meta h2{font-size:20px}
+  .detail-modal .modal-close{top:10px;right:10px}
+  .card-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px}
+  .hero-actions{flex-direction:column;width:80%}.hero-actions a{text-align:center}
+  .nav-links{gap:18px}.nav-links a{font-size:13px}
+  #page-indicator{right:14px}.page-dot::after{display:none}
+  .game-detail-layout,.game-detail-layout.stacked{flex-direction:column;gap:28px}
+  .gdl-gallery{position:static}
+  .gdl-info{width:100%}.gdl-score-num{font-size:56px}
+  #modal-wishlist-detail .modal{padding:24px}
+  .game-detail-hero{height:260px}
+  .game-detail-hero-info{left:20px;right:20px;bottom:20px}
+  .game-detail-poster{width:90px;height:120px}
+  .game-detail-meta h2{font-size:20px}
+  .game-detail-score{font-size:30px}
+  .game-detail-meta-line{font-size:12px;margin-bottom:8px}
+  .gdl-header h2{font-size:22px}
+  .card-menu-btn{opacity:.6}
+  .tab-controls{flex-wrap:wrap}
+  .detail-actions{flex-direction:column}
+  .detail-actions .delete-btn{width:100%;padding:13px}
+  .top10-wall-entry{gap:12px;padding:16px 0}
+  .top10-wall-rank{width:48px;font-size:clamp(32px,10vw,48px);letter-spacing:-2px}
+  .top10-wall-poster-wrap{width:clamp(72px,20vw,100px)}
+  .top10-wall-title{font-size:clamp(15px,4.5vw,22px)}
+  .top10-wall::before{left:23px}
+  .top10-wall.editing .top10-wall-entry{padding-right:44px}
+  .top10-edit-overlay{right:4px}
+  .top10-drag-handle,.top10-remove-btn{width:28px;height:28px;font-size:12px}
+}
+/* ═══ TOP 10 SHOWCASE — Scroll Wall ═══ */
+.top10-showcase{position:relative;width:100%;max-width:880px;margin:0 auto}
+.top10-header-actions{display:flex;gap:12px;align-items:center;margin-bottom:8px}
+.top10-edit-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 22px;border-radius:20px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--text-secondary);font-size:13px;font-weight:600;cursor:pointer;transition:all .4s var(--ease);font-family:var(--font-main);letter-spacing:.5px}
+.top10-edit-btn:hover{background:rgba(255,55,95,.08);border-color:rgba(255,55,95,.2);color:var(--text-primary)}
+.top10-edit-btn.active{background:rgba(255,55,95,.12);border-color:rgba(255,55,95,.3);color:var(--neon-pink)}
+.top10-scroll-ornament{text-align:center;padding:16px 0;opacity:.25;letter-spacing:14px;font-size:10px;color:var(--text-muted)}
+
+/* Wall container & vertical timeline */
+.top10-wall{position:relative;padding:0 0 8px}
+.top10-wall::before{content:'';position:absolute;left:43px;top:0;bottom:0;width:1px;background:linear-gradient(180deg,transparent,rgba(255,55,95,.12) 10%,rgba(255,55,95,.12) 90%,transparent);pointer-events:none}
+
+/* Individual entry */
+.top10-wall-entry{position:relative;display:flex;gap:clamp(16px,3vw,32px);padding:clamp(18px,2.5vh,32px) 0;align-items:center;border-radius:var(--radius-md);opacity:0;transform:translateY(30px);transition:opacity .7s var(--ease),transform .7s var(--ease),background .4s,padding .3s var(--ease)}
+.top10-wall-entry.revealed{opacity:1;transform:none}
+.top10-wall-entry+.top10-wall-entry{border-top:1px solid rgba(255,255,255,.03)}
+.top10-wall-entry:hover{background:rgba(255,255,255,.012)}
+
+/* Rank number */
+.top10-wall-rank{flex-shrink:0;width:88px;text-align:center;font-size:clamp(44px,7vw,68px);font-weight:900;line-height:1;color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.06);font-variant-numeric:tabular-nums;user-select:none;letter-spacing:-3px;transition:-webkit-text-stroke-color .6s var(--ease),text-shadow .6s var(--ease)}
+.top10-wall-entry:hover .top10-wall-rank{-webkit-text-stroke-color:rgba(255,55,95,.22);text-shadow:0 0 60px rgba(255,55,95,.06)}
+
+/* Poster */
+.top10-wall-poster-wrap{position:relative;flex-shrink:0;width:clamp(90px,13vw,150px);aspect-ratio:2/3;border-radius:var(--radius-md);overflow:hidden;cursor:pointer}
+.top10-wall-poster{width:100%;height:100%;object-fit:cover;filter:grayscale(.5) brightness(.82);transition:filter .6s var(--ease),transform .8s var(--ease)}
+.top10-wall-entry:hover .top10-wall-poster{filter:grayscale(0) brightness(1);transform:scale(1.04)}
+.top10-wall-poster-wrap::after{content:'';position:absolute;inset:0;border:1px solid rgba(255,255,255,.06);border-radius:var(--radius-md);pointer-events:none;transition:border-color .4s}
+.top10-wall-entry:hover .top10-wall-poster-wrap::after{border-color:rgba(255,55,95,.18)}
+
+/* Meta info */
+.top10-wall-meta{flex:1;min-width:0;cursor:pointer}
+.top10-wall-year{display:block;font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px}
+.top10-wall-title{font-size:clamp(17px,2.4vw,30px);font-weight:800;letter-spacing:-.3px;line-height:1.15;color:var(--text-primary);margin-bottom:10px;transition:color .4s}
+.top10-wall-entry:hover .top10-wall-title{color:#fff}
+.top10-wall-rating{display:flex;gap:3px;margin-bottom:10px}
+.top10-wall-rating .star{font-size:16px}
+.top10-wall-reason{font-size:13px;color:var(--neon-cyan);font-style:italic;line-height:1.7;max-width:420px;opacity:.8;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* ═══ TOP 10 EDIT MODE ═══ */
+.top10-edit-overlay{display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);gap:8px;align-items:center;flex-direction:column}
+.top10-wall.editing .top10-edit-overlay{display:flex}
+.top10-wall.editing .top10-wall-entry{padding-right:56px}
+.top10-drag-handle{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;cursor:grab;color:var(--text-muted);font-size:14px;transition:all .3s;touch-action:none;user-select:none;-webkit-user-select:none}
+.top10-drag-handle:hover{background:rgba(255,55,95,.1);border-color:rgba(255,55,95,.2);color:var(--text-primary)}
+.top10-remove-btn{width:32px;height:32px;border-radius:8px;background:rgba(255,55,95,.06);border:1px solid rgba(255,55,95,.12);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--neon-pink);font-size:13px;font-weight:600;transition:all .3s;font-family:var(--font-main)}
+.top10-remove-btn:hover{background:rgba(255,55,95,.18);border-color:rgba(255,55,95,.3)}
+.top10-wall-entry.dragging{opacity:.92!important;z-index:100;background:rgba(255,55,95,.03);box-shadow:0 8px 40px rgba(0,0,0,.35),0 0 20px rgba(255,55,95,.08)}
+
+/* Add card (edit mode only) */
+.top10-add-card{display:none;justify-content:center;align-items:center;padding:24px;margin-top:8px;border:2px dashed rgba(255,255,255,.06);border-radius:var(--radius-lg);cursor:pointer;transition:all .4s var(--ease);gap:8px;color:var(--text-muted);font-size:14px;font-weight:600;font-family:var(--font-main)}
+.top10-wall.editing~.top10-add-card:not(.full){display:flex}
+.top10-add-card:hover{border-color:rgba(255,55,95,.2);background:rgba(255,55,95,.03);color:var(--text-primary)}
+
+/* ═══ TOP 10 FULLPAGE SECTION ═══ */
+.bg-top10{background:linear-gradient(180deg,#060012,#0d0028 40%,#0a001a);overflow:hidden}
+.bg-top10::before{content:'';position:absolute;top:10%;right:-10%;width:500px;height:500px;background:radial-gradient(circle,rgba(255,55,95,.04),transparent 65%);pointer-events:none}
+.bg-top10::after{content:'';position:absolute;bottom:10%;left:-8%;width:400px;height:400px;background:radial-gradient(circle,rgba(255,214,10,.025),transparent 65%);pointer-events:none}
+
+/* ═══ TOP 10 PICK MODAL ═══ */
+.top10-pick-search{position:sticky;top:0;z-index:2;padding:0 0 16px;background:rgba(28,28,30,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.top10-pick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:14px;max-height:55vh;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,55,95,.3) transparent;padding:4px 2px}
+.top10-pick-grid::-webkit-scrollbar{width:4px}.top10-pick-grid::-webkit-scrollbar-thumb{background:rgba(255,55,95,.3);border-radius:4px}
+.top10-pick-card{position:relative;border-radius:var(--radius-sm);overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all .4s var(--ease);aspect-ratio:2/3;background:var(--bg-card)}
+.top10-pick-card:hover{border-color:rgba(255,55,95,.3);transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.top10-pick-card img{width:100%;height:100%;object-fit:cover;transition:filter .4s}
+.top10-pick-card .pick-title{position:absolute;bottom:0;left:0;right:0;padding:8px 6px 6px;background:linear-gradient(transparent,rgba(0,0,0,.85));font-size:11px;font-weight:600;line-height:1.3;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top10-pick-card.picked{pointer-events:none;opacity:.4}
+.top10-pick-card.picked::after{content:'已入选';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:11px;font-weight:700;color:var(--neon-pink);background:rgba(0,0,0,.7);padding:4px 10px;border-radius:6px;letter-spacing:1px}
+.top10-pick-confirm{display:flex;gap:16px;padding:20px;background:rgba(255,255,255,.02);border-radius:var(--radius-md);border:.5px solid rgba(255,255,255,.06);margin-bottom:20px}
+.top10-pick-confirm img{width:72px;height:108px;object-fit:cover;border-radius:8px;flex-shrink:0}
+.top10-pick-confirm-info{display:flex;flex-direction:column;justify-content:center;min-width:0}
+.top10-pick-confirm-info h4{font-size:18px;font-weight:700;margin-bottom:4px}
+.top10-pick-confirm-info p{font-size:13px;color:var(--text-secondary)}
+
+/* ═══ LOGIN ═══ */
+#login-screen{position:fixed;inset:0;z-index:9999;background:linear-gradient(180deg,#000 0%,#030f28 30%,#1e2268 60%,#521858 100%);display:flex;align-items:center;justify-content:center;flex-direction:column}
+.login-card{background:rgba(255,255,255,.03);border:.5px solid rgba(255,255,255,.08);border-radius:var(--radius-xl);padding:48px 40px;max-width:380px;width:90%;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 40px 80px rgba(0,0,0,.4)}
+.login-logo{font-size:48px;font-weight:800;text-align:center;letter-spacing:6px;background:linear-gradient(135deg,var(--neon-pink),#ff6b9d,var(--neon-cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px}
+.login-sub{text-align:center;font-size:14px;letter-spacing:10px;color:rgba(255,255,255,.18);margin-bottom:32px;font-weight:300}
+.login-card .form-group{margin-bottom:18px}
+.login-card .form-input{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1);text-align:center;font-size:15px;padding:14px 18px}
+.login-card .form-input:focus{border-color:rgba(255,55,95,.4);box-shadow:0 0 0 4px rgba(255,55,95,.08)}
+.login-card .submit-btn{margin-top:8px;font-size:16px;padding:16px;letter-spacing:2px}
+#login-error{color:#ff5050;font-size:13px;text-align:center;min-height:20px;margin-bottom:8px}
+.nav-right{display:flex;align-items:center;gap:8px}
+
+</style>
+</head>
+<body>
+  <div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">绿洲</div>
+    <div class="login-sub">O A S I S</div>
+    <form onsubmit="handleLogin(event)">
+      <div class="form-group"><input class="form-input" id="login-username" placeholder="用户名" autocomplete="username" required></div>
+      <div class="form-group"><input class="form-input" id="login-password" type="password" placeholder="密码" autocomplete="current-password" required></div>
+      <div id="login-error"></div>
+      <button type="submit" class="submit-btn" id="login-btn">进入绿洲</button>
+    </form>
+  </div>
+</div>
+
+<nav id="navbar">
+  <div class="nav-logo" onclick="goToPage(0)">绿洲 OASIS</div>
+  <div class="nav-links">
+    <a class="nav-link" data-page="1" onclick="goToPage(1)">游戏</a>
+    <a class="nav-link" data-page="2" onclick="goToPage(2)">电影</a>
+    <a class="nav-link" data-page="3" onclick="goToPage(3)">十佳</a>
+  </div>
+  <div class="nav-right">
+  <button class="nav-settings" onclick="openSettings()" title="设置"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.2 4.2l2.8 2.8M17 17l2.8 2.8M1 12h4M19 12h4M4.2 19.8l2.8-2.8M17 7l2.8-2.8"/></svg></button>
+  <button class="nav-settings" onclick="logout()" title="退出登录"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+</div>
+</nav>
+<div id="page-indicator"></div>
+<div id="fullpage-wrapper">
+
+  <section class="fp-section active" id="page-hero" data-label="首页">
+    <div class="hero-particles" id="hero-particles"></div>
+    <div class="hero-grid-wrapper"><div class="hero-grid"></div></div>
+    <div class="hero-center">
+      <p class="hero-eyebrow anim">Personal Archive</p>
+      <h1 class="hero-title anim d1"><span class="title-line title-accent title-cn">绿洲</span><span class="title-sub">Oasis</span></h1>
+      <p class="hero-desc anim d3">在这里，唯一限制你的是你自己的想象力。<br><span class="quote-source">—— 《头号玩家》Ready Player One</span></p>
+      <div class="hero-actions anim d5"><a class="btn-games" onclick="goToPage(1)">探索游戏库</a><a class="btn-movies" onclick="goToPage(2)">浏览电影集</a></div>
+    </div>
+    <div class="hero-scroll-hint anim d7"><span>Scroll</span><div class="scroll-line"></div></div>
+  </section>
+
+  <section class="fp-section bg-games" id="page-games" data-label="游戏">
+    <div class="fp-section-inner">
+      <div class="section-pad">
+        <span class="section-label anim">Games Collection</span>
+        <h2 class="section-title anim d1">游戏档案馆</h2>
+        <p class="section-desc anim d2">记录你征服过的每一个世界，收藏每一段难忘的旅程。</p>
+        <div class="tab-controls anim d3"><button class="tab-btn active" data-tab="games-played">已玩过</button><button class="tab-btn" data-tab="games-wishlist">愿望单</button></div>
+        <div id="games-played" class="tab-panel active anim d4">
+          <div class="add-btn-container"><button class="add-btn" onclick="startAddGame()">+ 添加游戏</button></div>
+          <div id="played-grid" class="card-grid"></div>
+          <div id="played-empty" class="empty-state" style="display:none"><div class="empty-ring"></div><p>还没有记录任何游戏<br>点击上方按钮添加你的第一款游戏吧</p></div>
+        </div>
+        <div id="games-wishlist" class="tab-panel anim d4">
+          <div class="add-btn-container"><button class="add-btn" onclick="startAddWishlist()">+ 添加到愿望单</button></div>
+          <div id="wishlist-grid" class="card-grid"></div>
+          <div id="wishlist-empty" class="empty-state" style="display:none"><div class="empty-ring"></div><p>愿望单空空如也<br>把你期待的游戏加进来吧</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="fp-section bg-movies" id="page-movies" data-label="电影">
+    <div class="fp-section-inner">
+      <div class="section-pad">
+        <span class="section-label anim">Cinema Archive</span>
+        <h2 class="section-title anim d1">电影放映厅</h2>
+        <p class="section-desc anim d2">银幕之上的光影世界，每一帧都是一段记忆。</p>
+        <div class="tab-controls anim d3"><button class="tab-btn active" data-tab="movies-watched">已观影</button><button class="tab-btn" data-tab="movies-now-playing">正在上映</button><button class="tab-btn" data-tab="movies-upcoming">即将上映</button></div>
+        <div id="movies-watched" class="tab-panel active anim d4">
+          <div class="add-btn-container"><button class="add-btn" onclick="startAddMovie()">+ 添加电影</button></div>
+          <div id="watched-grid" class="card-grid"></div>
+          <div id="watched-empty" class="empty-state" style="display:none"><div class="empty-ring"></div><p>还没有记录任何电影<br>开始记录你的观影旅程吧</p></div>
+        </div>
+        <div id="movies-now-playing" class="tab-panel anim d4">
+          <div id="now-playing-grid" class="card-grid"></div>
+          <div id="now-playing-loading" class="empty-state"><div class="spinner"></div><p>正在获取正在上映的电影...</p></div>
+          <div id="now-playing-empty" class="empty-state" style="display:none"><div class="empty-ring"></div><p>请在设置中配置 TMDB API Key<br>以获取正在上映的电影信息</p></div>
+        </div>
+        <div id="movies-upcoming" class="tab-panel anim d4">
+          <div id="upcoming-grid" class="card-grid"></div>
+          <div id="upcoming-loading" class="empty-state"><div class="spinner"></div><p>正在获取即将上映的电影...</p></div>
+          <div id="upcoming-empty" class="empty-state" style="display:none"><div class="empty-ring"></div><p>请在设置中配置 TMDB API Key<br>以获取即将上映的电影信息</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="fp-section bg-top10" id="page-top10" data-label="十佳">
+    <div class="fp-section-inner">
+      <div class="section-pad">
+        <span class="section-label anim">Top 10 Cinema</span>
+        <h2 class="section-title anim d1">十佳电影</h2>
+        <p class="section-desc anim d2">最高评分，银幕之上的巅峰时刻。</p>
+        <div class="top10-header-actions anim d3">
+          <button class="top10-edit-btn" id="top10-edit-btn" onclick="toggleTop10Edit()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            <span id="top10-edit-label">编辑</span>
+          </button>
+        </div>
+        <div class="top10-showcase anim d4" id="top10-showcase" style="display:none">
+          <div class="top10-scroll-ornament">━ ✦ ━</div>
+          <div class="top10-wall" id="top10-wall"></div>
+          <div class="top10-add-card" id="top10-add-card" onclick="startAddTop10()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            添加电影
+          </div>
+          <div class="top10-scroll-ornament">━ ✦ ━</div>
+        </div>
+        <div id="top10-empty" class="empty-state anim d4" style="display:none">
+          <div class="empty-ring"></div>
+          <p>还没有添加十佳电影<br>从你的观影记录中挑选吧</p>
+          <button class="add-btn" onclick="startAddTop10()" style="margin-top:16px">+ 添加至十佳</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="fp-section bg-footer-section" id="page-footer" data-label="关于">
+    <div class="footer-content anim">
+      <div class="footer-logo">绿洲</div>
+      <div class="footer-sub">O A S I S</div>
+      <p style="font-size:16px;color:var(--text-secondary);margin-bottom:8px">你的专属游戏与电影档案馆</p>
+      <p style="opacity:.4">数据安全存储在云端 · 跨设备同步</p>
+    </div>
+  </section>
+</div>
+
+<!-- MODALS -->
+<div id="modal-add-game" class="modal-backdrop" onclick="handleBackdropClick(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeAllModals()">&#10005;</button>
+    <h3 class="modal-title" id="game-modal-title">添加游戏</h3>
+
+    <div id="game-search-step">
+      <div class="form-group">
+        <div style="display:flex; gap:10px;">
+          <input class="form-input" id="game-search-input" placeholder="输入游戏名称搜索..." onkeypress="if(event.key==='Enter') searchIGDBGame()">
+          <button class="submit-btn" style="width:auto; margin-top:0;" onclick="searchIGDBGame()">搜索</button>
+        </div>
+        <div style="font-size:12px; color:var(--text-muted); margin-top:10px;">请确保已在设置中配置 IGDB API Key。数据将从 IGDB 获取。</div>
+      </div>
+      <div id="game-search-results" style="display:flex; flex-direction:column; gap:10px; max-height:400px; overflow-y:auto; scrollbar-width:thin;"></div>
+      <div style="display:flex; align-items:center; gap:12px; margin-top:20px;">
+        <div style="flex:1; height:.5px; background:rgba(255,255,255,.06)"></div>
+        <button type="button" onclick="switchToManualGameEntry()" style="background:rgba(100,210,255,.06);border:.5px solid rgba(100,210,255,.15);color:var(--neon-cyan);font-size:13px;font-weight:500;padding:9px 22px;border-radius:980px;cursor:pointer;font-family:var(--font-main);transition:all .4s var(--spring);letter-spacing:.3px" onmouseover="this.style.background='rgba(100,210,255,.12)';this.style.borderColor='rgba(100,210,255,.3)'" onmouseout="this.style.background='rgba(100,210,255,.06)';this.style.borderColor='rgba(100,210,255,.15)'">手动上传</button>
+        <div style="flex:1; height:.5px; background:rgba(255,255,255,.06)"></div>
+      </div>
+    </div>
+
+    <div id="game-manual-step" style="display:none;">
+      <div class="form-group"><label class="form-label">游戏名称</label><input class="form-input" id="manual-game-title" placeholder="输入游戏名称" required></div>
+      <div class="form-group"><label class="form-label">封面图片</label><div class="file-upload"><div class="upload-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div><div class="file-upload-text">点击上传封面图片</div><div class="file-upload-hint">推荐比例 3:4</div><input type="file" accept="image/*" onchange="handleManualCoverPreview(this)"></div><div id="manual-cover-preview" class="preview-container"></div></div>
+      <div class="form-group"><label class="form-label">发行年份</label><input class="form-input" id="manual-game-year" type="number" placeholder="例：2023" min="1970" max="2099"></div>
+      <div class="form-group"><label class="form-label">平台</label><input class="form-input" id="manual-game-platforms" placeholder="例：PC / PS5 / Switch"></div>
+      <div style="display:flex; gap:12px; margin-top:10px;">
+        <button type="button" class="delete-btn" style="margin-top:0; width:auto; padding:15px 28px;" onclick="backToGameSearch()">返回搜索</button>
+        <button type="button" class="submit-btn" style="margin-top:0; flex:1;" onclick="confirmManualGame()">下一步</button>
+      </div>
+    </div>
+
+    <div id="game-review-step" style="display:none;">
+      <div id="game-selected-info" style="display:flex; gap:16px; margin-bottom:24px; padding:16px; background:rgba(255,255,255,0.03); border-radius:12px; border:.5px solid rgba(255,255,255,0.05);">
+        <img id="game-selected-cover" src="" style="width:80px; height:107px; object-fit:cover; border-radius:8px;">
+        <div style="display:flex; flex-direction:column; justify-content:center;">
+          <h4 id="game-selected-title" style="font-size:18px; margin-bottom:6px; font-weight:700;"></h4>
+          <p id="game-selected-year" style="font-size:13px; color:var(--text-secondary);"></p>
+          <p id="game-selected-platforms" style="font-size:12px; color:var(--neon-cyan); margin-top:4px;"></p>
+        </div>
+      </div>
+
+      <div id="game-igdb-screenshots" style="display:none;"></div>
+
+      <form id="form-add-game" onsubmit="handleAddGame(event)">
+        <div class="form-group"><label class="form-label">游戏截图（可选）</label><div class="file-upload"><div class="upload-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div><div class="file-upload-text">点击上传截图</div><div class="file-upload-hint">最多6张</div><input type="file" accept="image/*" multiple onchange="handleFilePreview(this,'game-screenshots-preview','multi')"></div><div id="game-screenshots-preview" class="preview-container"></div></div>
+        <div class="form-group"><label class="form-label">游戏音乐（鼠标悬停封面时播放）</label><div class="file-upload"><div class="upload-icon"><svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div><div class="file-upload-text">点击上传一首游戏音乐</div><div class="file-upload-hint">MP3 / OGG / WAV</div><input type="file" accept="audio/*" onchange="handleMusicPreview(this)"></div><div id="game-music-name" style="margin-top:8px;font-size:13px;color:var(--neon-cyan)"></div></div>
+        <div class="form-group"><label class="form-label">评分</label><div class="rating-select" id="game-rating-select"><button type="button" class="star-btn" data-value="1">&#9733;</button><button type="button" class="star-btn" data-value="2">&#9733;</button><button type="button" class="star-btn" data-value="3">&#9733;</button><button type="button" class="star-btn" data-value="4">&#9733;</button><button type="button" class="star-btn" data-value="5">&#9733;</button></div><input type="hidden" name="rating" id="game-rating-value" value="0"></div>
+        <div class="form-group"><label class="form-label">详细评测</label><textarea class="form-textarea" name="review" placeholder="写下你的游戏评测..."></textarea></div>
+        <div style="display:flex; gap:12px; margin-top:10px;">
+          <button type="button" id="btn-back-game-search" class="delete-btn" style="margin-top:0; width:auto; padding:15px 28px;" onclick="backToGameSearch()">返回搜索</button>
+          <button type="submit" class="submit-btn" style="margin-top:0; flex:1;">保存游戏</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="modal-add-wishlist" class="modal-backdrop" onclick="handleBackdropClick(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeAllModals()">&#10005;</button>
+    <h3 class="modal-title" id="wishlist-modal-title">添加到愿望单</h3>
+
+    <div id="wishlist-search-step">
+      <div class="form-group">
+        <div style="display:flex; gap:10px;">
+          <input class="form-input" id="wishlist-search-input" placeholder="输入游戏名称搜索..." onkeypress="if(event.key==='Enter') searchIGDBForWishlist()">
+          <button class="submit-btn" style="width:auto; margin-top:0;" onclick="searchIGDBForWishlist()">搜索</button>
+        </div>
+        <div style="font-size:12px; color:var(--text-muted); margin-top:10px;">请确保已在设置中配置 IGDB API Key。</div>
+      </div>
+      <div id="wishlist-search-results" style="display:flex; flex-direction:column; gap:10px; max-height:400px; overflow-y:auto; scrollbar-width:thin;"></div>
+    </div>
+
+    <div id="wishlist-review-step" style="display:none;">
+      <div id="wishlist-selected-info" style="display:flex; gap:16px; margin-bottom:24px; padding:16px; background:rgba(255,255,255,0.03); border-radius:12px; border:.5px solid rgba(255,255,255,0.05);">
+        <img id="wishlist-selected-cover" src="" style="width:80px; height:107px; object-fit:cover; border-radius:8px;">
+        <div style="display:flex; flex-direction:column; justify-content:center;">
+          <h4 id="wishlist-selected-title" style="font-size:18px; margin-bottom:6px; font-weight:700;"></h4>
+          <p id="wishlist-selected-year" style="font-size:13px; color:var(--text-secondary);"></p>
+          <p id="wishlist-selected-platforms" style="font-size:12px; color:var(--neon-cyan); margin-top:4px;"></p>
+        </div>
+      </div>
+
+      <form id="form-add-wishlist" onsubmit="handleAddWishlist(event)">
+        <div class="form-group"><label class="form-label">加入愿望单的理由</label><textarea class="form-textarea" name="reason" placeholder="为什么期待这款游戏？"></textarea></div>
+        <div style="display:flex; gap:12px; margin-top:10px;">
+          <button type="button" id="btn-back-wishlist-search" class="delete-btn" style="margin-top:0; width:auto; padding:15px 28px;" onclick="backToWishlistSearch()">返回搜索</button>
+          <button type="submit" class="submit-btn" style="margin-top:0; flex:1;">加入愿望单</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODIFIED: 电影添加方式变更为搜索 + 评分模式 -->
+<div id="modal-add-movie" class="modal-backdrop" onclick="handleBackdropClick(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeAllModals()">✕</button>
+    <h3 class="modal-title" id="movie-modal-title">添加电影</h3>
+    
+    <div id="movie-search-step">
+      <div class="form-group">
+        <div style="display:flex; gap:10px;">
+          <input class="form-input" id="movie-search-input" placeholder="输入电影名称搜索..." onkeypress="if(event.key==='Enter') searchTMDBMovie()">
+          <button class="submit-btn" style="width:auto; margin-top:0;" onclick="searchTMDBMovie()">搜索</button>
+        </div>
+        <div style="font-size:12px; color:var(--text-muted); margin-top:10px;">请确保已在设置中配置 TMDB API Key。数据将从网络获取。</div>
+      </div>
+      <div id="movie-search-results" style="display:flex; flex-direction:column; gap:10px; max-height:400px; overflow-y:auto; scrollbar-width:thin;">
+      </div>
+    </div>
+
+    <div id="movie-review-step" style="display:none;">
+      <div id="movie-selected-info" style="display:flex; gap:16px; margin-bottom:24px; padding:16px; background:rgba(255,255,255,0.03); border-radius:12px; border:.5px solid rgba(255,255,255,0.05);">
+        <img id="movie-selected-poster" src="" style="width:72px; height:108px; object-fit:cover; border-radius:8px;">
+        <div style="display:flex; flex-direction:column; justify-content:center;">
+          <h4 id="movie-selected-title" style="font-size:18px; margin-bottom:6px; font-weight:700;"></h4>
+          <p id="movie-selected-year" style="font-size:13px; color:var(--text-secondary);"></p>
+        </div>
+      </div>
+      
+      <form id="form-add-movie" onsubmit="handleAddMovie(event)">
+        <div class="form-group">
+          <label class="form-label">你的评分</label>
+          <div class="rating-select" id="movie-rating-select">
+            <button type="button" class="star-btn" data-value="1">★</button>
+            <button type="button" class="star-btn" data-value="2">★</button>
+            <button type="button" class="star-btn" data-value="3">★</button>
+            <button type="button" class="star-btn" data-value="4">★</button>
+            <button type="button" class="star-btn" data-value="5">★</button>
+          </div>
+          <input type="hidden" name="userRating" id="movie-rating-value" value="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">详细评测</label>
+          <textarea class="form-textarea" name="review" placeholder="写下你的影评..."></textarea>
+        </div>
+        <div style="display:flex; gap:12px; margin-top:10px;">
+          <button type="button" id="btn-back-search" class="delete-btn" style="margin-top:0; width:auto; padding:15px 28px;" onclick="backToMovieSearch()">返回搜索</button>
+          <button type="submit" class="submit-btn" style="margin-top:0; flex:1;">保存观影记录</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="modal-game-detail" class="modal-backdrop detail-modal" onclick="handleBackdropClick(event)"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeAllModals()">✕</button><div id="game-detail-content"></div></div></div>
+<div id="modal-movie-detail" class="modal-backdrop detail-modal" onclick="handleBackdropClick(event)"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeAllModals()">✕</button><div id="movie-detail-content"></div></div></div>
+<div id="modal-upcoming-detail" class="modal-backdrop detail-modal" onclick="handleBackdropClick(event)"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeAllModals()">✕</button><div id="upcoming-detail-content"></div></div></div>
+<div id="modal-wishlist-detail" class="modal-backdrop detail-modal" onclick="handleBackdropClick(event)"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeAllModals()">✕</button><div id="wishlist-detail-content"></div></div></div>
+<div id="modal-now-playing-detail" class="modal-backdrop detail-modal" onclick="handleBackdropClick(event)"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeAllModals()">✕</button><div id="now-playing-detail-content"></div></div></div>
+
+<div id="modal-top10-pick" class="modal-backdrop" onclick="handleBackdropClick(event)">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:620px">
+    <button class="modal-close" onclick="closeAllModals()">&#10005;</button>
+    <h3 class="modal-title">添加至十佳</h3>
+    <div id="top10-pick-step">
+      <div class="top10-pick-search">
+        <input class="form-input" id="top10-pick-search-input" placeholder="搜索已观影电影..." oninput="filterTop10Pick(this.value)">
+      </div>
+      <div id="top10-pick-grid" class="top10-pick-grid"></div>
+      <div id="top10-pick-empty" class="empty-state" style="display:none;padding:40px 0"><div class="empty-ring"></div><p>没有找到匹配的电影</p></div>
+    </div>
+    <div id="top10-reason-step" style="display:none">
+      <div id="top10-pick-confirm" class="top10-pick-confirm">
+        <img id="top10-pick-poster" src="">
+        <div class="top10-pick-confirm-info">
+          <h4 id="top10-pick-title"></h4>
+          <p id="top10-pick-year"></p>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">入选十佳的理由（可选）</label>
+        <textarea class="form-textarea" id="top10-reason-input" placeholder="为什么这部电影值得入选你的十佳？"></textarea>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:10px">
+        <button type="button" class="delete-btn" style="margin-top:0;width:auto;padding:15px 28px" onclick="backToTop10Pick()">返回选择</button>
+        <button type="button" class="submit-btn" style="margin-top:0;flex:1" onclick="confirmAddTop10()">确认添加</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-settings" class="modal-backdrop" onclick="handleBackdropClick(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeAllModals()">✕</button>
+    <h3 class="modal-title">设置</h3>
+    <div class="settings-info"><p>获取「正在上映」和「即将上映」的电影需要 TMDB API Key。<br>请前往 <a href="https://www.themoviedb.org/settings/api" target="_blank">TMDB 官网</a> 免费注册获取。</p></div>
+    <div class="form-group"><label class="form-label">TMDB API Key</label><input class="form-input" id="tmdb-api-key" placeholder="输入你的 TMDB API Key"></div>
+    <hr style="border:none;border-top:.5px solid rgba(255,255,255,.05);margin:28px 0">
+    <div class="settings-info"><p>搜索添加游戏需要 IGDB API（通过 Twitch 开发者获取）。<br>请前往 <a href="https://dev.twitch.tv/console" target="_blank">Twitch 开发者控制台</a> 创建应用获取 Client ID 和 Client Secret。</p></div>
+    <div class="form-group"><label class="form-label">IGDB Client ID</label><input class="form-input" id="igdb-client-id" placeholder="输入 Twitch Client ID"></div>
+    <div class="form-group"><label class="form-label">IGDB Client Secret</label><input class="form-input" id="igdb-client-secret" type="password" placeholder="输入 Twitch Client Secret"></div>
+    <button class="submit-btn" onclick="saveSettings()">保存设置</button>
+    <hr style="border:none;border-top:.5px solid rgba(255,255,255,.05);margin:28px 0">
+    <div class="form-group"><label class="form-label">数据迁移</label><div class="settings-info"><p>将已有游戏的截图、音乐和封面从数据库迁移到服务器文件存储，减少数据库负担并提升加载速度。</p></div><button class="submit-btn" style="background:linear-gradient(135deg,var(--neon-cyan),var(--neon-purple))" onclick="migrateData()">迁移数据</button></div>
+    <hr style="border:none;border-top:.5px solid rgba(255,255,255,.05);margin:28px 0">
+    <div class="form-group"><label class="form-label" style="color:#ff5050">危险操作</label><button class="delete-btn" onclick="if(confirm('确定要清除所有数据吗？')){clearAllData();}">清除所有数据</button></div>
+  </div>
+</div>
+
+<div id="lightbox" class="lightbox" onclick="closeLightbox()"><img id="lightbox-img" src="" alt=""></div>
+<div id="toast-container" class="toast-container"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<script>
+/* ═══ Canvas noise ═══ */
+!function(){const c=document.createElement('canvas'),x=c.getContext('2d');c.width=256;c.height=256;const d=x.createImageData(256,256),p=d.data;for(let i=0;i<p.length;i+=4){const v=Math.random()*255|0;p[i]=p[i+1]=p[i+2]=v;p[i+3]=5}x.putImageData(d,0,0);document.documentElement.style.setProperty('--noise-bg',`url(${c.toDataURL('image/png')})`)}();
+
+/* ═══ PARTICLES ═══ */
+!function(){const c=document.getElementById('hero-particles'),cl=['#fff','#fff','#fff','#7eb8ff','#a07eff','#ff6b9d'];for(let i=0;i<25;i++){const p=document.createElement('div');p.className='hero-particle';const s=1+Math.random()*2.5;Object.assign(p.style,{left:Math.random()*100+'%',top:Math.random()*75+'%',animationDelay:Math.random()*6+'s',animationDuration:3+Math.random()*4+'s',width:s+'px',height:s+'px',background:cl[Math.random()*cl.length|0]});c.appendChild(p)}}();
+
+/* ═══ FULLPAGE ═══ */
+const fpW=document.getElementById('fullpage-wrapper'),fpS=document.querySelectorAll('.fp-section'),tP=fpS.length;
+let cP=0,isA=false,aD=0;const AD=1000,DT=80;
+function buildPI(){const c=document.getElementById('page-indicator');c.innerHTML='';fpS.forEach((s,i)=>{const d=document.createElement('div');d.className='page-dot'+(i===0?' active':'');d.dataset.label=s.dataset.label||'';d.onclick=()=>goToPage(i);c.appendChild(d)})}
+function upPI(){document.querySelectorAll('.page-dot').forEach((d,i)=>d.classList.toggle('active',i===cP))}
+function upNL(){document.querySelectorAll('.nav-link').forEach(a=>a.classList.toggle('active',+a.dataset.page===cP));document.getElementById('navbar').classList.toggle('nav-solid',cP>0)}
+function goToPage(i){if(i<0||i>=tP||i===cP||isA)return;isA=true;fpS[cP].classList.remove('active');cP=i;fpW.style.willChange='transform';fpW.style.transform=`translateY(-${cP*100}vh)`;upPI();upNL();setTimeout(()=>fpS[cP].classList.add('active'),200);setTimeout(()=>{isA=false;fpW.style.willChange='auto'},AD)}
+fpW.addEventListener('wheel',e=>{if(document.querySelector('.modal-backdrop.show'))return;const inner=fpS[cP].querySelector('.fp-section-inner');if(inner){const t=inner.scrollTop<=2,b=inner.scrollTop+inner.clientHeight>=inner.scrollHeight-2;if(e.deltaY>0&&!b||e.deltaY<0&&!t)return}e.preventDefault();aD+=e.deltaY;if(Math.abs(aD)>=DT){goToPage(cP+(aD>0?1:-1));aD=0}clearTimeout(window._wr);window._wr=setTimeout(()=>aD=0,300)},{passive:false});
+let tsy=0,tst=0;
+fpW.addEventListener('touchstart',e=>{if(!document.querySelector('.modal-backdrop.show')){tsy=e.touches[0].clientY;tst=Date.now()}},{passive:true});
+fpW.addEventListener('touchend',e=>{if(document.querySelector('.modal-backdrop.show'))return;const dy=tsy-e.changedTouches[0].clientY,inner=fpS[cP].querySelector('.fp-section-inner');if(inner&&(dy>0&&inner.scrollTop+inner.clientHeight<inner.scrollHeight-2||dy<0&&inner.scrollTop>2))return;if(Math.abs(dy)>60&&Date.now()-tst<600)goToPage(cP+(dy>0?1:-1))},{passive:true});
+document.addEventListener('keydown',e=>{if(document.querySelector('.modal-backdrop.show')){e.key==='Escape'&&(closeLightbox(),closeAllModals());return}const m={ArrowDown:1,PageDown:1,ArrowUp:-1,PageUp:-1}[e.key];if(m!==undefined){e.preventDefault();goToPage(cP+m)}else if(e.key==='Home'){e.preventDefault();goToPage(0)}else if(e.key==='End'){e.preventDefault();goToPage(tP-1)}else e.key==='Escape'&&(closeLightbox(),closeAllModals())});
+document.addEventListener('visibilitychange',()=>{document.documentElement.style.setProperty('--anim-state',document.hidden?'paused':'running')});
+
+/* ═══ AUTH & API ═══ */
+let authToken=localStorage.getItem('oasis_token')||null;
+let cachedTmdbKey='';
+let cachedIgdbClientId='';
+let cachedIgdbClientSecret='';
+
+function authHeaders(){return{'Content-Type':'application/json','Authorization':`Bearer ${authToken}`}}
+
+function showLoginScreen(){
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('login-error').textContent='';
+}
+function hideLoginScreen(){
+  document.getElementById('login-screen').style.display='none';
+}
+
+async function handleLogin(e){
+  e.preventDefault();
+  const u=document.getElementById('login-username').value.trim();
+  const p=document.getElementById('login-password').value;
+  if(!u||!p)return;
+  const btn=document.getElementById('login-btn');
+  btn.disabled=true;btn.textContent='登录中...';
+  document.getElementById('login-error').textContent='';
+  try{
+    const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.error||'登录失败');
+    authToken=d.token;localStorage.setItem('oasis_token',d.token);
+    hideLoginScreen();await loadData();
+  }catch(err){
+    document.getElementById('login-error').textContent=err.message||'登录失败';
+  }finally{btn.disabled=false;btn.textContent='进入绿洲'}
+}
+
+function logout(){
+  authToken=null;localStorage.removeItem('oasis_token');
+  showLoginScreen();
+}
+
+/* ═══ CLOUD DB FUNCTIONS (替代 IndexedDB) ═══ */
+async function dbA(s){
+  const r=await fetch(`/api/store/${s}`,{headers:authHeaders()});
+  if(r.status===401){logout();return[]}
+  if(!r.ok)throw new Error('请求失败');return r.json();
+}
+async function dbG(s,id){
+  const r=await fetch(`/api/store/${s}/${encodeURIComponent(id)}`,{headers:authHeaders()});
+  if(r.status===401){logout();return null}
+  if(!r.ok)throw new Error('请求失败');return r.json();
+}
+async function dbP(s,d){
+  const r=await fetch(`/api/store/${s}`,{method:'PUT',headers:authHeaders(),body:JSON.stringify(d)});
+  if(r.status===401){logout();return}
+  if(!r.ok)throw new Error('保存失败');
+}
+async function dbD(s,id){
+  const r=await fetch(`/api/store/${s}/${encodeURIComponent(id)}`,{method:'DELETE',headers:authHeaders()});
+  if(r.status===401){logout();return}
+  if(!r.ok)throw new Error('删除失败');
+}
+async function dbC(s){
+  const r=await fetch(`/api/store/${s}`,{method:'DELETE',headers:authHeaders()});
+  if(r.status===401){logout();return}
+  if(!r.ok)throw new Error('清除失败');
+}
+
+/* ═══ TMDB KEY (云端存储) ═══ */
+async function loadTmdbKey(){
+  try{const r=await fetch('/api/settings/tmdb_api_key',{headers:authHeaders()});if(r.ok){const d=await r.json();cachedTmdbKey=d.value||''}}catch(e){cachedTmdbKey=''}
+}
+async function saveTmdbKey(key){
+  cachedTmdbKey=key;
+  try{await fetch('/api/settings/tmdb_api_key',{method:'PUT',headers:authHeaders(),body:JSON.stringify({value:key})})}catch(e){}
+}
+async function loadIgdbKeys(){
+  try{
+    const [r1,r2]=await Promise.all([
+      fetch('/api/settings/igdb_client_id',{headers:authHeaders()}),
+      fetch('/api/settings/igdb_client_secret',{headers:authHeaders()})
+    ]);
+    if(r1.ok){const d=await r1.json();cachedIgdbClientId=d.value||''}
+    if(r2.ok){const d=await r2.json();cachedIgdbClientSecret=d.value||''}
+  }catch(e){cachedIgdbClientId='';cachedIgdbClientSecret=''}
+}
+async function saveIgdbKeys(cid,sec){
+  cachedIgdbClientId=cid;cachedIgdbClientSecret=sec;
+  try{await Promise.all([
+    fetch('/api/settings/igdb_client_id',{method:'PUT',headers:authHeaders(),body:JSON.stringify({value:cid})}),
+    fetch('/api/settings/igdb_client_secret',{method:'PUT',headers:authHeaders(),body:JSON.stringify({value:sec})})
+  ])}catch(e){}
+}
+
+/* ═══ UTILS ═══ */
+const gid=()=>Date.now().toString(36)+Math.random().toString(36).substr(2,9);
+const f2b=f=>new Promise((r,j)=>{const rd=new FileReader;rd.onload=()=>r(rd.result);rd.onerror=j;rd.readAsDataURL(f)});
+function showToast(m,t='success'){const c=document.getElementById('toast-container'),el=document.createElement('div');el.className=`toast ${t}`;el.textContent=m;c.appendChild(el);requestAnimationFrame(()=>el.classList.add('show'));setTimeout(()=>{el.classList.remove('show');setTimeout(()=>el.remove(),400)},3000)}
+function renderStars(r,sz='14px'){let h='';for(let i=1;i<=5;i++)h+=`<span class="star${i<=r?' filled':''}" style="font-size:${sz}">★</span>`;return h}
+const tDot=s=>`<span class="tomato-dot ${s>=60?'t-fresh':'t-rotten'}"></span>`;
+const tDotL=s=>`<span class="tomato-dot-lg ${s>=60?'t-fresh':'t-rotten'}"></span>`;
+const tClass=s=>s>=60?'tomato-fresh':'tomato-rotten';
+const tLabel=s=>s>=60?'新鲜':'腐烂';
+const PH="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 400'><rect fill='%231a0a2e' width='300' height='400'/></svg>";
+const PHM="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 450'><rect fill='%231a0a2e' width='300' height='450'/></svg>";
+const igdbImg=(id,sz)=>`https://images.igdb.com/igdb/image/upload/t_${sz}/${id}.jpg`;
+
+/* ═══ CARD CONTEXT MENU ═══ */
+let editingGameId=null,editingWishlistId=null,editingMovieId=null;
+let pendingGameData=null;
+let pendingWishlistData=null;
+const cardMenuHTML=(type,id)=>`<div class="card-menu-wrap" onclick="event.stopPropagation()"><button class="card-menu-btn" onclick="toggleCardMenu(this)"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button><div class="card-menu-dropdown"><button class="card-menu-item" onclick="handleCardEdit('${type}','${id}')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>编辑</button><button class="card-menu-item danger" onclick="handleCardDelete('${type}','${id}')"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>删除</button></div></div>`;
+function toggleCardMenu(btn){const dd=btn.nextElementSibling,isOpen=dd.classList.contains('show');closeCardMenus();if(!isOpen){dd.classList.add('show');btn.classList.add('active')}}
+function closeCardMenus(){document.querySelectorAll('.card-menu-dropdown.show').forEach(d=>{d.classList.remove('show');d.previousElementSibling.classList.remove('active')})}
+document.addEventListener('click',e=>{if(!e.target.closest('.card-menu-wrap'))closeCardMenus()});
+function handleCardEdit(type,id){closeCardMenus();if(type==='game')editGame(id);else if(type==='wishlist')editWishlist(id);else if(type==='movie')editMovie(id)}
+function handleCardDelete(type,id){closeCardMenus();if(type==='game')deleteGame(id);else if(type==='wishlist')deleteWishlist(id);else if(type==='movie')deleteMovie(id)}
+
+/* ═══ START ADD ═══ */
+function startAddGame(){
+  editingGameId=null;pendingGameData=null;resetGF();
+  document.getElementById('game-modal-title').textContent='添加游戏';
+  document.getElementById('game-search-input').value='';
+  document.getElementById('game-search-results').innerHTML='';
+  document.getElementById('game-search-step').style.display='block';
+  document.getElementById('game-manual-step').style.display='none';
+  document.getElementById('game-review-step').style.display='none';
+  document.getElementById('btn-back-game-search').style.display='block';
+  document.querySelector('#form-add-game .submit-btn').textContent='保存游戏';
+  openModal('add-game');
+}
+function startAddWishlist(){
+  editingWishlistId=null;pendingWishlistData=null;
+  document.getElementById('form-add-wishlist').reset();tf={};
+  document.getElementById('wishlist-modal-title').textContent='添加到愿望单';
+  document.getElementById('wishlist-search-input').value='';
+  document.getElementById('wishlist-search-results').innerHTML='';
+  document.getElementById('wishlist-search-step').style.display='block';
+  document.getElementById('wishlist-review-step').style.display='none';
+  document.getElementById('btn-back-wishlist-search').style.display='block';
+  document.querySelector('#form-add-wishlist .submit-btn').textContent='加入愿望单';
+  openModal('add-wishlist');
+}
+function startAddMovie(){
+  editingMovieId=null;pendingMovieData=null;
+  document.getElementById('movie-modal-title').textContent='添加电影';
+  document.getElementById('movie-search-input').value='';
+  document.getElementById('movie-search-results').innerHTML='';
+  document.getElementById('movie-search-step').style.display='block';
+  document.getElementById('movie-review-step').style.display='none';
+  document.getElementById('btn-back-search').style.display='block';
+  document.querySelector('#modal-add-movie .submit-btn').textContent='保存观影记录';
+  openModal('add-movie');
+}
+
+/* ═══ EDIT ITEM ═══ */
+async function editGame(id){
+  closeCardMenus();stopGM();const g=await dbG('games',id);if(!g)return;
+  editingGameId=id;pendingGameData=null;resetGF();
+  document.getElementById('game-search-step').style.display='none';
+  document.getElementById('game-manual-step').style.display='none';
+  document.getElementById('game-review-step').style.display='block';
+  document.getElementById('btn-back-game-search').style.display='none';
+  document.getElementById('game-selected-cover').src=g.cover||PH;
+  document.getElementById('game-selected-title').textContent=g.title||'';
+  document.getElementById('game-selected-year').textContent=g.releaseYear||'';
+  document.getElementById('game-selected-platforms').textContent=(g.platforms||[]).join(' / ');
+  const form=document.getElementById('form-add-game');
+  form.review.value=g.review||'';
+  document.getElementById('game-rating-value').value=g.rating||0;
+  document.querySelectorAll('#game-rating-select .star-btn').forEach(b=>b.classList.toggle('active',+b.dataset.value<=(g.rating||0)));
+  if(g.music){document.getElementById('game-music-name').textContent='已有音乐文件'}
+  const existScreenshots=(g.screenshots||[]);
+  if(existScreenshots.length){document.getElementById('game-screenshots-preview').innerHTML=existScreenshots.map(s=>`<img class="preview-thumb" src="${s}">`).join('')}
+  document.getElementById('game-modal-title').textContent='编辑游戏';
+  document.querySelector('#form-add-game .submit-btn').textContent='保存修改';
+  openModal('add-game');
+}
+async function editWishlist(id){
+  closeCardMenus();const item=await dbG('wishlist',id);if(!item)return;
+  editingWishlistId=id;pendingWishlistData=null;
+  document.getElementById('wishlist-search-step').style.display='none';
+  document.getElementById('wishlist-review-step').style.display='block';
+  document.getElementById('btn-back-wishlist-search').style.display='none';
+  document.getElementById('wishlist-selected-cover').src=item.cover||PH;
+  document.getElementById('wishlist-selected-title').textContent=item.title||'';
+  document.getElementById('wishlist-selected-year').textContent=item.releaseYear||'';
+  document.getElementById('wishlist-selected-platforms').textContent=(item.platforms||[]).join(' / ');
+  const form=document.getElementById('form-add-wishlist');
+  form.reason.value=item.reason||'';
+  document.getElementById('wishlist-modal-title').textContent='编辑愿望单';
+  document.querySelector('#form-add-wishlist .submit-btn').textContent='保存修改';
+  openModal('add-wishlist');
+}
+async function editMovie(id){
+  closeCardMenus();const m=await dbG('movies',id);if(!m)return;
+  editingMovieId=id;pendingMovieData=null;
+  document.getElementById('movie-search-step').style.display='none';
+  document.getElementById('movie-review-step').style.display='block';
+  document.getElementById('btn-back-search').style.display='none';
+  document.getElementById('movie-selected-poster').src=m.poster||PHM;
+  document.getElementById('movie-selected-title').textContent=m.title||'未知电影';
+  document.getElementById('movie-selected-year').textContent=m.year||'';
+  const form=document.getElementById('form-add-movie');
+  form.review.value=m.review||'';
+  const ur=m.userRating!=null?m.userRating:(m.rating!=null?Math.round(m.rating/20):0);
+  document.getElementById('movie-rating-value').value=ur;
+  document.querySelectorAll('#movie-rating-select .star-btn').forEach(b=>b.classList.toggle('active',+b.dataset.value<=ur));
+  document.getElementById('movie-modal-title').textContent='编辑记录';
+  document.querySelector('#modal-add-movie .submit-btn').textContent='保存修改';
+  openModal('add-movie');
+}
+
+/* ═══ TABS ═══ */
+document.querySelectorAll('.tab-btn').forEach(btn=>btn.onclick=function(){const p=this.closest('.section-pad');p.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');p.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));document.getElementById(this.dataset.tab).classList.add('active')});
+
+/* ═══ MODALS ═══ */
+function openModal(n){const m=document.getElementById(`modal-${n}`);m&&(m.classList.add('show'),document.body.style.overflow='hidden')}
+function closeAllModals(){document.querySelectorAll('.modal-backdrop').forEach(m=>m.classList.remove('show'));document.body.style.overflow='';editingGameId=null;editingWishlistId=null;editingMovieId=null}
+function handleBackdropClick(e){e.target===e.currentTarget&&closeAllModals()}
+
+/* ═══ FILES ═══ */
+let tf={};
+function handleFilePreview(input,pid,mode){
+  const pv=document.getElementById(pid),files=input.files;if(!files.length)return;
+  if(mode==='single'){
+    pv.innerHTML='';tf[pid]=null;tf[pid+'_files']=null;
+    const url=URL.createObjectURL(files[0]);
+    tf[pid]=url;tf[pid+'_files']=files[0];
+    pv.innerHTML=`<img class="preview-thumb" src="${url}">`;
+    input.closest('.file-upload').classList.add('has-file');
+  }else{
+    pv.innerHTML='';tf[pid]=[];tf[pid+'_files']=[];
+    for(let i=0;i<Math.min(files.length,6);i++){
+      const file=files[i],url=URL.createObjectURL(file);
+      tf[pid].push(url);tf[pid+'_files'].push(file);
+      const img=document.createElement('img');img.src=url;img.className='preview-thumb';pv.appendChild(img);
+    }
+    input.closest('.file-upload').classList.add('has-file');
+  }
+}
+function handleMusicPreview(input){
+  const f=input.files[0];if(!f)return;
+  tf['game-music-file']=f;
+  tf['game-music']=URL.createObjectURL(f);
+  document.getElementById('game-music-name').textContent=f.name;
+  input.closest('.file-upload').classList.add('has-file');
+}
+
+/* ═══ RATING ═══ */
+document.querySelectorAll('.rating-select').forEach(c=>{const bs=c.querySelectorAll('.star-btn');bs.forEach(b=>{b.onmouseenter=()=>{const v=+b.dataset.value;bs.forEach(x=>x.classList.toggle('active',+x.dataset.value<=v))};b.onclick=()=>{const hi=c.nextElementSibling;hi.value=b.dataset.value;const v=+b.dataset.value;bs.forEach(x=>x.classList.toggle('active',+x.dataset.value<=v))}});c.onmouseleave=()=>{const hi=c.nextElementSibling;const cur=+(hi.value)||0;bs.forEach(x=>x.classList.toggle('active',+x.dataset.value<=cur))}});
+
+/* ═══ GAME CRUD ═══ */
+function resetGF(){document.getElementById('form-add-game').reset();tf={};document.querySelectorAll('#modal-add-game .preview-container').forEach(c=>c.innerHTML='');document.querySelectorAll('#modal-add-game .file-upload').forEach(f=>f.classList.remove('has-file'));document.getElementById('game-music-name').textContent='';document.querySelectorAll('#game-rating-select .star-btn').forEach(b=>b.classList.remove('active'));document.getElementById('game-rating-value').value='0';const mp=document.getElementById('manual-cover-preview');if(mp)mp.innerHTML=''}
+
+async function searchIGDBGame(){
+  if(!cachedIgdbClientId||!cachedIgdbClientSecret)return showToast('请先在设置中配置 IGDB API Key','error');
+  const input=document.getElementById('game-search-input').value.trim();if(!input)return;
+  const rc=document.getElementById('game-search-results');
+  rc.innerHTML='<div class="spinner" style="margin:20px auto;width:24px;height:24px;border-width:2px"></div>';
+  try{
+    const r=await fetch('/api/igdb/search',{method:'POST',headers:authHeaders(),body:JSON.stringify({query:input})});
+    if(!r.ok)throw new Error((await r.json()).error||'搜索失败');
+    const data=await r.json();
+    if(!data?.length){rc.innerHTML='<div class="empty-state" style="padding:20px"><p>未找到相关游戏</p></div>';return}
+    window._igdbResults=data;
+    rc.innerHTML=data.map((g,idx)=>{
+      const cover=g.cover?.image_id?igdbImg(g.cover.image_id,'cover_small'):PH;
+      const year=g.first_release_date?new Date(g.first_release_date*1000).getFullYear():'未知年份';
+      const plats=(g.platforms||[]).map(p=>p.name).join(' / ')||'';
+      return `<div class="search-result-item" onclick="selectGameFromResults(${idx})" style="display:flex;gap:14px;padding:10px;background:rgba(255,255,255,0.02);border:.5px solid rgba(255,255,255,0.05);border-radius:12px;cursor:pointer;transition:all .3s;"><img src="${cover}" style="width:50px;height:67px;object-fit:cover;border-radius:6px;flex-shrink:0;"><div style="display:flex;flex-direction:column;justify-content:center;min-width:0;"><div style="font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${g.name}</div><div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${year}${plats?' · '+plats:''}</div></div></div>`;
+    }).join('');
+  }catch(e){rc.innerHTML=`<div class="empty-state" style="padding:20px"><p>${e.message||'搜索失败，请检查网络或 API Key'}</p></div>`}
+}
+
+function selectGameFromResults(idx){
+  const g=window._igdbResults[idx];if(!g)return;
+  const coverUrl=g.cover?.image_id?igdbImg(g.cover.image_id,'cover_big'):null;
+  const year=g.first_release_date?new Date(g.first_release_date*1000).getFullYear():'未知年份';
+  const plats=(g.platforms||[]).map(p=>p.name).join(' / ')||'';
+  pendingGameData={igdbId:g.id,name:g.name,coverUrl,year:String(year),platforms:plats};
+  document.getElementById('game-search-step').style.display='none';
+  document.getElementById('game-review-step').style.display='block';
+  document.getElementById('game-selected-cover').src=coverUrl||PH;
+  document.getElementById('game-selected-title').textContent=g.name;
+  document.getElementById('game-selected-year').textContent=year;
+  document.getElementById('game-selected-platforms').textContent=plats;
+  document.getElementById('form-add-game').reset();
+  document.getElementById('game-rating-value').value='0';
+  document.querySelectorAll('#game-rating-select .star-btn').forEach(b=>b.classList.remove('active'));
+  tf={};document.querySelectorAll('#modal-add-game .preview-container').forEach(c=>c.innerHTML='');
+  document.getElementById('game-music-name').textContent='';
+}
+
+function backToGameSearch(){document.getElementById('game-search-step').style.display='block';document.getElementById('game-manual-step').style.display='none';document.getElementById('game-review-step').style.display='none';pendingGameData=null}
+
+function switchToManualGameEntry(){
+  document.getElementById('game-search-step').style.display='none';
+  document.getElementById('game-manual-step').style.display='block';
+  document.getElementById('game-review-step').style.display='none';
+  pendingGameData=null;
+  document.getElementById('manual-game-title').value='';
+  document.getElementById('manual-game-year').value='';
+  document.getElementById('manual-game-platforms').value='';
+  const mp=document.getElementById('manual-cover-preview');if(mp)mp.innerHTML='';
+  tf['manual-cover-file']=null;tf['manual-cover']=null;
+}
+function handleManualCoverPreview(input){
+  const f=input.files[0];if(!f)return;
+  tf['manual-cover-file']=f;
+  const url=URL.createObjectURL(f);
+  tf['manual-cover']=url;
+  document.getElementById('manual-cover-preview').innerHTML=`<img class="preview-thumb" src="${url}" style="width:120px;height:160px">`;
+  input.closest('.file-upload').classList.add('has-file');
+}
+function confirmManualGame(){
+  const title=document.getElementById('manual-game-title').value.trim();
+  if(!title)return showToast('请输入游戏名称','error');
+  const year=document.getElementById('manual-game-year').value||'';
+  const platforms=document.getElementById('manual-game-platforms').value.trim();
+  pendingGameData={igdbId:null,name:title,coverUrl:null,coverFile:tf['manual-cover-file']||null,year:String(year),platforms:platforms,isManual:true};
+  document.getElementById('game-manual-step').style.display='none';
+  document.getElementById('game-review-step').style.display='block';
+  document.getElementById('game-selected-cover').src=tf['manual-cover']||PH;
+  document.getElementById('game-selected-title').textContent=title;
+  document.getElementById('game-selected-year').textContent=year;
+  document.getElementById('game-selected-platforms').textContent=platforms;
+  document.getElementById('form-add-game').reset();
+  document.getElementById('game-rating-value').value='0';
+  document.querySelectorAll('#game-rating-select .star-btn').forEach(b=>b.classList.remove('active'));
+  tf['game-screenshots-preview_files']=[];tf['game-screenshots-preview']=[];
+  document.querySelectorAll('#modal-add-game .preview-container').forEach(c=>c.innerHTML='');
+  document.getElementById('game-music-name').textContent='';
+}
+
+async function uploadGameFiles(gameId, coverSource, screenshotFiles, musicFile) {
+  const results = { cover: null, screenshots: [], music: null };
+  // Upload cover
+  if (coverSource) {
+    const fd = new FormData();
+    fd.append('gameId', gameId);
+    if (coverSource instanceof File) {
+      fd.append('cover', coverSource);
+    } else if (typeof coverSource === 'string' && coverSource.startsWith('http')) {
+      fd.append('url', coverSource);
+    }
+    if (fd.has('cover') || fd.has('url')) {
+      try {
+        const r = await fetch('/api/upload/cover', { method: 'POST', headers: { 'Authorization': `Bearer ${authToken}` }, body: fd });
+        if (r.ok) { const d = await r.json(); results.cover = d.path; }
+      } catch (e) {}
+    }
+  }
+  // Upload screenshots
+  if (screenshotFiles?.length) {
+    const fd = new FormData();
+    fd.append('gameId', gameId);
+    screenshotFiles.forEach(f => fd.append('screenshots', f));
+    try {
+      const r = await fetch('/api/upload/screenshots', { method: 'POST', headers: { 'Authorization': `Bearer ${authToken}` }, body: fd });
+      if (r.ok) { const d = await r.json(); results.screenshots = d.paths; }
+    } catch (e) {}
+  }
+  // Upload music
+  if (musicFile) {
+    const fd = new FormData();
+    fd.append('gameId', gameId);
+    fd.append('music', musicFile);
+    try {
+      const r = await fetch('/api/upload/music', { method: 'POST', headers: { 'Authorization': `Bearer ${authToken}` }, body: fd });
+      if (r.ok) { const d = await r.json(); results.music = d.path; }
+    } catch (e) {}
+  }
+  return results;
+}
+
+async function handleAddGame(e){e.preventDefault();const f=e.target,isE=!!editingGameId;let ca=Date.now();
+  try{
+  let g;
+  const screenshotFiles=tf['game-screenshots-preview_files']||[];
+  const musicFile=tf['game-music-file']||null;
+
+  if(isE){
+    const ex=await dbG('games',editingGameId);if(ex)ca=ex.createdAt;
+    g={id:editingGameId,igdbId:ex?.igdbId,title:ex?.title||document.getElementById('game-selected-title').textContent,
+      cover:ex?.cover||null,screenshots:ex?.screenshots||[],
+      music:ex?.music||null,rating:+(document.getElementById('game-rating-value').value)||0,
+      review:f.review.value.trim(),platforms:ex?.platforms||[],releaseYear:ex?.releaseYear||'',
+      createdAt:ca};
+    if(pendingGameData){
+      g.igdbId=pendingGameData.igdbId;g.title=pendingGameData.name;
+      g.platforms=pendingGameData.platforms?pendingGameData.platforms.split(' / '):[];
+      g.releaseYear=pendingGameData.year;
+    }
+    // Upload new files
+    const coverSource=pendingGameData?.isManual?pendingGameData.coverFile:(pendingGameData?.coverUrl||null);
+    const up=await uploadGameFiles(g.id, coverSource, screenshotFiles, musicFile);
+    if(up.cover)g.cover=up.cover;
+    else if(pendingGameData?.coverUrl&&!pendingGameData.isManual){g.cover=pendingGameData.coverUrl}
+    if(up.screenshots.length)g.screenshots=up.screenshots;
+    if(up.music)g.music=up.music;
+  }else{
+    if(!pendingGameData)return showToast('请先搜索并选择一款游戏','error');
+    g={id:gid(),igdbId:pendingGameData.igdbId||null,title:pendingGameData.name,
+      cover:null,screenshots:[],
+      music:null,rating:+(document.getElementById('game-rating-value').value)||0,
+      review:f.review.value.trim(),platforms:pendingGameData.platforms?pendingGameData.platforms.split(' / '):[],
+      releaseYear:pendingGameData.year,createdAt:ca};
+    // Upload files
+    const coverSource=pendingGameData.isManual?pendingGameData.coverFile:pendingGameData.coverUrl;
+    const up=await uploadGameFiles(g.id, coverSource, screenshotFiles, musicFile);
+    g.cover=up.cover||pendingGameData.coverUrl||null;
+    g.screenshots=up.screenshots;
+    g.music=up.music;
+  }
+  await dbP('games',g);showToast(isE?'游戏已更新':'游戏已添加');
+  editingGameId=null;pendingGameData=null;resetGF();closeAllModals();renderGames();
+  }catch(err){showToast('保存失败','error')}
+}
+async function deleteGame(id){if(!confirm('确定删除这个游戏吗？'))return;try{await dbD('games',id);fetch(`/api/upload/${id}`,{method:'DELETE',headers:authHeaders()}).catch(()=>{});closeAllModals();showToast('游戏已删除');renderGames()}catch(e){showToast('删除失败','error')}}
+async function renderGames(){try{const games=await dbA('games'),grid=document.getElementById('played-grid'),emp=document.getElementById('played-empty');if(!games.length){grid.innerHTML='';emp.style.display='block';return}emp.style.display='none';grid.innerHTML=games.sort((a,b)=>b.createdAt-a.createdAt).map(g=>`<div class="game-card" onclick="showGameDetail('${g.id}')" ${g.music?`onmouseenter="playGM('${g.id}',this)" onmouseleave="stopGM()"`:''}>${g.music?'<div class="music-indicator"><div class="music-bar"></div><div class="music-bar"></div><div class="music-bar"></div><div class="music-bar"></div></div>':''}${cardMenuHTML('game',g.id)}<img class="game-card-cover" src="${g.cover||PH}" alt="${g.title}" loading="lazy"><div class="game-card-overlay"><div class="game-card-rating">${renderStars(g.rating)}</div><div class="game-card-title">${g.title}</div></div></div>`).join('')}catch(e){console.error('renderGames:',e)}}
+
+/* ═══ AUDIO UNLOCK ═══ */
+let audioUnlocked=false;
+function unlockAudio(){if(audioUnlocked)return;audioUnlocked=true;try{const c=new(window.AudioContext||window.webkitAudioContext)();if(c.state==='suspended')c.resume();const b=c.createBuffer(1,1,22050),s=c.createBufferSource();s.buffer=b;s.connect(c.destination);s.start(0)}catch(e){}['click','keydown','touchstart','mousedown','pointerdown'].forEach(ev=>document.removeEventListener(ev,unlockAudio,true))}
+['click','keydown','touchstart','mousedown','pointerdown'].forEach(ev=>document.addEventListener(ev,unlockAudio,true));
+
+/* ═══ MUSIC ═══ */
+let cA=null,fadeInTimer=null,fadeOutTimer=null,fadingAudio=null,playGen=0;
+const FADE_MS=600,FADE_STEP=30,TARGET_VOL=0.4;
+async function playGM(id,el){
+  try{const gen=++playGen;const g=await dbG('games',id);if(!g?.music||gen!==playGen)return;if(fadingAudio){clearInterval(fadeOutTimer);fadingAudio.pause();fadingAudio.currentTime=0;fadingAudio=null}clearInterval(fadeInTimer);if(cA){cA.pause();cA.currentTime=0;cA=null}document.querySelectorAll('.game-card.playing').forEach(c=>c.classList.remove('playing'));cA=new Audio(g.music);cA.volume=0;cA.loop=true;cA.play().catch(()=>{});el.classList.add('playing');const steps=FADE_MS/FADE_STEP,inc=TARGET_VOL/steps;fadeInTimer=setInterval(()=>{if(!cA||gen!==playGen)return clearInterval(fadeInTimer);cA.volume=Math.min(cA.volume+inc,TARGET_VOL);if(cA.volume>=TARGET_VOL)clearInterval(fadeInTimer)},FADE_STEP)}catch(e){}
+}
+function stopGM(){
+  playGen++;clearInterval(fadeInTimer);if(fadingAudio){clearInterval(fadeOutTimer);fadingAudio.pause();fadingAudio.currentTime=0;fadingAudio=null}document.querySelectorAll('.game-card.playing').forEach(c=>c.classList.remove('playing'));if(!cA)return;fadingAudio=cA;cA=null;const audio=fadingAudio,vol=audio.volume;const steps=FADE_MS/FADE_STEP,dec=vol>0?vol/steps:0.01;fadeOutTimer=setInterval(()=>{audio.volume=Math.max(audio.volume-dec,0);if(audio.volume<=0){clearInterval(fadeOutTimer);audio.pause();audio.currentTime=0;if(fadingAudio===audio)fadingAudio=null}},FADE_STEP);
+}
+
+/* ═══ GAME DETAIL ═══ */
+let gdlImgs=[],gdlIdx=0;
+function gdlNav(dir){const img=document.getElementById('gdl-main-img');img.classList.add('fading');gdlIdx=(gdlIdx+dir+gdlImgs.length)%gdlImgs.length;setTimeout(()=>{img.src=gdlImgs[gdlIdx];img.classList.remove('fading');upGdl()},250)}
+function gdlSelect(i){if(i===gdlIdx)return;const img=document.getElementById('gdl-main-img');img.classList.add('fading');gdlIdx=i;setTimeout(()=>{img.src=gdlImgs[gdlIdx];img.classList.remove('fading');upGdl()},250)}
+function upGdl(){document.querySelectorAll('.gdl-thumb').forEach((t,i)=>t.classList.toggle('active',i===gdlIdx));const ct=document.getElementById('gdl-counter');if(ct)ct.textContent=`${gdlIdx+1} / ${gdlImgs.length}`}
+
+function buildDetailHTML(title,imgs,scoreBlock,reviewLabel,reviewContent,musicSrc,deleteAction,editAction){
+  const hasM=imgs.length>1,isL=reviewContent&&reviewContent.length>200;
+  const aL=`<svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>`;
+  const aR=`<svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>`;
+  const thumbs=hasM?imgs.map((s,i)=>`<img class="gdl-thumb${i===0?' active':''}" src="${s}" alt="" onclick="event.stopPropagation();gdlSelect(${i})">`).join(''):'';
+  return `<div class="gdl-header"><h2>${title}</h2></div><div class="game-detail-layout${isL?' stacked':''}"><div class="gdl-gallery"><div class="gdl-viewport" onclick="openLB(gdlImgs[gdlIdx])"><img id="gdl-main-img" src="${imgs[0]}" alt="${title}">${hasM?`<button class="gdl-arrow prev" onclick="event.stopPropagation();gdlNav(-1)">${aL}</button><button class="gdl-arrow next" onclick="event.stopPropagation();gdlNav(1)">${aR}</button><div class="gdl-counter" id="gdl-counter">1 / ${imgs.length}</div>`:''}</div>${hasM?`<div class="gdl-thumbs">${thumbs}</div>`:''}</div><div class="gdl-info"><div class="gdl-score-block">${scoreBlock}</div><div class="gdl-divider"></div><div class="gdl-review-block"><div class="gdl-review-label">${reviewLabel}</div>${reviewContent?`<div class="gdl-review-text">${reviewContent.replace(/\n/g,'<br>')}</div>`:`<div class="gdl-review-empty">暂无内容</div>`}</div>${musicSrc?`<div class="gdl-music-block"><div class="gdl-review-label">游戏音乐</div><audio controls src="${musicSrc}"></audio></div>`:''}<div class="gdl-actions">${editAction?`<button class="submit-btn" style="margin-top:0;margin-bottom:10px" onclick="${editAction}">编辑</button>`:''}<button class="delete-btn" onclick="${deleteAction}">删除</button></div></div></div>`;
+}
+
+async function showGameDetail(id){
+  const g=await dbG('games',id);if(!g)return;
+  const coverSrc=g.cover||PH;
+  const metaParts=[(g.releaseYear||''),(g.platforms||[]).join(' / ')].filter(Boolean);
+  const metaLine=metaParts.join(' \u00b7 ');
+  let ratingHTML='';
+  if(g.rating>0){ratingHTML=`<div class="game-detail-rating"><span class="game-detail-score">${g.rating}<span class="score-suffix"> / 5</span></span><div class="game-detail-stars">${renderStars(g.rating,'18px')}</div></div>`}
+  const review=g.review||'';
+  let reviewHTML='';
+  if(review){reviewHTML=`<div class="detail-section"><div class="detail-section-title">\u8BC4\u6D4B</div><div class="detail-review">${review.replace(/\n/g,'<br>')}</div></div>`}
+  const screenshots=g.screenshots||[];
+  let screenshotsHTML='';
+  if(screenshots.length){screenshotsHTML=`<div class="detail-section"><div class="detail-section-title">\u622A\u56FE</div><div class="screenshot-gallery">${screenshots.map(s=>`<img src="${s}" alt="" onclick="event.stopPropagation();openLB(this.src)">`).join('')}</div></div>`}
+  let musicHTML='';
+  if(g.music){musicHTML=`<div class="detail-section"><div class="detail-section-title">\u6E38\u620F\u97F3\u4E50</div><audio controls src="${g.music}" style="width:100%;margin-top:12px;border-radius:10px;height:36px"></audio></div>`}
+  document.getElementById('game-detail-content').innerHTML=`<div class="game-detail-hero"><img class="game-detail-backdrop" src="${coverSrc}" alt=""><div class="game-detail-hero-info"><img class="game-detail-poster" src="${coverSrc}" alt="${g.title}"><div class="game-detail-meta">${ratingHTML}<h2>${g.title}</h2>${metaLine?`<div class="game-detail-meta-line">${metaLine}</div>`:''}</div></div></div><div class="detail-modal-body">${reviewHTML}${screenshotsHTML}${musicHTML}<div class="detail-actions"><button class="submit-btn" onclick="closeAllModals();setTimeout(()=>editGame('${g.id}'),400)">编辑</button><button class="delete-btn" onclick="deleteGame('${g.id}')">删除</button></div></div>`;
+  openModal('game-detail');
+}
+
+/* ═══ WISHLIST ═══ */
+
+async function searchIGDBForWishlist(){
+  if(!cachedIgdbClientId||!cachedIgdbClientSecret)return showToast('请先在设置中配置 IGDB API Key','error');
+  const input=document.getElementById('wishlist-search-input').value.trim();if(!input)return;
+  const rc=document.getElementById('wishlist-search-results');
+  rc.innerHTML='<div class="spinner" style="margin:20px auto;width:24px;height:24px;border-width:2px"></div>';
+  try{
+    const r=await fetch('/api/igdb/search',{method:'POST',headers:authHeaders(),body:JSON.stringify({query:input})});
+    if(!r.ok)throw new Error((await r.json()).error||'搜索失败');
+    const data=await r.json();
+    if(!data?.length){rc.innerHTML='<div class="empty-state" style="padding:20px"><p>未找到相关游戏</p></div>';return}
+    window._igdbWishlistResults=data;
+    rc.innerHTML=data.map((g,idx)=>{
+      const cover=g.cover?.image_id?igdbImg(g.cover.image_id,'cover_small'):PH;
+      const year=g.first_release_date?new Date(g.first_release_date*1000).getFullYear():'未知年份';
+      const plats=(g.platforms||[]).map(p=>p.name).join(' / ')||'';
+      return `<div class="search-result-item" onclick="selectWishlistFromResults(${idx})" style="display:flex;gap:14px;padding:10px;background:rgba(255,255,255,0.02);border:.5px solid rgba(255,255,255,0.05);border-radius:12px;cursor:pointer;transition:all .3s;"><img src="${cover}" style="width:50px;height:67px;object-fit:cover;border-radius:6px;flex-shrink:0;"><div style="display:flex;flex-direction:column;justify-content:center;min-width:0;"><div style="font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${g.name}</div><div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${year}${plats?' · '+plats:''}</div></div></div>`;
+    }).join('');
+  }catch(e){rc.innerHTML=`<div class="empty-state" style="padding:20px"><p>${e.message||'搜索失败'}</p></div>`}
+}
+
+function selectWishlistFromResults(idx){
+  const g=window._igdbWishlistResults[idx];if(!g)return;
+  const coverUrl=g.cover?.image_id?igdbImg(g.cover.image_id,'cover_big'):null;
+  const year=g.first_release_date?new Date(g.first_release_date*1000).getFullYear():'未知年份';
+  const plats=(g.platforms||[]).map(p=>p.name).join(' / ')||'';
+  pendingWishlistData={igdbId:g.id,name:g.name,coverUrl,year:String(year),platforms:plats};
+  document.getElementById('wishlist-search-step').style.display='none';
+  document.getElementById('wishlist-review-step').style.display='block';
+  document.getElementById('wishlist-selected-cover').src=coverUrl||PH;
+  document.getElementById('wishlist-selected-title').textContent=g.name;
+  document.getElementById('wishlist-selected-year').textContent=year;
+  document.getElementById('wishlist-selected-platforms').textContent=plats;
+  document.getElementById('form-add-wishlist').reset();
+}
+
+function backToWishlistSearch(){document.getElementById('wishlist-search-step').style.display='block';document.getElementById('wishlist-review-step').style.display='none';pendingWishlistData=null}
+
+async function handleAddWishlist(e){e.preventDefault();const f=e.target,isE=!!editingWishlistId;let ca=Date.now();
+  try{
+  let item;
+  if(isE){
+    const ex=await dbG('wishlist',editingWishlistId);if(ex)ca=ex.createdAt;
+    item={id:editingWishlistId,igdbId:ex?.igdbId,title:ex?.title||'',cover:ex?.cover||null,
+      reason:f.reason.value.trim(),platforms:ex?.platforms||[],releaseYear:ex?.releaseYear||'',createdAt:ca};
+    if(pendingWishlistData){
+      item.igdbId=pendingWishlistData.igdbId;item.title=pendingWishlistData.name;
+      item.cover=pendingWishlistData.coverUrl;
+      item.platforms=pendingWishlistData.platforms?pendingWishlistData.platforms.split(' / '):[];
+      item.releaseYear=pendingWishlistData.year;
+    }
+  }else{
+    if(!pendingWishlistData)return showToast('请先搜索并选择一款游戏','error');
+    item={id:gid(),igdbId:pendingWishlistData.igdbId,title:pendingWishlistData.name,
+      cover:pendingWishlistData.coverUrl,reason:f.reason.value.trim(),
+      platforms:pendingWishlistData.platforms?pendingWishlistData.platforms.split(' / '):[],
+      releaseYear:pendingWishlistData.year,createdAt:ca};
+  }
+  await dbP('wishlist',item);showToast(isE?'愿望单已更新':'已加入愿望单');
+  editingWishlistId=null;pendingWishlistData=null;f.reset();closeAllModals();renderWishlist();
+  }catch(err){showToast('保存失败','error')}
+}
+async function deleteWishlist(id){if(!confirm('确定移除？'))return;try{await dbD('wishlist',id);closeAllModals();showToast('已移除');renderWishlist()}catch(e){showToast('删除失败','error')}}
+async function renderWishlist(){try{const items=await dbA('wishlist'),grid=document.getElementById('wishlist-grid'),emp=document.getElementById('wishlist-empty');if(!items.length){grid.innerHTML='';emp.style.display='block';return}emp.style.display='none';grid.innerHTML=items.sort((a,b)=>b.createdAt-a.createdAt).map(i=>`<div class="wishlist-card" onclick="showWishlistDetail('${i.id}')">${cardMenuHTML('wishlist',i.id)}<span class="wishlist-badge">WISHLIST</span><img class="game-card-cover" src="${i.cover||PH}" alt="${i.title}" loading="lazy"><div class="game-card-overlay"><div class="game-card-title">${i.title}</div></div></div>`).join('')}catch(e){console.error('renderWishlist:',e)}}
+
+async function showWishlistDetail(id){
+  const i=await dbG('wishlist',id);if(!i)return;gdlImgs=[];gdlIdx=0;if(i.cover)gdlImgs.push(i.cover);if(!gdlImgs.length)gdlImgs.push(PH);
+  const sH=`<div class="gdl-score-label">状态</div><div class="gdl-score-num gdl-score-none" style="font-size:40px;margin-bottom:8px">&#127918;</div><div style="font-size:14px;color:var(--neon-cyan);font-weight:600;letter-spacing:2px">WISHLIST</div>`;
+  const metaParts=[(i.releaseYear||''),(i.platforms||[]).join(' / ')].filter(Boolean);
+  const titleWithMeta=i.title+(metaParts.length?`<div style="font-size:13px;font-weight:400;color:var(--text-secondary);margin-top:8px;letter-spacing:0">${metaParts.join(' · ')}</div>`:'');
+  document.getElementById('wishlist-detail-content').innerHTML=buildDetailHTML(titleWithMeta,gdlImgs,sH,'愿望理由',i.reason,null,`deleteWishlist('${i.id}')`,`closeAllModals();setTimeout(()=>editWishlist('${i.id}'),400)`);openModal('wishlist-detail');
+}
+
+/* ═══ MOVIE CRUD & SEARCH ═══ */
+let pendingMovieData=null;
+async function searchTMDBMovie(){
+  const key=cachedTmdbKey;
+  if(!key)return showToast('请先在设置中配置 TMDB API Key','error');
+  const input=document.getElementById('movie-search-input').value.trim();if(!input)return;
+  const rc=document.getElementById('movie-search-results');
+  rc.innerHTML='<div class="spinner" style="margin:20px auto;width:24px;height:24px;border-width:2px"></div>';
+  try{
+    const r=await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${key}&language=zh-CN&query=${encodeURIComponent(input)}&page=1`);
+    if(!r.ok)throw 0;const d=await r.json();
+    if(!d.results?.length){rc.innerHTML='<div class="empty-state" style="padding:20px"><p>未找到相关电影</p></div>';return}
+    rc.innerHTML=d.results.map(m=>{
+      const poster=m.poster_path?`https://image.tmdb.org/t/p/w200${m.poster_path}`:PHM;
+      const year=m.release_date?m.release_date.split('-')[0]:'未知年份';
+      const title=(m.title||m.original_title).replace(/'/g,"\\'");
+      return `<div class="search-result-item" onclick="selectMovieForAdd(${m.id},'${title}','${poster}','${year}')" style="display:flex;gap:14px;padding:10px;background:rgba(255,255,255,0.02);border:.5px solid rgba(255,255,255,0.05);border-radius:12px;cursor:pointer;transition:all .3s;"><img src="${poster}" style="width:50px;height:75px;object-fit:cover;border-radius:6px;flex-shrink:0;"><div style="display:flex;flex-direction:column;justify-content:center;"><div style="font-size:15px;font-weight:600">${title}</div><div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${year} · TMDB: ${m.vote_average?m.vote_average.toFixed(1):'N/A'}</div></div></div>`;
+    }).join('');
+  }catch(e){rc.innerHTML='<div class="empty-state" style="padding:20px"><p>搜索失败，请检查网络或 API Key</p></div>'}
+}
+
+async function selectMovieForAdd(tmdbId,title,poster,year){
+  pendingMovieData={tmdbId,title,poster,year,stills:[]};
+  const key=cachedTmdbKey;
+  if(key){try{const r=await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}/images?api_key=${key}`);const d=await r.json();if(d.backdrops?.length)pendingMovieData.stills=d.backdrops.slice(0,5).map(b=>`https://image.tmdb.org/t/p/w780${b.file_path}`)}catch(e){}}
+  document.getElementById('movie-search-step').style.display='none';
+  document.getElementById('movie-review-step').style.display='block';
+  document.getElementById('movie-selected-poster').src=poster;
+  document.getElementById('movie-selected-title').textContent=title;
+  document.getElementById('movie-selected-year').textContent=year;
+  document.getElementById('form-add-movie').reset();
+  document.getElementById('movie-rating-value').value='0';
+  document.querySelectorAll('#movie-rating-select .star-btn').forEach(b=>b.classList.remove('active'));
+}
+
+function backToMovieSearch(){document.getElementById('movie-search-step').style.display='block';document.getElementById('movie-review-step').style.display='none';pendingMovieData=null}
+
+async function handleAddMovie(e){
+  e.preventDefault();const f=e.target,isE=!!editingMovieId;let ca=Date.now(),m;
+  try{
+  if(isE){
+    const ex=await dbG('movies',editingMovieId);if(ex)ca=ex.createdAt;
+    m={id:editingMovieId,title:document.getElementById('movie-selected-title').textContent,poster:document.getElementById('movie-selected-poster').src,stills:ex?.stills||[],userRating:+(document.getElementById('movie-rating-value').value)||0,review:f.review.value.trim(),createdAt:ca};
+    if(pendingMovieData){m.stills=pendingMovieData.stills;m.tmdbId=pendingMovieData.tmdbId;m.year=pendingMovieData.year}else if(ex){m.title=ex.title;m.poster=ex.poster;m.rating=ex.rating;m.year=ex.year;m.tmdbId=ex.tmdbId}
+  }else{
+    if(!pendingMovieData)return showToast('请先搜索并选择一部电影','error');
+    m={id:gid(),tmdbId:pendingMovieData.tmdbId,title:pendingMovieData.title,poster:pendingMovieData.poster,stills:pendingMovieData.stills||[],year:pendingMovieData.year,userRating:+(document.getElementById('movie-rating-value').value)||0,review:f.review.value.trim(),createdAt:ca};
+  }
+  await dbP('movies',m);showToast(isE?'电影记录已更新':'观影记录已添加');
+  editingMovieId=null;pendingMovieData=null;f.reset();closeAllModals();renderMovies();
+  }catch(err){showToast('保存失败','error')}
+}
+
+async function deleteMovie(id){if(!confirm('确定删除此观影记录？'))return;try{await dbD('movies',id);closeAllModals();showToast('已删除记录');renderMovies()}catch(e){showToast('删除失败','error')}}
+
+async function renderMovies(){
+  try{const movies=await dbA('movies'),grid=document.getElementById('watched-grid'),emp=document.getElementById('watched-empty');
+  if(!movies.length){grid.innerHTML='';emp.style.display='block';return}
+  emp.style.display='none';
+  grid.innerHTML=movies.sort((a,b)=>b.createdAt-a.createdAt).map(m=>{
+    const rt=m.userRating?`<div class="game-card-rating">${renderStars(m.userRating)}</div>`:(m.rating!=null?`<div class="tomato-rating">${tDot(m.rating)}<span class="tomato-score ${tClass(m.rating)}">${m.rating}%</span></div>`:'');
+    return `<div class="movie-card" onclick="showMovieDetail('${m.id}')">${cardMenuHTML('movie',m.id)}<img class="movie-card-cover" src="${m.poster||PHM}" alt="${m.title}" loading="lazy"><div class="movie-card-overlay">${rt}<div class="game-card-title">${m.title}</div></div></div>`;
+  }).join('')}catch(e){console.error('renderMovies:',e)}
+}
+
+async function showMovieDetail(id){
+  const m=await dbG('movies',id);if(!m)return;
+  const st=m.stills?.length?`<div class="detail-section"><div class="detail-section-title">剧照</div><div class="screenshot-gallery">${m.stills.map(s=>`<img src="${s}" alt="" onclick="event.stopPropagation();openLB('${s}')">`).join('')}</div></div>`:'';
+  const rt=m.userRating?`<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="font-size:22px;color:var(--neon-gold)">${'★'.repeat(m.userRating)}${'☆'.repeat(5-m.userRating)}</span><span style="font-size:12px;color:var(--text-secondary)">我的评分</span></div>`:(m.rating!=null?`<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">${tDotL(m.rating)}<span style="font-size:22px;font-weight:800" class="${tClass(m.rating)}">${m.rating}%</span><span style="font-size:12px;color:var(--text-secondary)">${tLabel(m.rating)}</span></div>`:'');
+  const yr=m.year?`<span style="color:var(--neon-cyan);font-size:12px;letter-spacing:2px;margin-left:12px">${m.year}</span>`:'';
+  document.getElementById('movie-detail-content').innerHTML=`<div class="detail-hero"><img src="${m.stills?.[0]||m.poster||''}" alt="" ${!m.stills?.length?'style="filter:blur(6px) brightness(.4);transform:scale(1.1)"':''}><div class="detail-hero-info"><img class="detail-poster" src="${m.poster||''}" alt="${m.title}"><div class="detail-meta">${rt}<h2>${m.title}${yr}</h2></div></div></div><div class="detail-modal-body">${st}${m.review?`<div class="detail-section"><div class="detail-section-title">影评</div><div class="detail-review">${m.review.replace(/\n/g,'<br>')}</div></div>`:''}<div class="detail-actions"><button class="submit-btn" onclick="closeAllModals();setTimeout(()=>editMovie('${m.id}'),400)">编辑此记录</button><button class="delete-btn" onclick="deleteMovie('${m.id}')">删除</button></div></div>`;
+  openModal('movie-detail');
+}
+
+/* ═══ TOP 10 SHOWCASE ═══ */
+let top10Movies=[],top10Reasons={},top10EditMode=false;
+
+async function renderTop10(){
+  try{
+    const entries=await dbA('top10');
+    const movies=await dbA('movies');
+    const movieMap=Object.create(null);movies.forEach(m=>movieMap[m.id]=m);
+    top10Reasons=Object.create(null);entries.forEach(e=>top10Reasons[e.id]=e.reason||'');
+    let savedOrder=null;
+    try{const r=await fetch('/api/settings/top10_order',{headers:authHeaders()});if(r.ok){const d=await r.json();if(d.value)savedOrder=JSON.parse(d.value)}}catch(e){}
+    const validEntries=entries.filter(e=>movieMap[e.id]);
+    if(savedOrder&&Array.isArray(savedOrder)&&savedOrder.length){
+      const entrySet=new Set(validEntries.map(e=>e.id));
+      const ordered=[];
+      savedOrder.forEach(id=>{if(entrySet.has(id)&&movieMap[id]){ordered.push(movieMap[id]);entrySet.delete(id)}});
+      validEntries.forEach(e=>{if(entrySet.has(e.id))ordered.push(movieMap[e.id])});
+      top10Movies=ordered;
+    }else{
+      top10Movies=validEntries.map(e=>movieMap[e.id]);
+    }
+    const showcase=document.getElementById('top10-showcase'),emp=document.getElementById('top10-empty');
+    const editBtn=document.getElementById('top10-edit-btn');
+    if(!top10Movies.length){showcase.style.display='none';emp.style.display='block';editBtn.style.display='none';return}
+    showcase.style.display='';emp.style.display='none';editBtn.style.display='';
+    renderTop10Wall();
+  }catch(e){console.error('renderTop10:',e)}
+}
+
+function renderTop10Wall(){
+  const wall=document.getElementById('top10-wall');
+  if(!wall)return;
+  wall.innerHTML=top10Movies.map((m,i)=>{
+    const rank=String(i+1).padStart(2,'0');
+    const poster=m.poster||PHM;
+    const stars=renderStars(m.userRating,'16px');
+    const reason=top10Reasons[m.id]||'';
+    return `<div class="top10-wall-entry" data-idx="${i}" data-id="${m.id}">
+      <div class="top10-wall-rank">${rank}</div>
+      <div class="top10-wall-poster-wrap" onclick="showMovieDetail('${m.id}')">
+        <img class="top10-wall-poster" src="${poster}" alt="${m.title}" loading="lazy">
+      </div>
+      <div class="top10-wall-meta" onclick="showMovieDetail('${m.id}')">
+        <span class="top10-wall-year">${m.year||''}</span>
+        <h3 class="top10-wall-title">${m.title}</h3>
+        <div class="top10-wall-rating">${stars}</div>
+        ${reason?`<p class="top10-wall-reason">"${reason}"</p>`:''}
+      </div>
+      <div class="top10-edit-overlay">
+        <div class="top10-drag-handle" title="拖动排序">⋮⋮</div>
+        <button class="top10-remove-btn" title="移除" onclick="event.stopPropagation();removeFromTop10('${m.id}')">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+  if(top10EditMode)wall.classList.add('editing');else wall.classList.remove('editing');
+  const addCard=document.getElementById('top10-add-card');
+  if(addCard)addCard.classList.toggle('full',top10Movies.length>=10);
+  requestAnimationFrame(()=>{
+    document.querySelectorAll('.top10-wall-entry').forEach((entry,i)=>{
+      setTimeout(()=>entry.classList.add('revealed'),i*80+30);
+    });
+  });
+  if(top10EditMode)initTop10Drag();
+}
+
+/* ═══ TOP 10 EDIT MODE ═══ */
+function toggleTop10Edit(){
+  top10EditMode=!top10EditMode;
+  const btn=document.getElementById('top10-edit-btn');
+  const label=document.getElementById('top10-edit-label');
+  const wall=document.getElementById('top10-wall');
+  if(top10EditMode){
+    btn.classList.add('active');label.textContent='完成';
+    if(wall)wall.classList.add('editing');
+    initTop10Drag();
+  }else{
+    btn.classList.remove('active');label.textContent='编辑';
+    if(wall)wall.classList.remove('editing');
+  }
+}
+
+/* ═══ TOP 10 DRAG REORDER ═══ */
+function initTop10Drag(){
+  const wall=document.getElementById('top10-wall');
+  if(!wall)return;
+  if(wall._dragCleanup)wall._dragCleanup();
+  let dragIdx=-1,dragEntry=null,startY=0,lastDropIdx=-1,hasMoved=false,slots=null;
+  function cacheSlots(){
+    slots=Array.from(wall.querySelectorAll('.top10-wall-entry')).map(el=>{const r=el.getBoundingClientRect();return{cy:r.top+r.height/2,height:r.height}});
+  }
+  function getDropIdx(py){
+    if(!slots)return 0;
+    for(let i=0;i<slots.length;i++){if(py<slots[i].cy)return i}
+    return slots.length-1;
+  }
+  function onDown(e){
+    const handle=e.target.closest('.top10-drag-handle');
+    if(!handle||e.button!==0)return;
+    e.preventDefault();
+    dragEntry=handle.closest('.top10-wall-entry');
+    if(!dragEntry)return;
+    dragIdx=+dragEntry.dataset.idx;startY=e.clientY;lastDropIdx=dragIdx;hasMoved=false;
+    document.addEventListener('pointermove',onMove);
+    document.addEventListener('pointerup',onUp);
+  }
+  function onMove(e){
+    if(dragIdx<0)return;
+    const dy=e.clientY-startY;
+    if(!hasMoved&&Math.abs(dy)<5)return;
+    if(!hasMoved){hasMoved=true;dragEntry.classList.add('dragging');cacheSlots()}
+    gsap.set(dragEntry,{y:dy,zIndex:100});
+    const dropIdx=getDropIdx(e.clientY);
+    if(dropIdx!==lastDropIdx){
+      lastDropIdx=dropIdx;
+      wall.querySelectorAll('.top10-wall-entry').forEach((el,j)=>{
+        if(j===dragIdx)return;let shift=0;
+        if(dragIdx<dropIdx&&j>dragIdx&&j<=dropIdx)shift=-slots[dragIdx].height;
+        else if(dragIdx>dropIdx&&j>=dropIdx&&j<dragIdx)shift=slots[dragIdx].height;
+        gsap.to(el,{y:shift,duration:.25,ease:'power2.out'});
+      });
+    }
+  }
+  function onUp(){
+    document.removeEventListener('pointermove',onMove);
+    document.removeEventListener('pointerup',onUp);
+    if(dragIdx<0)return;
+    if(dragEntry)dragEntry.classList.remove('dragging');
+    if(hasMoved&&lastDropIdx!==dragIdx&&lastDropIdx>=0){
+      const[moved]=top10Movies.splice(dragIdx,1);top10Movies.splice(lastDropIdx,0,moved);
+      saveTop10Order();
+      /* FLIP: snapshot → kill CSS transitions → clear transforms → reorder → animate */
+      const rects=new Map();
+      wall.querySelectorAll('.top10-wall-entry').forEach(el=>rects.set(el.dataset.id,el.getBoundingClientRect()));
+      wall.querySelectorAll('.top10-wall-entry').forEach(el=>{el.style.transition='none';gsap.set(el,{clearProps:'transform,zIndex'})});
+      top10Movies.forEach((m,i)=>{
+        const el=wall.querySelector('[data-id="'+m.id+'"]');
+        if(el){wall.appendChild(el);el.dataset.idx=String(i);el.querySelector('.top10-wall-rank').textContent=String(i+1).padStart(2,'0')}
+      });
+      wall.querySelectorAll('.top10-wall-entry').forEach(el=>{
+        const old=rects.get(el.dataset.id);
+        if(old){const now=el.getBoundingClientRect();const dy=old.top-now.top;if(Math.abs(dy)>1){gsap.fromTo(el,{y:dy},{y:0,duration:.4,ease:'power2.out',onComplete:()=>{gsap.set(el,{clearProps:'transform,zIndex'});el.style.transition=''}});return}}
+        el.style.transition='';
+        el.classList.add('revealed');
+      });
+    }else{
+      wall.querySelectorAll('.top10-wall-entry').forEach(el=>gsap.set(el,{y:0,zIndex:'',clearProps:'transform'}));
+    }
+    dragIdx=-1;dragEntry=null;lastDropIdx=-1;hasMoved=false;slots=null;
+  }
+  function onCancel(){
+    document.removeEventListener('pointermove',onMove);
+    document.removeEventListener('pointerup',onUp);
+    if(dragEntry)dragEntry.classList.remove('dragging');
+    wall.querySelectorAll('.top10-wall-entry').forEach(el=>gsap.set(el,{y:0,zIndex:'',clearProps:'transform'}));
+    dragIdx=-1;dragEntry=null;lastDropIdx=-1;hasMoved=false;slots=null;
+  }
+  wall.addEventListener('pointerdown',onDown);
+  wall.addEventListener('pointercancel',onCancel);
+  wall._dragCleanup=()=>{wall.removeEventListener('pointerdown',onDown);wall.removeEventListener('pointercancel',onCancel);document.removeEventListener('pointermove',onMove);document.removeEventListener('pointerup',onUp);wall._dragCleanup=null};
+}
+
+async function saveTop10Order(){
+  const order=top10Movies.map(m=>m.id);
+  try{await fetch('/api/settings/top10_order',{method:'PUT',headers:authHeaders(),body:JSON.stringify({value:JSON.stringify(order)})})}catch(e){console.error('saveTop10Order:',e)}
+}
+
+/* ═══ TOP 10 ADD / REMOVE ═══ */
+let top10PickMovieId=null,top10AllWatched=[];
+async function startAddTop10(){
+  if(top10Movies.length>=10)return showToast('十佳已满（最多10部）','error');
+  top10PickMovieId=null;
+  document.getElementById('top10-pick-step').style.display='';
+  document.getElementById('top10-reason-step').style.display='none';
+  document.getElementById('top10-pick-search-input').value='';
+  try{
+    top10AllWatched=await dbA('movies');
+    const pickedIds=new Set(top10Movies.map(m=>m.id));
+    renderTop10PickGrid(top10AllWatched,pickedIds);
+    openModal('top10-pick');
+  }catch(e){showToast('加载失败','error')}
+}
+function renderTop10PickGrid(movies,pickedIds){
+  const grid=document.getElementById('top10-pick-grid'),emp=document.getElementById('top10-pick-empty');
+  if(!movies.length){grid.innerHTML='';emp.style.display='block';return}
+  emp.style.display='none';
+  grid.innerHTML=movies.sort((a,b)=>b.createdAt-a.createdAt).map(m=>{
+    const picked=pickedIds.has(m.id);
+    return `<div class="top10-pick-card${picked?' picked':''}" onclick="selectTop10Movie('${m.id}')"><img src="${m.poster||PHM}" alt="${m.title}" loading="lazy"><div class="pick-title">${m.title}</div></div>`;
+  }).join('');
+}
+function filterTop10Pick(query){
+  const q=query.trim().toLowerCase();
+  const pickedIds=new Set(top10Movies.map(m=>m.id));
+  const filtered=q?top10AllWatched.filter(m=>m.title.toLowerCase().includes(q)):top10AllWatched;
+  renderTop10PickGrid(filtered,pickedIds);
+}
+function selectTop10Movie(movieId){
+  const m=top10AllWatched.find(x=>x.id===movieId);if(!m)return;
+  top10PickMovieId=movieId;
+  document.getElementById('top10-pick-step').style.display='none';
+  document.getElementById('top10-reason-step').style.display='';
+  document.getElementById('top10-pick-poster').src=m.poster||PHM;
+  document.getElementById('top10-pick-title').textContent=m.title;
+  document.getElementById('top10-pick-year').textContent=m.year||'';
+  document.getElementById('top10-reason-input').value='';
+}
+function backToTop10Pick(){
+  document.getElementById('top10-reason-step').style.display='none';
+  document.getElementById('top10-pick-step').style.display='';
+  top10PickMovieId=null;
+}
+async function confirmAddTop10(){
+  if(!top10PickMovieId)return;
+  const reason=document.getElementById('top10-reason-input').value.trim();
+  try{
+    await dbP('top10',{id:top10PickMovieId,reason});
+    top10Movies.push(top10AllWatched.find(m=>m.id===top10PickMovieId));
+    top10Reasons[top10PickMovieId]=reason;
+    await saveTop10Order();
+    closeAllModals();showToast('已添加至十佳');
+    renderTop10();
+  }catch(e){showToast('添加失败','error')}
+}
+async function removeFromTop10(movieId){
+  try{
+    await dbD('top10',movieId);
+    top10Movies=top10Movies.filter(m=>m.id!==movieId);
+    delete top10Reasons[movieId];
+    await saveTop10Order();
+    showToast('已从十佳移除');
+    if(!top10Movies.length){
+      document.getElementById('top10-showcase').style.display='none';
+      document.getElementById('top10-empty').style.display='block';
+      document.getElementById('top10-edit-btn').style.display='none';
+      top10EditMode=false;
+      return;
+    }
+    renderTop10Wall();
+  }catch(e){showToast('移除失败','error')}
+}
+
+/* ═══ NOW PLAYING ═══ */
+let npC=[];
+async function fetchNowPlaying(){
+  const key=cachedTmdbKey,ld=document.getElementById('now-playing-loading'),emp=document.getElementById('now-playing-empty'),grid=document.getElementById('now-playing-grid');
+  if(!key){ld.style.display='none';emp.style.display='block';return}
+  ld.style.display='block';emp.style.display='none';grid.innerHTML='';
+  try{
+    let r=await fetch(`https://api.themoviedb.org/3/movie/now_playing?api_key=${key}&language=zh-CN&region=CN&page=1`);
+    if(!r.ok)throw 0;let d=await r.json();
+    if(!d.results?.length){r=await fetch(`https://api.themoviedb.org/3/movie/now_playing?api_key=${key}&language=zh-CN&page=1`);d=await r.json()}
+    npC=d.results||[];ld.style.display='none';
+    if(!npC.length){emp.innerHTML='<div class="empty-ring"></div><p>暂无正在上映的电影</p>';emp.style.display='block';return}
+    renderNowPlaying();
+  }catch(e){ld.style.display='none';emp.innerHTML='<div class="empty-ring"></div><p>获取失败，请检查 API Key</p>';emp.style.display='block'}
+}
+
+function renderNowPlaying(){
+  document.getElementById('now-playing-grid').innerHTML=npC.map(m=>{
+    const poster=m.poster_path?`https://image.tmdb.org/t/p/w500${m.poster_path}`:PHM;
+    const vote=m.vote_average?m.vote_average.toFixed(1):'N/A';
+    return `<div class="movie-card" onclick="showNowPlayingDetail(${m.id})"><span class="now-playing-badge">正在上映</span><img class="movie-card-cover" src="${poster}" alt="${m.title}" loading="lazy" onerror="this.src='${PHM}'"><div class="movie-card-overlay"><div class="tmdb-score"><span class="tmdb-score-icon">T</span><span class="tmdb-score-value">${vote}</span></div><div class="game-card-title">${m.title||m.original_title}</div></div></div>`;
+  }).join('');
+}
+
+async function showNowPlayingDetail(tid){
+  const m=npC.find(x=>x.id===tid);if(!m)return;
+  const key=cachedTmdbKey,poster=m.poster_path?`https://image.tmdb.org/t/p/w500${m.poster_path}`:'',bd=m.backdrop_path?`https://image.tmdb.org/t/p/w1280${m.backdrop_path}`:poster;
+  const vote=m.vote_average?m.vote_average.toFixed(1):'N/A',vp=m.vote_average?Math.round(m.vote_average*10):0;
+  let imgH='';
+  if(key){try{const r=await fetch(`https://api.themoviedb.org/3/movie/${tid}/images?api_key=${key}`),d=await r.json(),bds=(d.backdrops||[]).slice(0,8);if(bds.length)imgH=`<div class="detail-section"><div class="detail-section-title">剧照</div><div class="screenshot-gallery">${bds.map(b=>`<img src="https://image.tmdb.org/t/p/w780${b.file_path}" alt="" onclick="event.stopPropagation();openLB('https://image.tmdb.org/t/p/original${b.file_path}')">`).join('')}</div></div>`}catch(e){}}
+  // Check if already in watched list
+  const existing=await dbA('movies');
+  const alreadyWatched=existing.some(e=>e.tmdbId===tid);
+  const watchedBtn=alreadyWatched
+    ?`<button class="submit-btn" disabled style="opacity:.5;cursor:default;background:rgba(255,255,255,.1)">已在观影记录中</button>`
+    :`<button class="submit-btn" onclick="markAsWatched(${tid})">标记为已看过</button>`;
+  document.getElementById('now-playing-detail-content').innerHTML=`<div class="detail-hero"><img src="${bd}" alt="" ${!m.backdrop_path?'style="filter:blur(6px) brightness(.4);transform:scale(1.1)"':''}><div class="detail-hero-info">${poster?`<img class="detail-poster" src="${poster}" alt="${m.title}">`:''}<div class="detail-meta"><div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">${tDotL(vp)}<span style="font-size:22px;font-weight:800" class="${tClass(vp)}">${vote}</span><span style="font-size:12px;color:var(--text-secondary)">/ 10 · ${m.vote_count||0} 人评价</span></div><h2>${m.title||m.original_title}</h2><span style="color:var(--neon-cyan);font-size:12px;letter-spacing:2px">${m.release_date||'正在上映'} · 正在热映</span></div></div></div><div class="detail-modal-body">${imgH}${m.overview?`<div class="detail-section"><div class="detail-section-title">简介</div><div class="detail-review">${m.overview}</div></div>`:''}<div class="detail-actions">${watchedBtn}</div></div>`;
+  openModal('now-playing-detail');
+}
+
+async function markAsWatched(tmdbId){
+  const m=npC.find(x=>x.id===tmdbId);if(!m)return;
+  const poster=m.poster_path?`https://image.tmdb.org/t/p/w500${m.poster_path}`:null;
+  const year=m.release_date?m.release_date.split('-')[0]:'';
+  let stills=[];
+  const key=cachedTmdbKey;
+  if(key){try{const r=await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}/images?api_key=${key}`);const d=await r.json();if(d.backdrops?.length)stills=d.backdrops.slice(0,5).map(b=>`https://image.tmdb.org/t/p/w780${b.file_path}`)}catch(e){}}
+  const movie={id:gid(),tmdbId,title:m.title||m.original_title,poster,stills,year,userRating:0,review:'',createdAt:Date.now()};
+  try{
+    await dbP('movies',movie);showToast('已添加到观影记录');
+    closeAllModals();renderMovies();
+    // Re-open with edit so user can rate
+    setTimeout(()=>editMovie(movie.id),500);
+  }catch(e){showToast('添加失败','error')}
+}
+
+/* ═══ UPCOMING ═══ */
+let uC=[];
+async function fetchUpcoming(){const key=cachedTmdbKey,ld=document.getElementById('upcoming-loading'),emp=document.getElementById('upcoming-empty'),grid=document.getElementById('upcoming-grid');if(!key){ld.style.display='none';emp.style.display='block';return}ld.style.display='block';emp.style.display='none';grid.innerHTML='';try{let r=await fetch(`https://api.themoviedb.org/3/movie/upcoming?api_key=${key}&language=zh-CN&region=CN&page=1`);if(!r.ok)throw 0;let d=await r.json();if(!d.results?.length){r=await fetch(`https://api.themoviedb.org/3/movie/upcoming?api_key=${key}&language=zh-CN&page=1`);d=await r.json()}uC=d.results||[];ld.style.display='none';if(!uC.length){emp.innerHTML='<div class="empty-ring"></div><p>暂无即将上映的电影</p>';emp.style.display='block';return}renderUpcoming()}catch(e){ld.style.display='none';emp.innerHTML='<div class="empty-ring"></div><p>获取失败，请检查 API Key</p>';emp.style.display='block'}}
+
+async function renderUpcoming(){
+  const grid=document.getElementById('upcoming-grid'),ratings=await dbA('upcoming_ratings'),map={};
+  ratings.forEach(r=>map[r.id]=r);
+  const sorted=[...uC].sort((a,b)=>{if(!a.release_date&&!b.release_date)return 0;if(!a.release_date)return 1;if(!b.release_date)return -1;return a.release_date.localeCompare(b.release_date)});
+  grid.innerHTML=sorted.map(m=>{const ur=map[String(m.id)],ant=ur?ur.anticipation:0,poster=m.poster_path?`https://image.tmdb.org/t/p/w500${m.poster_path}`:PHM;return`<div class="movie-card" onclick="showUpcomingDetail(${m.id})"><span class="upcoming-badge">${m.release_date||'即将上映'}</span><img class="movie-card-cover" src="${poster}" alt="${m.title}" loading="lazy" onerror="this.src='${PHM}'"><div class="movie-card-overlay"><div class="game-card-title">${m.title||m.original_title}</div>${ant?`<div class="anticipation-bar"><div class="anticipation-fill" style="width:${ant}%"></div></div>`:''}</div></div>`}).join('');
+}
+
+async function showUpcomingDetail(tid){const m=uC.find(x=>x.id===tid);if(!m)return;const key=cachedTmdbKey,poster=m.poster_path?`https://image.tmdb.org/t/p/w500${m.poster_path}`:'',bd=m.backdrop_path?`https://image.tmdb.org/t/p/w1280${m.backdrop_path}`:poster;let ur=null;try{ur=await dbG('upcoming_ratings',String(tid))}catch(e){}const ant=ur?ur.anticipation:50,reason=ur?ur.reason:'';let imgH='';if(key){try{const r=await fetch(`https://api.themoviedb.org/3/movie/${tid}/images?api_key=${key}`),d=await r.json(),bds=(d.backdrops||[]).slice(0,8);if(bds.length)imgH=`<div class="detail-section"><div class="detail-section-title">剧照</div><div class="screenshot-gallery">${bds.map(b=>`<img src="https://image.tmdb.org/t/p/w780${b.file_path}" alt="" onclick="event.stopPropagation();openLB('https://image.tmdb.org/t/p/original${b.file_path}')">`).join('')}</div></div>`}catch(e){}}document.getElementById('upcoming-detail-content').innerHTML=`<div class="detail-hero"><img src="${bd}" alt="" ${!m.backdrop_path?'style="filter:blur(6px) brightness(.4);transform:scale(1.1)"':''}><div class="detail-hero-info">${poster?`<img class="detail-poster" src="${poster}" alt="${m.title}">`:''}<div class="detail-meta"><span style="color:var(--neon-pink);font-size:12px;letter-spacing:2px">${m.release_date||'即将上映'}</span><h2>${m.title||m.original_title}</h2></div></div></div><div class="detail-modal-body">${imgH}${m.overview?`<div class="detail-section"><div class="detail-section-title">简介</div><div class="detail-review">${m.overview}</div></div>`:''}<div class="detail-section"><div class="detail-section-title">期待程度</div><div class="range-value" id="ad-${tid}">${ant}%</div><input type="range" class="range-slider" min="0" max="100" value="${ant}" id="as-${tid}" oninput="document.getElementById('ad-${tid}').textContent=this.value+'%'"></div><div class="detail-section"><div class="detail-section-title">期待理由</div><textarea class="form-textarea" id="ar-${tid}" placeholder="为什么期待这部电影？">${reason}</textarea></div><div class="detail-actions"><button class="submit-btn" onclick="saveAnt(${tid})">保存期待评分</button></div></div>`;openModal('upcoming-detail')}
+async function saveAnt(tid){try{await dbP('upcoming_ratings',{id:String(tid),anticipation:parseInt(document.getElementById(`as-${tid}`).value),reason:document.getElementById(`ar-${tid}`).value.trim(),updatedAt:Date.now()});showToast('期待评分已保存');renderUpcoming()}catch(e){showToast('保存失败','error')}}
+
+/* ═══ LIGHTBOX ═══ */
+function openLB(src){document.getElementById('lightbox-img').src=src;document.getElementById('lightbox').classList.add('show')}
+function closeLightbox(){document.getElementById('lightbox').classList.remove('show')}
+
+/* ═══ SETTINGS (云端存储) ═══ */
+function openSettings(){document.getElementById('tmdb-api-key').value=cachedTmdbKey||'';document.getElementById('igdb-client-id').value=cachedIgdbClientId||'';document.getElementById('igdb-client-secret').value=cachedIgdbClientSecret||'';openModal('settings')}
+async function saveSettings(){try{await saveTmdbKey(document.getElementById('tmdb-api-key').value.trim());await saveIgdbKeys(document.getElementById('igdb-client-id').value.trim(),document.getElementById('igdb-client-secret').value.trim());closeAllModals();showToast('设置已保存');fetchNowPlaying();fetchUpcoming()}catch(e){showToast('保存失败','error')}}
+async function clearAllData(){if(!confirm('确定要清除所有数据吗？'))return;try{await Promise.all([dbC('games'),dbC('wishlist'),dbC('movies'),dbC('upcoming_ratings'),saveTmdbKey('')]);closeAllModals();showToast('所有数据已清除');renderGames();renderWishlist();renderMovies();fetchNowPlaying();fetchUpcoming()}catch(e){showToast('清除失败','error')}}
+async function migrateData(){
+  if(!confirm('将开始迁移数据（截图/音乐/封面 → 服务器文件），确认继续？'))return;
+  showToast('正在迁移数据，请稍候...');
+  try{
+    const r=await fetch('/api/migrate',{method:'POST',headers:authHeaders()});
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.error||'迁移失败');
+    showToast(`迁移完成：共 ${d.total} 款游戏，已迁移 ${d.migrated} 款`);
+    renderGames();
+  }catch(e){showToast(e.message||'迁移失败','error')}
+}
+
+/* ═══ INIT ═══ */
+async function loadData(){
+  try{
+    await Promise.all([loadTmdbKey(),loadIgdbKeys()]);
+    await Promise.all([renderGames(),renderWishlist(),renderMovies(),renderTop10(),fetchNowPlaying(),fetchUpcoming()]);
+  }catch(e){console.error(e);showToast('加载数据失败','error')}
+}
+
+async function init(){
+  buildPI();fpS[0].classList.add('active');upNL();
+  if(authToken){
+    try{
+      const r=await fetch('/api/verify',{headers:authHeaders()});
+      if(r.ok){hideLoginScreen();await loadData();return}
+    }catch(e){}
+  }
+  authToken=null;localStorage.removeItem('oasis_token');
+  showLoginScreen();
+}
+init();
+/* ════════════════════════════════════════════════
+   GSAP 高级互动特效 (由你的专属前端工程师添加)
+   ════════════════════════════════════════════════ */
+
+// 注册 GSAP 插件
+gsap.registerPlugin(ScrollTrigger);
+
+// --- 特效 1：首页 3D 鼠标视差联动 ---
+// 只有在首页 (cP === 0) 时，鼠标移动会让标题和网格产生 3D 景深效果
+document.addEventListener("mousemove", (e) => {
+  // cP 是你代码里记录当前页面的变量，0 代表首页
+  if (cP !== 0) return; 
+
+  const x = (e.clientX / window.innerWidth - 0.5) * 2; // 计算鼠标X偏移
+  const y = (e.clientY / window.innerHeight - 0.5) * 2; // 计算鼠标Y偏移
+
+  // 大标题轻微反向移动
+  gsap.to(".hero-title", { 
+    x: x * -30, 
+    y: y * -30, 
+    duration: 1.5, 
+    ease: "power2.out" 
+  });
+  
+  // 描述文字跟随移动
+  gsap.to(".hero-desc", { 
+    x: x * -15, 
+    y: y * -15, 
+    duration: 1.5, 
+    ease: "power2.out" 
+  });
+
+  // 底部赛博朋克网格产生 3D 倾斜
+  gsap.to(".hero-grid-wrapper", { 
+    rotationY: x * 15, 
+    rotationX: 68 + y * 10, // 原本有68度的X轴翻转，在此基础上增加
+    duration: 1.5, 
+    ease: "power2.out" 
+  });
+});
+
+// --- 特效 2：列表内部滚动加载动画 ---
+// 因为你的卡片是异步加载的，我们需要拦截你的 renderGames 和 renderMovies 函数
+// 在它们渲染完成后，给卡片加上炫酷的 ScrollTrigger 动画
+
+// 备份原有的渲染函数
+const originalRenderGames = renderGames;
+const originalRenderMovies = renderMovies;
+
+// 重写渲染游戏函数，加入 GSAP 动画
+window.renderGames = async function() {
+  await originalRenderGames(); // 先执行你原本的逻辑生成 DOM
+  
+  // 告诉 ScrollTrigger 我们内部的滚动容器是哪一个
+  const scrollContainer = document.querySelector('#page-games .fp-section-inner');
+  
+  // 给所有新生成的游戏卡片添加滚动触发动画
+  gsap.utils.toArray('.game-card, .wishlist-card').forEach((card) => {
+    gsap.fromTo(card, 
+      { opacity: 0, y: 50, scale: 0.9 }, // 初始状态：透明、靠下、缩小
+      { 
+        opacity: 1, 
+        y: 0, 
+        scale: 1, 
+        duration: 0.6, 
+        ease: "back.out(1.7)", // 带有弹性的缓动
+        scrollTrigger: {
+          trigger: card,
+          scroller: scrollContainer, // 指定内部滚动条
+          start: "top 95%", // 当卡片顶部到达屏幕 95% 时触发
+          toggleActions: "play none none reverse" // 往下滚播放，往上滚反向播放
+        }
+      }
+    );
+  });
+};
+
+// 同理，重写渲染电影函数
+window.renderMovies = async function() {
+  await originalRenderMovies();
+
+  const scrollContainer = document.querySelector('#page-movies .fp-section-inner');
+
+  gsap.utils.toArray('.movie-card').forEach((card) => {
+    gsap.fromTo(card,
+      { opacity: 0, y: 50, rotation: 2 },
+      {
+        opacity: 1,
+        y: 0,
+        rotation: 0,
+        duration: 0.7,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: card,
+          scroller: scrollContainer,
+          start: "top 95%",
+          toggleActions: "play none none reverse"
+        }
+      }
+    );
+  });
+
+  // Keep Top 10 in sync when movies change
+  renderTop10();
+};
+</script>
+</body>
+</html>
