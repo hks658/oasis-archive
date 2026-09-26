@@ -5,3 +5,6 @@ node_modules/
 uploads/
 *.log
 .claude/
+
+# Original media; publish optimized derivatives under public/media instead.
+/素材/

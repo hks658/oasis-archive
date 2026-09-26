@@ -1,0 +1,35 @@
+{
+  "page": "https://store.steampowered.com/app/620/Portal_2/",
+  "assets": [
+    {
+      "file": "cover.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/620/library_600x900_2x.jpg",
+      "bytes": 145080
+    },
+    {
+      "file": "screenshot-1.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/620/ss_3858536cbc0a07dfbe36e8f87b3f08bf3be45e54.1920x1080.jpg?t=1790187113",
+      "bytes": 275693
+    },
+    {
+      "file": "screenshot-2.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/620/ss_f3f6787d74739d3b2ec8a484b5c994b3d31ef325.1920x1080.jpg?t=1790187113",
+      "bytes": 321714
+    },
+    {
+      "file": "screenshot-3.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/620/ss_6a4f5afdaa98402de9cf0b59fed27bab3256a6f4.1920x1080.jpg?t=1790187113",
+      "bytes": 384493
+    },
+    {
+      "file": "screenshot-4.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/620/ss_0cdd90fafc160b52d08b303d205f9fd4e83cf164.1920x1080.jpg?t=1790187113",
+      "bytes": 108133
+    },
+    {
+      "file": "screenshot-5.jpg",
+      "url": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/620/ss_ec35a739b4b33270eb170d9e561c5b016cba50a6.1920x1080.jpg?t=1790187113",
+      "bytes": 212177
+    }
+  ]
+}

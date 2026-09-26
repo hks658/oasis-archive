@@ -60,10 +60,6 @@ nav.nav-solid{background:rgba(0,0,0,.88);backdrop-filter:none;-webkit-backdrop-f
 #page-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 140% 60% at 50% 110%,rgba(162,26,38,.15) 0%,transparent 50%),radial-gradient(ellipse 120% 50% at 50% -5%,rgba(0,0,0,.5) 0%,transparent 45%);pointer-events:none;z-index:1}
 #page-hero::after{content:'';position:absolute;inset:0;background-image:var(--noise-bg);pointer-events:none;z-index:2;opacity:.6}
 
-.hero-particles{position:absolute;inset:0;overflow:hidden;z-index:1}
-.hero-particle{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;opacity:0;animation:particleFade 5s ease-in-out infinite}
-.fp-section:not(.active) .hero-particle{animation-play-state:paused}
-@keyframes particleFade{0%,100%{opacity:0;transform:translateY(0) scale(.3)}50%{opacity:.6;transform:translateY(-30px) scale(1)}}
 
 .hero-grid-wrapper{position:absolute;bottom:0;left:-50%;width:200%;height:35%;transform:perspective(600px) rotateX(68deg);transform-origin:center top;z-index:1;opacity:.5;overflow:hidden}
 .hero-grid{width:100%;height:200%;
@@ -464,6 +460,9 @@ nav.nav-solid{background:rgba(0,0,0,.88);backdrop-filter:none;-webkit-backdrop-f
 .nav-right{display:flex;align-items:center;gap:8px}
 
 </style>
+<link rel="stylesheet" href="/oasis-theme.css">
+<link rel="stylesheet" href="/game-detail.css">
+<link rel="stylesheet" href="/cinema-reel.css">
 </head>
 <body>
   <div id="login-screen">
@@ -487,6 +486,7 @@ nav.nav-solid{background:rgba(0,0,0,.88);backdrop-filter:none;-webkit-backdrop-f
     <a class="nav-link" data-page="3" onclick="goToPage(3)">十佳</a>
   </div>
   <div class="nav-right">
+  <button id="sound-toggle" class="sound-toggle" type="button" aria-label="静音所有音乐" aria-pressed="false" onclick="toggleGlobalMute()"><span class="sound-bars" aria-hidden="true">▂▅▃▆</span><span id="sound-label">声音开启</span></button>
   <button class="nav-settings" onclick="openSettings()" title="设置"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.2 4.2l2.8 2.8M17 17l2.8 2.8M1 12h4M19 12h4M4.2 19.8l2.8-2.8M17 7l2.8-2.8"/></svg></button>
   <button class="nav-settings" onclick="logout()" title="退出登录"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
 </div>
@@ -495,15 +495,17 @@ nav.nav-solid{background:rgba(0,0,0,.88);backdrop-filter:none;-webkit-backdrop-f
 <div id="fullpage-wrapper">
 
   <section class="fp-section active" id="page-hero" data-label="首页">
-    <div class="hero-particles" id="hero-particles"></div>
+    <video id="hero-video" class="hero-video" muted loop playsinline preload="none" poster="/media/neon-city-poster.jpg" aria-hidden="true" data-silent="true"></video>
+    <button id="hero-motion-toggle" class="hero-motion-toggle" type="button" aria-label="播放背景视频">播放背景</button>
     <div class="hero-grid-wrapper"><div class="hero-grid"></div></div>
     <div class="hero-center">
-      <p class="hero-eyebrow anim">Personal Archive</p>
+      <p class="hero-eyebrow anim">EST. PERSONAL · OPEN ALL NIGHT</p>
       <h1 class="hero-title anim d1"><span class="title-line title-accent title-cn">绿洲</span><span class="title-sub">Oasis</span></h1>
-      <p class="hero-desc anim d3">在这里，唯一限制你的是你自己的想象力。<br><span class="quote-source">—— 《头号玩家》Ready Player One</span></p>
+      <p class="hero-desc anim d3">日落之后，进入另一个世界。<br><span class="quote-source">游戏、电影，以及不想遗忘的瞬间。</span></p>
       <div class="hero-actions anim d5"><a class="btn-games" onclick="goToPage(1)">探索游戏库</a><a class="btn-movies" onclick="goToPage(2)">浏览电影集</a></div>
     </div>
-    <div class="hero-scroll-hint anim d7"><span>Scroll</span><div class="scroll-line"></div></div>
+    <div class="hero-feature anim d3" id="hero-feature"><div class="feature-orbit" aria-hidden="true"></div><div class="feature-sun" aria-hidden="true"></div><div class="feature-horizon" aria-hidden="true"></div><div class="feature-empty"><span>YOUR PRIVATE UNIVERSE</span><strong>好故事，<br>值得留下。</strong><p>添加一部作品，点亮你的私人收藏。</p></div></div>
+    <div class="hero-bottom"><span>01 / THE LOBBY</span><span>向下探索你的收藏 <span aria-hidden="true">↘</span></span><span>GAMES · CINEMA · MEMORIES</span></div>
   </section>
 
   <section class="fp-section bg-games" id="page-games" data-label="游戏">
@@ -741,7 +743,7 @@ nav.nav-solid{background:rgba(0,0,0,.88);backdrop-filter:none;-webkit-backdrop-f
   </div>
 </div>
 
-<div id="modal-game-detail" class="modal-backdrop detail-modal" onclick="handleBackdropClick(event)"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeAllModals()">✕</button><div id="game-detail-content"></div></div></div>
+<div id="modal-game-detail" class="modal-backdrop detail-modal" aria-hidden="true" onclick="handleBackdropClick(event)"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="game-detail-title" onclick="event.stopPropagation()"><div class="gd-topbar"><span><b>绿洲 OASIS</b> / 游戏档案</span><button type="button" class="modal-close" aria-label="关闭游戏详情" onclick="closeAllModals()">✕</button></div><div id="game-detail-content"></div></div></div>
 <div id="modal-movie-detail" class="modal-backdrop detail-modal" onclick="handleBackdropClick(event)"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeAllModals()">✕</button><div id="movie-detail-content"></div></div></div>
 <div id="modal-upcoming-detail" class="modal-backdrop detail-modal" onclick="handleBackdropClick(event)"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeAllModals()">✕</button><div id="upcoming-detail-content"></div></div></div>
 <div id="modal-wishlist-detail" class="modal-backdrop detail-modal" onclick="handleBackdropClick(event)"><div class="modal" onclick="event.stopPropagation()"><button class="modal-close" onclick="closeAllModals()">✕</button><div id="wishlist-detail-content"></div></div></div>
@@ -806,7 +808,6 @@ nav.nav-solid{background:rgba(0,0,0,.88);backdrop-filter:none;-webkit-backdrop-f
 !function(){const c=document.createElement('canvas'),x=c.getContext('2d');c.width=256;c.height=256;const d=x.createImageData(256,256),p=d.data;for(let i=0;i<p.length;i+=4){const v=Math.random()*255|0;p[i]=p[i+1]=p[i+2]=v;p[i+3]=5}x.putImageData(d,0,0);document.documentElement.style.setProperty('--noise-bg',`url(${c.toDataURL('image/png')})`)}();
 
 /* ═══ PARTICLES ═══ */
-!function(){const c=document.getElementById('hero-particles'),cl=['#fff','#fff','#fff','#7eb8ff','#a07eff','#ff6b9d'];for(let i=0;i<25;i++){const p=document.createElement('div');p.className='hero-particle';const s=1+Math.random()*2.5;Object.assign(p.style,{left:Math.random()*100+'%',top:Math.random()*75+'%',animationDelay:Math.random()*6+'s',animationDuration:3+Math.random()*4+'s',width:s+'px',height:s+'px',background:cl[Math.random()*cl.length|0]});c.appendChild(p)}}();
 
 /* ═══ FULLPAGE ═══ */
 const fpW=document.getElementById('fullpage-wrapper'),fpS=document.querySelectorAll('.fp-section'),tP=fpS.length;
@@ -814,12 +815,9 @@ let cP=0,isA=false,aD=0;const AD=1000,DT=80;
 function buildPI(){const c=document.getElementById('page-indicator');c.innerHTML='';fpS.forEach((s,i)=>{const d=document.createElement('div');d.className='page-dot'+(i===0?' active':'');d.dataset.label=s.dataset.label||'';d.onclick=()=>goToPage(i);c.appendChild(d)})}
 function upPI(){document.querySelectorAll('.page-dot').forEach((d,i)=>d.classList.toggle('active',i===cP))}
 function upNL(){document.querySelectorAll('.nav-link').forEach(a=>a.classList.toggle('active',+a.dataset.page===cP));document.getElementById('navbar').classList.toggle('nav-solid',cP>0)}
-function goToPage(i){if(i<0||i>=tP||i===cP||isA)return;isA=true;fpS[cP].classList.remove('active');cP=i;fpW.style.willChange='transform';fpW.style.transform=`translateY(-${cP*100}vh)`;upPI();upNL();setTimeout(()=>fpS[cP].classList.add('active'),200);setTimeout(()=>{isA=false;fpW.style.willChange='auto'},AD)}
-fpW.addEventListener('wheel',e=>{if(document.querySelector('.modal-backdrop.show'))return;const inner=fpS[cP].querySelector('.fp-section-inner');if(inner){const t=inner.scrollTop<=2,b=inner.scrollTop+inner.clientHeight>=inner.scrollHeight-2;if(e.deltaY>0&&!b||e.deltaY<0&&!t)return}e.preventDefault();aD+=e.deltaY;if(Math.abs(aD)>=DT){goToPage(cP+(aD>0?1:-1));aD=0}clearTimeout(window._wr);window._wr=setTimeout(()=>aD=0,300)},{passive:false});
-let tsy=0,tst=0;
-fpW.addEventListener('touchstart',e=>{if(!document.querySelector('.modal-backdrop.show')){tsy=e.touches[0].clientY;tst=Date.now()}},{passive:true});
-fpW.addEventListener('touchend',e=>{if(document.querySelector('.modal-backdrop.show'))return;const dy=tsy-e.changedTouches[0].clientY,inner=fpS[cP].querySelector('.fp-section-inner');if(inner&&(dy>0&&inner.scrollTop+inner.clientHeight<inner.scrollHeight-2||dy<0&&inner.scrollTop>2))return;if(Math.abs(dy)>60&&Date.now()-tst<600)goToPage(cP+(dy>0?1:-1))},{passive:true});
-document.addEventListener('keydown',e=>{if(document.querySelector('.modal-backdrop.show')){e.key==='Escape'&&(closeLightbox(),closeAllModals());return}const m={ArrowDown:1,PageDown:1,ArrowUp:-1,PageUp:-1}[e.key];if(m!==undefined){e.preventDefault();goToPage(cP+m)}else if(e.key==='Home'){e.preventDefault();goToPage(0)}else if(e.key==='End'){e.preventDefault();goToPage(tP-1)}else e.key==='Escape'&&(closeLightbox(),closeAllModals())});
+function goToPage(i){if(i<0||i>=tP)return;fpS[i].scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'})}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(document.getElementById('lightbox').classList.contains('show'))closeLightbox();else closeAllModals()}});
+
 document.addEventListener('visibilitychange',()=>{document.documentElement.style.setProperty('--anim-state',document.hidden?'paused':'running')});
 
 /* ═══ AUTH & API ═══ */
@@ -831,10 +829,12 @@ let cachedIgdbClientSecret='';
 function authHeaders(){return{'Content-Type':'application/json','Authorization':`Bearer ${authToken}`}}
 
 function showLoginScreen(){
+  document.body.classList.add('is-locked');
   document.getElementById('login-screen').style.display='flex';
   document.getElementById('login-error').textContent='';
 }
 function hideLoginScreen(){
+  document.body.classList.remove('is-locked');
   document.getElementById('login-screen').style.display='none';
 }
 
@@ -1038,8 +1038,8 @@ async function editMovie(id){
 document.querySelectorAll('.tab-btn').forEach(btn=>btn.onclick=function(){const p=this.closest('.section-pad');p.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');p.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));document.getElementById(this.dataset.tab).classList.add('active')});
 
 /* ═══ MODALS ═══ */
-function openModal(n){const m=document.getElementById(`modal-${n}`);m&&(m.classList.add('show'),document.body.style.overflow='hidden')}
-function closeAllModals(){document.querySelectorAll('.modal-backdrop').forEach(m=>m.classList.remove('show'));document.body.style.overflow='';editingGameId=null;editingWishlistId=null;editingMovieId=null}
+function openModal(n){const m=document.getElementById(`modal-${n}`);if(m){m.classList.add('show');document.body.style.overflow='hidden';document.dispatchEvent(new CustomEvent('oasis:modal-open',{detail:n}))}}
+function closeAllModals(){document.querySelectorAll('.modal-backdrop').forEach(m=>m.classList.remove('show'));document.body.style.overflow='';editingGameId=null;editingWishlistId=null;editingMovieId=null;document.dispatchEvent(new Event('oasis:modals-close'))}
 function handleBackdropClick(e){e.target===e.currentTarget&&closeAllModals()}
 
 /* ═══ FILES ═══ */
@@ -1241,7 +1241,7 @@ async function handleAddGame(e){e.preventDefault();const f=e.target,isE=!!editin
   }catch(err){showToast('保存失败','error')}
 }
 async function deleteGame(id){if(!confirm('确定删除这个游戏吗？'))return;try{await dbD('games',id);fetch(`/api/upload/${id}`,{method:'DELETE',headers:authHeaders()}).catch(()=>{});closeAllModals();showToast('游戏已删除');renderGames()}catch(e){showToast('删除失败','error')}}
-async function renderGames(){try{const games=await dbA('games'),grid=document.getElementById('played-grid'),emp=document.getElementById('played-empty');if(!games.length){grid.innerHTML='';emp.style.display='block';return}emp.style.display='none';grid.innerHTML=games.sort((a,b)=>b.createdAt-a.createdAt).map(g=>`<div class="game-card" onclick="showGameDetail('${g.id}')" ${g.music?`onmouseenter="playGM('${g.id}',this)" onmouseleave="stopGM()"`:''}>${g.music?'<div class="music-indicator"><div class="music-bar"></div><div class="music-bar"></div><div class="music-bar"></div><div class="music-bar"></div></div>':''}${cardMenuHTML('game',g.id)}<img class="game-card-cover" src="${g.cover||PH}" alt="${g.title}" loading="lazy"><div class="game-card-overlay"><div class="game-card-rating">${renderStars(g.rating)}</div><div class="game-card-title">${g.title}</div></div></div>`).join('')}catch(e){console.error('renderGames:',e)}}
+async function renderGames(){try{const games=await dbA('games'),grid=document.getElementById('played-grid'),emp=document.getElementById('played-empty');if(!games.length){grid.innerHTML='';emp.style.display='block';return}emp.style.display='none';grid.innerHTML=games.sort((a,b)=>b.createdAt-a.createdAt).map(g=>`<div class="game-card" onclick="showGameDetail('${g.id}')" ${g.music?`onmouseenter="playGM('${g.id}',this)" onmouseleave="stopGM()"`:''}>${g.music?'<div class="music-indicator"><div class="music-bar"></div><div class="music-bar"></div><div class="music-bar"></div><div class="music-bar"></div></div>':''}${cardMenuHTML('game',g.id)}<img class="game-card-cover" src="${g.cover||PH}" alt="${g.title}" loading="lazy"><div class="game-card-overlay"><div class="game-card-rating">${renderStars(g.rating)}</div><div class="game-card-title">${g.title}</div></div></div>`).join('');Array.from(grid.children).forEach((card,index)=>{card.archiveRecord=games[index]})}catch(e){console.error('renderGames:',e)}}
 
 /* ═══ AUDIO UNLOCK ═══ */
 let audioUnlocked=false;
@@ -1252,7 +1252,7 @@ function unlockAudio(){if(audioUnlocked)return;audioUnlocked=true;try{const c=ne
 let cA=null,fadeInTimer=null,fadeOutTimer=null,fadingAudio=null,playGen=0;
 const FADE_MS=600,FADE_STEP=30,TARGET_VOL=0.4;
 async function playGM(id,el){
-  try{const gen=++playGen;const g=await dbG('games',id);if(!g?.music||gen!==playGen)return;if(fadingAudio){clearInterval(fadeOutTimer);fadingAudio.pause();fadingAudio.currentTime=0;fadingAudio=null}clearInterval(fadeInTimer);if(cA){cA.pause();cA.currentTime=0;cA=null}document.querySelectorAll('.game-card.playing').forEach(c=>c.classList.remove('playing'));cA=new Audio(g.music);cA.volume=0;cA.loop=true;cA.play().catch(()=>{});el.classList.add('playing');const steps=FADE_MS/FADE_STEP,inc=TARGET_VOL/steps;fadeInTimer=setInterval(()=>{if(!cA||gen!==playGen)return clearInterval(fadeInTimer);cA.volume=Math.min(cA.volume+inc,TARGET_VOL);if(cA.volume>=TARGET_VOL)clearInterval(fadeInTimer)},FADE_STEP)}catch(e){}
+  try{const gen=++playGen;const g=await dbG('games',id);if(!g?.music||gen!==playGen)return;if(fadingAudio){clearInterval(fadeOutTimer);fadingAudio.pause();fadingAudio.currentTime=0;fadingAudio=null}clearInterval(fadeInTimer);if(cA){cA.pause();cA.currentTime=0;cA=null}document.querySelectorAll('.game-card.playing').forEach(c=>c.classList.remove('playing'));cA=new Audio(g.music);cA.muted=window.oasisMuted===true;cA.volume=0;cA.loop=true;cA.play().catch(()=>{});el.classList.add('playing');const steps=FADE_MS/FADE_STEP,inc=TARGET_VOL/steps;fadeInTimer=setInterval(()=>{if(!cA||gen!==playGen)return clearInterval(fadeInTimer);cA.volume=Math.min(cA.volume+inc,TARGET_VOL);if(cA.volume>=TARGET_VOL)clearInterval(fadeInTimer)},FADE_STEP)}catch(e){}
 }
 function stopGM(){
   playGen++;clearInterval(fadeInTimer);if(fadingAudio){clearInterval(fadeOutTimer);fadingAudio.pause();fadingAudio.currentTime=0;fadingAudio=null}document.querySelectorAll('.game-card.playing').forEach(c=>c.classList.remove('playing'));if(!cA)return;fadingAudio=cA;cA=null;const audio=fadingAudio,vol=audio.volume;const steps=FADE_MS/FADE_STEP,dec=vol>0?vol/steps:0.01;fadeOutTimer=setInterval(()=>{audio.volume=Math.max(audio.volume-dec,0);if(audio.volume<=0){clearInterval(fadeOutTimer);audio.pause();audio.currentTime=0;if(fadingAudio===audio)fadingAudio=null}},FADE_STEP);
@@ -1272,23 +1272,16 @@ function buildDetailHTML(title,imgs,scoreBlock,reviewLabel,reviewContent,musicSr
   return `<div class="gdl-header"><h2>${title}</h2></div><div class="game-detail-layout${isL?' stacked':''}"><div class="gdl-gallery"><div class="gdl-viewport" onclick="openLB(gdlImgs[gdlIdx])"><img id="gdl-main-img" src="${imgs[0]}" alt="${title}">${hasM?`<button class="gdl-arrow prev" onclick="event.stopPropagation();gdlNav(-1)">${aL}</button><button class="gdl-arrow next" onclick="event.stopPropagation();gdlNav(1)">${aR}</button><div class="gdl-counter" id="gdl-counter">1 / ${imgs.length}</div>`:''}</div>${hasM?`<div class="gdl-thumbs">${thumbs}</div>`:''}</div><div class="gdl-info"><div class="gdl-score-block">${scoreBlock}</div><div class="gdl-divider"></div><div class="gdl-review-block"><div class="gdl-review-label">${reviewLabel}</div>${reviewContent?`<div class="gdl-review-text">${reviewContent.replace(/\n/g,'<br>')}</div>`:`<div class="gdl-review-empty">暂无内容</div>`}</div>${musicSrc?`<div class="gdl-music-block"><div class="gdl-review-label">游戏音乐</div><audio controls src="${musicSrc}"></audio></div>`:''}<div class="gdl-actions">${editAction?`<button class="submit-btn" style="margin-top:0;margin-bottom:10px" onclick="${editAction}">编辑</button>`:''}<button class="delete-btn" onclick="${deleteAction}">删除</button></div></div></div>`;
 }
 
+let gameDetailRequest=0;
 async function showGameDetail(id){
-  const g=await dbG('games',id);if(!g)return;
-  const coverSrc=g.cover||PH;
-  const metaParts=[(g.releaseYear||''),(g.platforms||[]).join(' / ')].filter(Boolean);
-  const metaLine=metaParts.join(' \u00b7 ');
-  let ratingHTML='';
-  if(g.rating>0){ratingHTML=`<div class="game-detail-rating"><span class="game-detail-score">${g.rating}<span class="score-suffix"> / 5</span></span><div class="game-detail-stars">${renderStars(g.rating,'18px')}</div></div>`}
-  const review=g.review||'';
-  let reviewHTML='';
-  if(review){reviewHTML=`<div class="detail-section"><div class="detail-section-title">\u8BC4\u6D4B</div><div class="detail-review">${review.replace(/\n/g,'<br>')}</div></div>`}
-  const screenshots=g.screenshots||[];
-  let screenshotsHTML='';
-  if(screenshots.length){screenshotsHTML=`<div class="detail-section"><div class="detail-section-title">\u622A\u56FE</div><div class="screenshot-gallery">${screenshots.map(s=>`<img src="${s}" alt="" onclick="event.stopPropagation();openLB(this.src)">`).join('')}</div></div>`}
-  let musicHTML='';
-  if(g.music){musicHTML=`<div class="detail-section"><div class="detail-section-title">\u6E38\u620F\u97F3\u4E50</div><audio controls src="${g.music}" style="width:100%;margin-top:12px;border-radius:10px;height:36px"></audio></div>`}
-  document.getElementById('game-detail-content').innerHTML=`<div class="game-detail-hero"><img class="game-detail-backdrop" src="${coverSrc}" alt=""><div class="game-detail-hero-info"><img class="game-detail-poster" src="${coverSrc}" alt="${g.title}"><div class="game-detail-meta">${ratingHTML}<h2>${g.title}</h2>${metaLine?`<div class="game-detail-meta-line">${metaLine}</div>`:''}</div></div></div><div class="detail-modal-body">${reviewHTML}${screenshotsHTML}${musicHTML}<div class="detail-actions"><button class="submit-btn" onclick="closeAllModals();setTimeout(()=>editGame('${g.id}'),400)">编辑</button><button class="delete-btn" onclick="deleteGame('${g.id}')">删除</button></div></div>`;
-  openModal('game-detail');
+  const request=++gameDetailRequest;
+  try{
+    const game=await dbG('games',id);
+    if(request!==gameDetailRequest)return;
+    if(!game)return showToast('这条游戏记录已不存在','error');
+    GameDetail.render(game);
+    openModal('game-detail');
+  }catch(error){showToast('详情加载失败，请稍后重试','error')}
 }
 
 /* ═══ WISHLIST ═══ */
@@ -1355,7 +1348,7 @@ async function handleAddWishlist(e){e.preventDefault();const f=e.target,isE=!!ed
   }catch(err){showToast('保存失败','error')}
 }
 async function deleteWishlist(id){if(!confirm('确定移除？'))return;try{await dbD('wishlist',id);closeAllModals();showToast('已移除');renderWishlist()}catch(e){showToast('删除失败','error')}}
-async function renderWishlist(){try{const items=await dbA('wishlist'),grid=document.getElementById('wishlist-grid'),emp=document.getElementById('wishlist-empty');if(!items.length){grid.innerHTML='';emp.style.display='block';return}emp.style.display='none';grid.innerHTML=items.sort((a,b)=>b.createdAt-a.createdAt).map(i=>`<div class="wishlist-card" onclick="showWishlistDetail('${i.id}')">${cardMenuHTML('wishlist',i.id)}<span class="wishlist-badge">WISHLIST</span><img class="game-card-cover" src="${i.cover||PH}" alt="${i.title}" loading="lazy"><div class="game-card-overlay"><div class="game-card-title">${i.title}</div></div></div>`).join('')}catch(e){console.error('renderWishlist:',e)}}
+async function renderWishlist(){try{const items=await dbA('wishlist'),grid=document.getElementById('wishlist-grid'),emp=document.getElementById('wishlist-empty');if(!items.length){grid.innerHTML='';emp.style.display='block';return}emp.style.display='none';grid.innerHTML=items.sort((a,b)=>b.createdAt-a.createdAt).map(i=>`<div class="wishlist-card" onclick="showWishlistDetail('${i.id}')">${cardMenuHTML('wishlist',i.id)}<span class="wishlist-badge">WISHLIST</span><img class="game-card-cover" src="${i.cover||PH}" alt="${i.title}" loading="lazy"><div class="game-card-overlay"><div class="game-card-title">${i.title}</div></div></div>`).join('');Array.from(grid.children).forEach((card,index)=>{card.archiveRecord=items[index]})}catch(e){console.error('renderWishlist:',e)}}
 
 async function showWishlistDetail(id){
   const i=await dbG('wishlist',id);if(!i)return;gdlImgs=[];gdlIdx=0;if(i.cover)gdlImgs.push(i.cover);if(!gdlImgs.length)gdlImgs.push(PH);
@@ -1427,7 +1420,7 @@ async function renderMovies(){
   grid.innerHTML=movies.sort((a,b)=>b.createdAt-a.createdAt).map(m=>{
     const rt=m.userRating?`<div class="game-card-rating">${renderStars(m.userRating)}</div>`:(m.rating!=null?`<div class="tomato-rating">${tDot(m.rating)}<span class="tomato-score ${tClass(m.rating)}">${m.rating}%</span></div>`:'');
     return `<div class="movie-card" onclick="showMovieDetail('${m.id}')">${cardMenuHTML('movie',m.id)}<img class="movie-card-cover" src="${m.poster||PHM}" alt="${m.title}" loading="lazy"><div class="movie-card-overlay">${rt}<div class="game-card-title">${m.title}</div></div></div>`;
-  }).join('')}catch(e){console.error('renderMovies:',e)}
+  }).join('');Array.from(grid.children).forEach((card,index)=>{card.archiveRecord=movies[index]})}catch(e){console.error('renderMovies:',e)}finally{renderTop10()}
 }
 
 async function showMovieDetail(id){
@@ -1751,8 +1744,8 @@ async function showUpcomingDetail(tid){const m=uC.find(x=>x.id===tid);if(!m)retu
 async function saveAnt(tid){try{await dbP('upcoming_ratings',{id:String(tid),anticipation:parseInt(document.getElementById(`as-${tid}`).value),reason:document.getElementById(`ar-${tid}`).value.trim(),updatedAt:Date.now()});showToast('期待评分已保存');renderUpcoming()}catch(e){showToast('保存失败','error')}}
 
 /* ═══ LIGHTBOX ═══ */
-function openLB(src){document.getElementById('lightbox-img').src=src;document.getElementById('lightbox').classList.add('show')}
-function closeLightbox(){document.getElementById('lightbox').classList.remove('show')}
+function openLB(src){GameDetail.openImages(src)}
+function closeLightbox(){GameDetail.closeImages()}
 
 /* ═══ SETTINGS (云端存储) ═══ */
 function openSettings(){document.getElementById('tmdb-api-key').value=cachedTmdbKey||'';document.getElementById('igdb-client-id').value=cachedIgdbClientId||'';document.getElementById('igdb-client-secret').value=cachedIgdbClientSecret||'';openModal('settings')}
@@ -1790,111 +1783,10 @@ async function init(){
   showLoginScreen();
 }
 init();
-/* ════════════════════════════════════════════════
-   GSAP 高级互动特效 (由你的专属前端工程师添加)
-   ════════════════════════════════════════════════ */
-
-// 注册 GSAP 插件
-gsap.registerPlugin(ScrollTrigger);
-
-// --- 特效 1：首页 3D 鼠标视差联动 ---
-// 只有在首页 (cP === 0) 时，鼠标移动会让标题和网格产生 3D 景深效果
-document.addEventListener("mousemove", (e) => {
-  // cP 是你代码里记录当前页面的变量，0 代表首页
-  if (cP !== 0) return; 
-
-  const x = (e.clientX / window.innerWidth - 0.5) * 2; // 计算鼠标X偏移
-  const y = (e.clientY / window.innerHeight - 0.5) * 2; // 计算鼠标Y偏移
-
-  // 大标题轻微反向移动
-  gsap.to(".hero-title", { 
-    x: x * -30, 
-    y: y * -30, 
-    duration: 1.5, 
-    ease: "power2.out" 
-  });
-  
-  // 描述文字跟随移动
-  gsap.to(".hero-desc", { 
-    x: x * -15, 
-    y: y * -15, 
-    duration: 1.5, 
-    ease: "power2.out" 
-  });
-
-  // 底部赛博朋克网格产生 3D 倾斜
-  gsap.to(".hero-grid-wrapper", { 
-    rotationY: x * 15, 
-    rotationX: 68 + y * 10, // 原本有68度的X轴翻转，在此基础上增加
-    duration: 1.5, 
-    ease: "power2.out" 
-  });
-});
-
-// --- 特效 2：列表内部滚动加载动画 ---
-// 因为你的卡片是异步加载的，我们需要拦截你的 renderGames 和 renderMovies 函数
-// 在它们渲染完成后，给卡片加上炫酷的 ScrollTrigger 动画
-
-// 备份原有的渲染函数
-const originalRenderGames = renderGames;
-const originalRenderMovies = renderMovies;
-
-// 重写渲染游戏函数，加入 GSAP 动画
-window.renderGames = async function() {
-  await originalRenderGames(); // 先执行你原本的逻辑生成 DOM
-  
-  // 告诉 ScrollTrigger 我们内部的滚动容器是哪一个
-  const scrollContainer = document.querySelector('#page-games .fp-section-inner');
-  
-  // 给所有新生成的游戏卡片添加滚动触发动画
-  gsap.utils.toArray('.game-card, .wishlist-card').forEach((card) => {
-    gsap.fromTo(card, 
-      { opacity: 0, y: 50, scale: 0.9 }, // 初始状态：透明、靠下、缩小
-      { 
-        opacity: 1, 
-        y: 0, 
-        scale: 1, 
-        duration: 0.6, 
-        ease: "back.out(1.7)", // 带有弹性的缓动
-        scrollTrigger: {
-          trigger: card,
-          scroller: scrollContainer, // 指定内部滚动条
-          start: "top 95%", // 当卡片顶部到达屏幕 95% 时触发
-          toggleActions: "play none none reverse" // 往下滚播放，往上滚反向播放
-        }
-      }
-    );
-  });
-};
-
-// 同理，重写渲染电影函数
-window.renderMovies = async function() {
-  await originalRenderMovies();
-
-  const scrollContainer = document.querySelector('#page-movies .fp-section-inner');
-
-  gsap.utils.toArray('.movie-card').forEach((card) => {
-    gsap.fromTo(card,
-      { opacity: 0, y: 50, rotation: 2 },
-      {
-        opacity: 1,
-        y: 0,
-        rotation: 0,
-        duration: 0.7,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: card,
-          scroller: scrollContainer,
-          start: "top 95%",
-          toggleActions: "play none none reverse"
-        }
-      }
-    );
-  });
-
-  // Keep Top 10 in sync when movies change
-  renderTop10();
-};
 </script>
+<script src="/archive-filters.js"></script>
+<script src="/game-detail.js"></script>
+<script src="/oasis-experience.js"></script>
+<script src="/cinema-reel.js"></script>
 </body>
 </html>
