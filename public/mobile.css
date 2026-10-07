@@ -1,0 +1,29 @@
+/* Last in the cascade: compact screens use natural flow and inexpensive surfaces. */
+@media(max-width:760px){
+  html{scroll-padding-top:100px}
+  nav,.modal-backdrop,.lightbox{width:100%;max-width:100vw}
+  .modal-backdrop:not(.show),.lightbox:not(.show){visibility:hidden}
+  nav{height:auto;min-height:88px;display:grid;grid-template-columns:1fr auto;gap:0 10px;padding:8px 16px}
+  .nav-links{grid-column:1/-1;grid-row:2;justify-content:space-between;gap:12px;min-width:0}
+  .nav-links a{padding:10px 0;font-size:12px}
+  .nav-right{grid-column:2;grid-row:1}.nav-logo{grid-column:1;grid-row:1}
+  .fp-section{scroll-margin-top:100px}
+  .bg-games::before,.bg-games::after,.bg-movies::before,.bg-movies::after,.bg-top10::before,.bg-top10::after{display:none}
+  #page-hero{padding-top:156px;min-width:0}.hero-motion-toggle{top:106px}
+  #page-hero .hero-center,.hero-feature,.feature-content{min-width:0;max-width:100%}
+  .hero-title .title-sub{letter-spacing:.25em}.hero-actions{flex-wrap:wrap}
+  .tab-controls{gap:18px;overflow-x:auto;max-width:100%}.tab-btn{white-space:nowrap;flex-shrink:0}
+  .card-grid>*,.detail-meta,.detail-hero-info{min-width:0}
+  .detail-meta h2,.feature-content h2{overflow-wrap:anywhere}
+  .modal-backdrop{padding:10px;padding-top:max(10px,env(safe-area-inset-top));padding-bottom:max(10px,env(safe-area-inset-bottom))}
+  .modal{min-width:0;max-height:calc(100dvh - 24px);padding:24px 18px;overscroll-behavior:contain}
+  .detail-modal{padding:0}.detail-actions{flex-wrap:wrap}.detail-actions>*{flex:1 1 120px}
+  input,select,textarea{max-width:100%;font-size:16px!important}
+  nav,nav.nav-solid,.modal-backdrop,.modal,.login-card,.lightbox,#page-hero .hero-feature,.hero-motion-toggle,.gd-topbar,.card-menu-dropdown{backdrop-filter:none;-webkit-backdrop-filter:none}
+  nav,nav.nav-solid{background:#100d1b}.modal-backdrop{background:#000b}
+  .game-card,.movie-card,.wishlist-card{transition:none}
+  .game-card:hover,.movie-card:hover,.wishlist-card:hover{transform:none}
+  .anticipation-fill,.music-bar,.hero-scroll-hint,.scroll-line::after,.detail-section,.detail-hero-info,.tab-panel,.detail-actions{animation:none}
+  #page-movies.cinema-reel .movie-card{flex-basis:min(240px,75vw);transform:none;transition:none}
+  #page-movies.cinema-reel .card-grid{perspective:none}
+}

@@ -74,6 +74,8 @@ function auth(req, res, next) {
   }
 }
 
+app.use('/api/music/upload', auth, require('./music-upload')(path.join(UPLOAD_DIR, 'music-library'), '/uploads/music-library'));
+
 // ─── API 路由 ───
 
 // 登录
@@ -163,6 +165,11 @@ app.put('/api/settings/:key', auth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+app.use('/api', require('./media-api')({auth, getTmdbKey: async () => {
+  const {rows} = await pool.query("SELECT value FROM app_settings WHERE key='tmdb_api_key'");
+  return rows[0]?.value;
+}}));
+
 // ─── IGDB 代理 ───
 let igdbAccessToken = null;
 let igdbTokenExpiry = 0;
@@ -178,7 +185,7 @@ async function getIGDBToken() {
   if (!clientId || !clientSecret) throw new Error('未配置 IGDB 凭据');
   const resp = await fetch(
     `https://id.twitch.tv/oauth2/token?client_id=${encodeURIComponent(clientId)}&client_secret=${encodeURIComponent(clientSecret)}&grant_type=client_credentials`,
-    { method: 'POST' }
+    { method: 'POST', signal: AbortSignal.timeout(12000) }
   );
   if (!resp.ok) throw new Error('获取 IGDB token 失败');
   const data = await resp.json();
@@ -223,7 +230,7 @@ app.post('/api/igdb/game/:id', auth, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     if (isNaN(id)) return res.status(400).json({ error: '无效 ID' });
-    const body = `fields name,cover.image_id,first_release_date,platforms.name,genres.name,involved_companies.company.name,involved_companies.developer; where id = ${id};`;
+    const body = `fields name,cover.image_id,screenshots.image_id,first_release_date,platforms.name,genres.name,involved_companies.company.name,involved_companies.developer; where id = ${id};`;
     const data = await igdbFetch('games', body);
     res.json(data[0] || null);
   } catch (e) { res.status(500).json({ error: e.message }); }
@@ -243,7 +250,7 @@ app.post('/api/upload/cover', auth, upload.single('cover'), async (req, res) => 
         .webp({ quality: 85 }).toFile(outPath);
     } else if (req.body.url) {
       const imgUrl = req.body.url.replace('/t_cover_big/', '/t_720p/');
-      const resp = await fetch(imgUrl);
+      const resp = await fetch(imgUrl, {signal:AbortSignal.timeout(12000)});
       if (!resp.ok) throw new Error('下载封面失败');
       const buf = Buffer.from(await resp.arrayBuffer());
       await sharp(buf).resize(600, 800, { fit: 'inside', withoutEnlargement: true })

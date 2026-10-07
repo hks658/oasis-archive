@@ -26,11 +26,14 @@
     if (records.some(record => Array.from(record.addedNodes).some(node => node.nodeType === 1 && (node.matches('audio,video') || node.querySelector('audio,video'))))) applyMute();
   }).observe(document.body, {childList:true,subtree:true});
 
-  let scrollQueued = false;
+  const compactDevice = matchMedia('(max-width:760px), (pointer:coarse)');
+  let scrollQueued = false, lastSection = -1;
   function syncSection() {
     scrollQueued = false;
     let index = 0;
     fpS.forEach((section, i) => { if (section.getBoundingClientRect().top <= innerHeight * .4) index = i; });
+    if(index === lastSection)return;
+    lastSection = index;
     cP = index;
     fpS.forEach((section, i) => section.classList.toggle('active', i === index));
     upNL(); upPI();
@@ -79,7 +82,7 @@
   // Load only the selected rendition; preserve the poster if autoplay is blocked.
   const heroVideo = document.getElementById('hero-video');
   const motionToggle = document.getElementById('hero-motion-toggle');
-  let motionEnabled = !reducedMotion.matches && !navigator.connection?.saveData;
+  let motionEnabled = !compactDevice.matches && !reducedMotion.matches && !navigator.connection?.saveData;
   let heroVisible = false;
   const updateMotionLabel = () => {
     motionToggle.textContent = heroVideo.paused ? '播放背景' : '暂停背景';
@@ -107,9 +110,9 @@
   }, {threshold:0.05}).observe(document.getElementById('page-hero'));
   document.addEventListener('visibilitychange', syncHeroVideo);
   new MutationObserver(syncHeroVideo).observe(document.body, {attributes:true,attributeFilter:['class']});
-  reducedMotion.addEventListener('change', () => { motionEnabled = !reducedMotion.matches; syncHeroVideo(); });
+  reducedMotion.addEventListener('change', () => { motionEnabled = !compactDevice.matches && !reducedMotion.matches && !navigator.connection?.saveData; syncHeroVideo(); });
   // One-time section reveals avoid replaying animations during ordinary browsing.
-  if (!reducedMotion.matches && 'IntersectionObserver' in window) {
+  if (!compactDevice.matches && !reducedMotion.matches && 'IntersectionObserver' in window) {
     const reveals = new IntersectionObserver(entries => entries.forEach(entry => {
       if (!entry.isIntersecting) return;
       entry.target.animate([{opacity:0,transform:'translateY(20px)'},{opacity:1,transform:'none'}],{duration:650,easing:'cubic-bezier(.2,.7,.2,1)'});
@@ -120,7 +123,7 @@
     });
   }
   // Each archive element assembles once when it reaches the viewport, including late API results.
-  if (!reducedMotion.matches && 'IntersectionObserver' in window) {
+  if (!compactDevice.matches && !reducedMotion.matches && 'IntersectionObserver' in window) {
     const games = document.getElementById('page-games');
     const seen = new WeakSet();
     const running = new Set();

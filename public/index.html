@@ -462,7 +462,9 @@ nav.nav-solid{background:rgba(0,0,0,.88);backdrop-filter:none;-webkit-backdrop-f
 </style>
 <link rel="stylesheet" href="/oasis-theme.css">
 <link rel="stylesheet" href="/game-detail.css">
+<link rel="stylesheet" href="/music-library.css">
 <link rel="stylesheet" href="/cinema-reel.css">
+<link rel="stylesheet" href="/mobile.css">
 </head>
 <body>
   <div id="login-screen">
@@ -483,7 +485,8 @@ nav.nav-solid{background:rgba(0,0,0,.88);backdrop-filter:none;-webkit-backdrop-f
   <div class="nav-links">
     <a class="nav-link" data-page="1" onclick="goToPage(1)">游戏</a>
     <a class="nav-link" data-page="2" onclick="goToPage(2)">电影</a>
-    <a class="nav-link" data-page="3" onclick="goToPage(3)">十佳</a>
+    <a class="nav-link" data-page="3" onclick="goToPage(3)">音乐</a>
+    <a class="nav-link" data-page="4" onclick="goToPage(4)">十佳</a>
   </div>
   <div class="nav-right">
   <button id="sound-toggle" class="sound-toggle" type="button" aria-label="静音所有音乐" aria-pressed="false" onclick="toggleGlobalMute()"><span class="sound-bars" aria-hidden="true">▂▅▃▆</span><span id="sound-label">声音开启</span></button>
@@ -555,6 +558,17 @@ nav.nav-solid{background:rgba(0,0,0,.88);backdrop-filter:none;-webkit-backdrop-f
     </div>
   </section>
 
+  <section class="fp-section" id="page-music" data-label="音乐">
+    <div class="fp-section-inner"><div class="section-pad music-section-inner">
+      <header class="music-heading"><div><span class="music-eyebrow">THE LISTENING ROOM / VOL. 01</span><h2>音乐收藏室<span>把时间，留给旋律。</span></h2></div><button type="button" class="music-secondary music-add">＋ 添加音乐</button></header>
+      <div class="music-feature"><img class="music-feature-image" src="/media/music/night-ocean.png" alt="琥珀色日环与夜晚海面的氛围插画"><div class="music-feature-copy"><span class="music-feature-label"><i></i> OASIS AFTER HOURS</span><h3>当世界安静下来。</h3><p>一张唱片，一段回忆。<br>让喜欢的声音，陪你再走一程。</p><button type="button" class="music-primary music-listen" disabled>▶ 开始聆听</button><span class="music-feature-note">精选收藏 · 随心播放</span></div><div class="music-record-scene" aria-hidden="true"><div class="music-vinyl"><div class="music-vinyl-label"><span>OASIS</span><small>SIDE A · 33⅓ RPM</small></div></div><div class="music-sleeve"><span>AFTER<br>HOURS.</span><small>OASIS / SOUND ARCHIVE</small></div></div><span class="music-feature-bottom">SOME SOUNDS STAY WITH YOU.</span></div>
+      <div class="music-collection-heading"><h3>我的唱片架 <span class="music-total">00 RECORDS</span></h3><span class="music-count" aria-live="polite"></span></div>
+      <div class="music-filters"><label class="music-search-wrap"><span>⌕</span><input class="music-search" type="search" placeholder="搜索专辑、单曲或艺术家…" aria-label="搜索音乐"></label><select class="music-type" aria-label="音乐形式"><option value="">全部形式</option><option value="album">专辑</option><option value="single">单曲</option></select><select class="music-category" aria-label="音乐分类"><option value="">全部音乐</option><option value="original">独立音乐</option><option value="game">游戏原声</option><option value="movie">电影配乐</option></select><select class="music-sort" aria-label="音乐排序"><option value="newest">最近收藏</option><option value="rating">评分最高</option><option value="title">名称顺序</option></select></div>
+      <p class="music-status" role="status"></p><button type="button" class="music-secondary music-retry" hidden>重新加载</button><div class="music-grid"></div><p class="music-empty" hidden></p>
+      <footer class="music-section-footer"><span>COLLECT MOMENTS. KEEP THE SOUND.</span><span>绿洲 · 私人音乐档案</span></footer>
+    </div></div>
+  </section>
+
   <section class="fp-section bg-top10" id="page-top10" data-label="十佳">
     <div class="fp-section-inner">
       <div class="section-pad">
@@ -589,11 +603,18 @@ nav.nav-solid{background:rgba(0,0,0,.88);backdrop-filter:none;-webkit-backdrop-f
     <div class="footer-content anim">
       <div class="footer-logo">绿洲</div>
       <div class="footer-sub">O A S I S</div>
-      <p style="font-size:16px;color:var(--text-secondary);margin-bottom:8px">你的专属游戏与电影档案馆</p>
+      <p style="font-size:16px;color:var(--text-secondary);margin-bottom:8px">你的专属游戏、电影与音乐档案馆</p>
       <p style="opacity:.4">数据安全存储在云端 · 跨设备同步</p>
     </div>
   </section>
 </div>
+
+<!-- MUSIC -->
+<div id="modal-music-detail" class="modal-backdrop music-modal" onclick="handleBackdropClick(event)"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="music-detail-title" onclick="event.stopPropagation()"><header class="music-modal-bar"><span>OASIS / 音乐档案</span><button type="button" class="modal-close" aria-label="关闭音乐详情" onclick="closeAllModals()">✕</button></header><div class="music-detail-content"></div></div></div>
+<div id="modal-music-edit" class="modal-backdrop music-modal" onclick="handleBackdropClick(event)"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="music-edit-title" onclick="event.stopPropagation()"><header class="music-modal-bar"><span>OASIS / 收藏音乐</span><button type="button" class="modal-close" aria-label="关闭音乐编辑" onclick="closeAllModals()">✕</button></header><form id="music-form"><h2 id="music-edit-title">收藏新的旋律</h2><div class="music-form-top"><img class="music-edit-cover" alt="音乐封面预览" src="/media/music/night-ocean.png"><label>上传封面<input name="cover" type="file" accept="image/jpeg,image/png,image/webp"><small>JPG、PNG 或 WebP</small></label></div><div class="music-form-fields"><label>名称<input name="title" required maxlength="160" placeholder="专辑或单曲名称"></label><label>艺术家<input name="artist" required maxlength="160" placeholder="创作者 / 艺术家"></label><label>形式<select name="type"><option value="album">专辑</option><option value="single">单曲</option></select></label><label>分类<select name="category"><option value="original">独立音乐</option><option value="game">游戏原声</option><option value="movie">电影配乐</option></select></label><label>发行年份<input name="year" type="number" min="1900" max="2100" placeholder="例如 2024"></label><label>个人评分<select name="rating"><option value="0">尚未评分</option><option value="5">★★★★★</option><option value="4">★★★★☆</option><option value="3">★★★☆☆</option><option value="2">★★☆☆☆</option><option value="1">★☆☆☆☆</option></select></label></div><label>关联游戏或电影<select name="related"><option value="">不关联作品</option></select></label><label>曲目音频<input name="tracks" type="file" multiple accept=".mp3,.wav,.ogg,.m4a,.aac,.flac"><small class="music-file-summary">可一次选择多首音频，每个文件不超过 30 MB。</small></label><div class="music-existing-tracks"></div><label>外部收听链接（可选）<input name="listenUrl" type="url" placeholder="https://…"><small>没有音频也能收藏，链接会在新窗口打开。</small></label><label>收藏手记<textarea name="review" rows="4" maxlength="10000" placeholder="这段旋律，让你想起了什么？"></textarea></label><p class="music-form-error" role="alert"></p><button type="submit" class="music-primary">保存音乐档案</button></form></div></div>
+<audio id="library-audio" preload="metadata"></audio>
+<aside id="music-player" aria-label="音乐播放器" hidden><button type="button" class="player-now" aria-label="查看正在播放的音乐档案"><img class="player-cover" alt=""><span><strong class="player-title"></strong><small class="player-artist"></small><small class="player-message" role="status"></small></span></button><div class="player-center"><div class="player-buttons"><button type="button" class="player-prev" aria-label="上一首">⏮</button><button type="button" class="player-toggle" aria-label="播放音乐">▶</button><button type="button" class="player-next" aria-label="下一首">⏭</button><button type="button" class="player-repeat" aria-label="单曲循环" aria-pressed="false">↻</button></div><div class="player-timeline"><span class="player-time">0:00</span><input class="player-seek" type="range" min="0" max="1000" step="1" value="0" aria-label="播放进度" disabled><span class="player-duration">0:00</span></div></div><div class="player-tools"><label class="player-volume-label">音量<input type="range" class="player-volume" min="0" max="1" step="0.01" value="0.65" aria-label="音乐音量"></label><button type="button" class="player-queue" aria-expanded="false" aria-controls="music-queue" aria-label="播放队列">☷</button><button type="button" class="player-close" aria-label="停止并关闭播放器">✕</button></div></aside>
+<aside id="music-queue" aria-label="播放队列" hidden><header><strong>接下来播放 <span class="queue-count"></span></strong><button type="button" class="queue-close" aria-label="关闭播放队列">✕</button></header><div class="queue-list"></div></aside>
 
 <!-- MODALS -->
 <div id="modal-add-game" class="modal-backdrop" onclick="handleBackdropClick(event)">
@@ -801,7 +822,7 @@ nav.nav-solid{background:rgba(0,0,0,.88);backdrop-filter:none;-webkit-backdrop-f
 <div id="lightbox" class="lightbox" onclick="closeLightbox()"><img id="lightbox-img" src="" alt=""></div>
 <div id="toast-container" class="toast-container"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="/media-client.js"></script>
 
 <script>
 /* ═══ Canvas noise ═══ */
@@ -859,19 +880,19 @@ async function handleLogin(e){
 
 function logout(){
   authToken=null;localStorage.removeItem('oasis_token');
-  showLoginScreen();
+  document.dispatchEvent(new Event('oasis:logout'));showLoginScreen();
 }
 
 /* ═══ CLOUD DB FUNCTIONS (替代 IndexedDB) ═══ */
 async function dbA(s){
   const r=await fetch(`/api/store/${s}`,{headers:authHeaders()});
   if(r.status===401){logout();return[]}
-  if(!r.ok)throw new Error('请求失败');return r.json();
+  if(!r.ok)throw new Error('请求失败');return OasisMedia.records(await r.json());
 }
 async function dbG(s,id){
   const r=await fetch(`/api/store/${s}/${encodeURIComponent(id)}`,{headers:authHeaders()});
   if(r.status===401){logout();return null}
-  if(!r.ok)throw new Error('请求失败');return r.json();
+  if(!r.ok)throw new Error('请求失败');return OasisMedia.records(await r.json());
 }
 async function dbP(s,d){
   const r=await fetch(`/api/store/${s}`,{method:'PUT',headers:authHeaders(),body:JSON.stringify(d)});
@@ -926,7 +947,7 @@ const tClass=s=>s>=60?'tomato-fresh':'tomato-rotten';
 const tLabel=s=>s>=60?'新鲜':'腐烂';
 const PH="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 400'><rect fill='%231a0a2e' width='300' height='400'/></svg>";
 const PHM="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 450'><rect fill='%231a0a2e' width='300' height='450'/></svg>";
-const igdbImg=(id,sz)=>`https://images.igdb.com/igdb/image/upload/t_${sz}/${id}.jpg`;
+const igdbImg=(id,sz)=>`/api/media/igdb/t_${sz}/${id}.jpg`;
 
 /* ═══ CARD CONTEXT MENU ═══ */
 let editingGameId=null,editingWishlistId=null,editingMovieId=null;
@@ -1164,8 +1185,8 @@ async function uploadGameFiles(gameId, coverSource, screenshotFiles, musicFile) 
     fd.append('gameId', gameId);
     if (coverSource instanceof File) {
       fd.append('cover', coverSource);
-    } else if (typeof coverSource === 'string' && coverSource.startsWith('http')) {
-      fd.append('url', coverSource);
+    } else if (typeof coverSource === 'string' && (coverSource.startsWith('http') || coverSource.startsWith('/api/media/igdb/'))) {
+      fd.append('url', coverSource.replace('/api/media/igdb/', 'https://images.igdb.com/igdb/image/upload/'));
     }
     if (fd.has('cover') || fd.has('url')) {
       try {
@@ -1236,6 +1257,7 @@ async function handleAddGame(e){e.preventDefault();const f=e.target,isE=!!editin
     g.screenshots=up.screenshots;
     g.music=up.music;
   }
+  if(g.igdbId && !g.screenshots.length) { try { g=await OasisMedia.enrichGame(g); } catch { showToast('游戏已保留，自动获取截图失败，可稍后重新打开详情重试','error'); } }
   await dbP('games',g);showToast(isE?'游戏已更新':'游戏已添加');
   editingGameId=null;pendingGameData=null;resetGF();closeAllModals();renderGames();
   }catch(err){showToast('保存失败','error')}
@@ -1252,6 +1274,8 @@ function unlockAudio(){if(audioUnlocked)return;audioUnlocked=true;try{const c=ne
 let cA=null,fadeInTimer=null,fadeOutTimer=null,fadingAudio=null,playGen=0;
 const FADE_MS=600,FADE_STEP=30,TARGET_VOL=0.4;
 async function playGM(id,el){
+  if(!matchMedia('(hover:hover) and (pointer:fine)').matches)return;
+  if(window.MusicLibrary?.isPlaying())return;
   try{const gen=++playGen;const g=await dbG('games',id);if(!g?.music||gen!==playGen)return;if(fadingAudio){clearInterval(fadeOutTimer);fadingAudio.pause();fadingAudio.currentTime=0;fadingAudio=null}clearInterval(fadeInTimer);if(cA){cA.pause();cA.currentTime=0;cA=null}document.querySelectorAll('.game-card.playing').forEach(c=>c.classList.remove('playing'));cA=new Audio(g.music);cA.muted=window.oasisMuted===true;cA.volume=0;cA.loop=true;cA.play().catch(()=>{});el.classList.add('playing');const steps=FADE_MS/FADE_STEP,inc=TARGET_VOL/steps;fadeInTimer=setInterval(()=>{if(!cA||gen!==playGen)return clearInterval(fadeInTimer);cA.volume=Math.min(cA.volume+inc,TARGET_VOL);if(cA.volume>=TARGET_VOL)clearInterval(fadeInTimer)},FADE_STEP)}catch(e){}
 }
 function stopGM(){
@@ -1281,6 +1305,12 @@ async function showGameDetail(id){
     if(!game)return showToast('这条游戏记录已不存在','error');
     GameDetail.render(game);
     openModal('game-detail');
+    if(game.igdbId && (!game.screenshots?.length || !game.cover)) {
+      try {
+        const enriched=await OasisMedia.enrichGame(game);
+        if(request===gameDetailRequest && document.getElementById('modal-game-detail').classList.contains('show')) GameDetail.render(enriched);
+      } catch { if(request===gameDetailRequest) showToast('自动获取游戏图片失败，请检查 IGDB 设置或稍后重试','error'); }
+    }
   }catch(error){showToast('详情加载失败，请稍后重试','error')}
 }
 
@@ -1367,11 +1397,11 @@ async function searchTMDBMovie(){
   const rc=document.getElementById('movie-search-results');
   rc.innerHTML='<div class="spinner" style="margin:20px auto;width:24px;height:24px;border-width:2px"></div>';
   try{
-    const r=await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${key}&language=zh-CN&query=${encodeURIComponent(input)}&page=1`);
+    const r=await tmdbFetch(`search/movie?language=zh-CN&query=${encodeURIComponent(input)}&page=1`);
     if(!r.ok)throw 0;const d=await r.json();
     if(!d.results?.length){rc.innerHTML='<div class="empty-state" style="padding:20px"><p>未找到相关电影</p></div>';return}
     rc.innerHTML=d.results.map(m=>{
-      const poster=m.poster_path?`https://image.tmdb.org/t/p/w200${m.poster_path}`:PHM;
+      const poster=m.poster_path?`/api/media/tmdb/w200${m.poster_path}`:PHM;
       const year=m.release_date?m.release_date.split('-')[0]:'未知年份';
       const title=(m.title||m.original_title).replace(/'/g,"\\'");
       return `<div class="search-result-item" onclick="selectMovieForAdd(${m.id},'${title}','${poster}','${year}')" style="display:flex;gap:14px;padding:10px;background:rgba(255,255,255,0.02);border:.5px solid rgba(255,255,255,0.05);border-radius:12px;cursor:pointer;transition:all .3s;"><img src="${poster}" style="width:50px;height:75px;object-fit:cover;border-radius:6px;flex-shrink:0;"><div style="display:flex;flex-direction:column;justify-content:center;"><div style="font-size:15px;font-weight:600">${title}</div><div style="font-size:12px;color:var(--text-secondary);margin-top:4px">${year} · TMDB: ${m.vote_average?m.vote_average.toFixed(1):'N/A'}</div></div></div>`;
@@ -1382,7 +1412,7 @@ async function searchTMDBMovie(){
 async function selectMovieForAdd(tmdbId,title,poster,year){
   pendingMovieData={tmdbId,title,poster,year,stills:[]};
   const key=cachedTmdbKey;
-  if(key){try{const r=await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}/images?api_key=${key}`);const d=await r.json();if(d.backdrops?.length)pendingMovieData.stills=d.backdrops.slice(0,5).map(b=>`https://image.tmdb.org/t/p/w780${b.file_path}`)}catch(e){}}
+  if(key){try{const r=await tmdbFetch(`movie/${tmdbId}/images`);const d=await r.json();if(d.backdrops?.length)pendingMovieData.stills=d.backdrops.slice(0,5).map(b=>`/api/media/tmdb/w780${b.file_path}`)}catch(e){}}
   document.getElementById('movie-search-step').style.display='none';
   document.getElementById('movie-review-step').style.display='block';
   document.getElementById('movie-selected-poster').src=poster;
@@ -1680,9 +1710,9 @@ async function fetchNowPlaying(){
   if(!key){ld.style.display='none';emp.style.display='block';return}
   ld.style.display='block';emp.style.display='none';grid.innerHTML='';
   try{
-    let r=await fetch(`https://api.themoviedb.org/3/movie/now_playing?api_key=${key}&language=zh-CN&region=CN&page=1`);
+    let r=await tmdbFetch(`movie/now_playing?language=zh-CN&region=CN&page=1`);
     if(!r.ok)throw 0;let d=await r.json();
-    if(!d.results?.length){r=await fetch(`https://api.themoviedb.org/3/movie/now_playing?api_key=${key}&language=zh-CN&page=1`);d=await r.json()}
+    if(!d.results?.length){r=await tmdbFetch(`movie/now_playing?language=zh-CN&page=1`);d=await r.json()}
     npC=d.results||[];ld.style.display='none';
     if(!npC.length){emp.innerHTML='<div class="empty-ring"></div><p>暂无正在上映的电影</p>';emp.style.display='block';return}
     renderNowPlaying();
@@ -1691,18 +1721,18 @@ async function fetchNowPlaying(){
 
 function renderNowPlaying(){
   document.getElementById('now-playing-grid').innerHTML=npC.map(m=>{
-    const poster=m.poster_path?`https://image.tmdb.org/t/p/w500${m.poster_path}`:PHM;
+    const poster=m.poster_path?`/api/media/tmdb/w500${m.poster_path}`:PHM;
     const vote=m.vote_average?m.vote_average.toFixed(1):'N/A';
-    return `<div class="movie-card" onclick="showNowPlayingDetail(${m.id})"><span class="now-playing-badge">正在上映</span><img class="movie-card-cover" src="${poster}" alt="${m.title}" loading="lazy" onerror="this.src='${PHM}'"><div class="movie-card-overlay"><div class="tmdb-score"><span class="tmdb-score-icon">T</span><span class="tmdb-score-value">${vote}</span></div><div class="game-card-title">${m.title||m.original_title}</div></div></div>`;
+    return `<div class="movie-card" onclick="showNowPlayingDetail(${m.id})"><span class="now-playing-badge">正在上映</span><img class="movie-card-cover" src="${poster}" alt="${m.title}" loading="lazy" ><div class="movie-card-overlay"><div class="tmdb-score"><span class="tmdb-score-icon">T</span><span class="tmdb-score-value">${vote}</span></div><div class="game-card-title">${m.title||m.original_title}</div></div></div>`;
   }).join('');
 }
 
 async function showNowPlayingDetail(tid){
   const m=npC.find(x=>x.id===tid);if(!m)return;
-  const key=cachedTmdbKey,poster=m.poster_path?`https://image.tmdb.org/t/p/w500${m.poster_path}`:'',bd=m.backdrop_path?`https://image.tmdb.org/t/p/w1280${m.backdrop_path}`:poster;
+  const key=cachedTmdbKey,poster=m.poster_path?`/api/media/tmdb/w500${m.poster_path}`:'',bd=m.backdrop_path?`/api/media/tmdb/w1280${m.backdrop_path}`:poster;
   const vote=m.vote_average?m.vote_average.toFixed(1):'N/A',vp=m.vote_average?Math.round(m.vote_average*10):0;
   let imgH='';
-  if(key){try{const r=await fetch(`https://api.themoviedb.org/3/movie/${tid}/images?api_key=${key}`),d=await r.json(),bds=(d.backdrops||[]).slice(0,8);if(bds.length)imgH=`<div class="detail-section"><div class="detail-section-title">剧照</div><div class="screenshot-gallery">${bds.map(b=>`<img src="https://image.tmdb.org/t/p/w780${b.file_path}" alt="" onclick="event.stopPropagation();openLB('https://image.tmdb.org/t/p/original${b.file_path}')">`).join('')}</div></div>`}catch(e){}}
+  if(key){try{const r=await tmdbFetch(`movie/${tid}/images`),d=await r.json(),bds=(d.backdrops||[]).slice(0,8);if(bds.length)imgH=`<div class="detail-section"><div class="detail-section-title">剧照</div><div class="screenshot-gallery">${bds.map(b=>`<img src="/api/media/tmdb/w780${b.file_path}" alt="" onclick="event.stopPropagation();openLB('/api/media/tmdb/original${b.file_path}')">`).join('')}</div></div>`}catch(e){}}
   // Check if already in watched list
   const existing=await dbA('movies');
   const alreadyWatched=existing.some(e=>e.tmdbId===tid);
@@ -1715,11 +1745,11 @@ async function showNowPlayingDetail(tid){
 
 async function markAsWatched(tmdbId){
   const m=npC.find(x=>x.id===tmdbId);if(!m)return;
-  const poster=m.poster_path?`https://image.tmdb.org/t/p/w500${m.poster_path}`:null;
+  const poster=m.poster_path?`/api/media/tmdb/w500${m.poster_path}`:null;
   const year=m.release_date?m.release_date.split('-')[0]:'';
   let stills=[];
   const key=cachedTmdbKey;
-  if(key){try{const r=await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}/images?api_key=${key}`);const d=await r.json();if(d.backdrops?.length)stills=d.backdrops.slice(0,5).map(b=>`https://image.tmdb.org/t/p/w780${b.file_path}`)}catch(e){}}
+  if(key){try{const r=await tmdbFetch(`movie/${tmdbId}/images`);const d=await r.json();if(d.backdrops?.length)stills=d.backdrops.slice(0,5).map(b=>`/api/media/tmdb/w780${b.file_path}`)}catch(e){}}
   const movie={id:gid(),tmdbId,title:m.title||m.original_title,poster,stills,year,userRating:0,review:'',createdAt:Date.now()};
   try{
     await dbP('movies',movie);showToast('已添加到观影记录');
@@ -1731,16 +1761,16 @@ async function markAsWatched(tmdbId){
 
 /* ═══ UPCOMING ═══ */
 let uC=[];
-async function fetchUpcoming(){const key=cachedTmdbKey,ld=document.getElementById('upcoming-loading'),emp=document.getElementById('upcoming-empty'),grid=document.getElementById('upcoming-grid');if(!key){ld.style.display='none';emp.style.display='block';return}ld.style.display='block';emp.style.display='none';grid.innerHTML='';try{let r=await fetch(`https://api.themoviedb.org/3/movie/upcoming?api_key=${key}&language=zh-CN&region=CN&page=1`);if(!r.ok)throw 0;let d=await r.json();if(!d.results?.length){r=await fetch(`https://api.themoviedb.org/3/movie/upcoming?api_key=${key}&language=zh-CN&page=1`);d=await r.json()}uC=d.results||[];ld.style.display='none';if(!uC.length){emp.innerHTML='<div class="empty-ring"></div><p>暂无即将上映的电影</p>';emp.style.display='block';return}renderUpcoming()}catch(e){ld.style.display='none';emp.innerHTML='<div class="empty-ring"></div><p>获取失败，请检查 API Key</p>';emp.style.display='block'}}
+async function fetchUpcoming(){const key=cachedTmdbKey,ld=document.getElementById('upcoming-loading'),emp=document.getElementById('upcoming-empty'),grid=document.getElementById('upcoming-grid');if(!key){ld.style.display='none';emp.style.display='block';return}ld.style.display='block';emp.style.display='none';grid.innerHTML='';try{let r=await tmdbFetch(`movie/upcoming?language=zh-CN&region=CN&page=1`);if(!r.ok)throw 0;let d=await r.json();if(!d.results?.length){r=await tmdbFetch(`movie/upcoming?language=zh-CN&page=1`);d=await r.json()}uC=d.results||[];ld.style.display='none';if(!uC.length){emp.innerHTML='<div class="empty-ring"></div><p>暂无即将上映的电影</p>';emp.style.display='block';return}renderUpcoming()}catch(e){ld.style.display='none';emp.innerHTML='<div class="empty-ring"></div><p>获取失败，请检查 API Key</p>';emp.style.display='block'}}
 
 async function renderUpcoming(){
   const grid=document.getElementById('upcoming-grid'),ratings=await dbA('upcoming_ratings'),map={};
   ratings.forEach(r=>map[r.id]=r);
   const sorted=[...uC].sort((a,b)=>{if(!a.release_date&&!b.release_date)return 0;if(!a.release_date)return 1;if(!b.release_date)return -1;return a.release_date.localeCompare(b.release_date)});
-  grid.innerHTML=sorted.map(m=>{const ur=map[String(m.id)],ant=ur?ur.anticipation:0,poster=m.poster_path?`https://image.tmdb.org/t/p/w500${m.poster_path}`:PHM;return`<div class="movie-card" onclick="showUpcomingDetail(${m.id})"><span class="upcoming-badge">${m.release_date||'即将上映'}</span><img class="movie-card-cover" src="${poster}" alt="${m.title}" loading="lazy" onerror="this.src='${PHM}'"><div class="movie-card-overlay"><div class="game-card-title">${m.title||m.original_title}</div>${ant?`<div class="anticipation-bar"><div class="anticipation-fill" style="width:${ant}%"></div></div>`:''}</div></div>`}).join('');
+  grid.innerHTML=sorted.map(m=>{const ur=map[String(m.id)],ant=ur?ur.anticipation:0,poster=m.poster_path?`/api/media/tmdb/w500${m.poster_path}`:PHM;return`<div class="movie-card" onclick="showUpcomingDetail(${m.id})"><span class="upcoming-badge">${m.release_date||'即将上映'}</span><img class="movie-card-cover" src="${poster}" alt="${m.title}" loading="lazy" ><div class="movie-card-overlay"><div class="game-card-title">${m.title||m.original_title}</div>${ant?`<div class="anticipation-bar"><div class="anticipation-fill" style="width:${ant}%"></div></div>`:''}</div></div>`}).join('');
 }
 
-async function showUpcomingDetail(tid){const m=uC.find(x=>x.id===tid);if(!m)return;const key=cachedTmdbKey,poster=m.poster_path?`https://image.tmdb.org/t/p/w500${m.poster_path}`:'',bd=m.backdrop_path?`https://image.tmdb.org/t/p/w1280${m.backdrop_path}`:poster;let ur=null;try{ur=await dbG('upcoming_ratings',String(tid))}catch(e){}const ant=ur?ur.anticipation:50,reason=ur?ur.reason:'';let imgH='';if(key){try{const r=await fetch(`https://api.themoviedb.org/3/movie/${tid}/images?api_key=${key}`),d=await r.json(),bds=(d.backdrops||[]).slice(0,8);if(bds.length)imgH=`<div class="detail-section"><div class="detail-section-title">剧照</div><div class="screenshot-gallery">${bds.map(b=>`<img src="https://image.tmdb.org/t/p/w780${b.file_path}" alt="" onclick="event.stopPropagation();openLB('https://image.tmdb.org/t/p/original${b.file_path}')">`).join('')}</div></div>`}catch(e){}}document.getElementById('upcoming-detail-content').innerHTML=`<div class="detail-hero"><img src="${bd}" alt="" ${!m.backdrop_path?'style="filter:blur(6px) brightness(.4);transform:scale(1.1)"':''}><div class="detail-hero-info">${poster?`<img class="detail-poster" src="${poster}" alt="${m.title}">`:''}<div class="detail-meta"><span style="color:var(--neon-pink);font-size:12px;letter-spacing:2px">${m.release_date||'即将上映'}</span><h2>${m.title||m.original_title}</h2></div></div></div><div class="detail-modal-body">${imgH}${m.overview?`<div class="detail-section"><div class="detail-section-title">简介</div><div class="detail-review">${m.overview}</div></div>`:''}<div class="detail-section"><div class="detail-section-title">期待程度</div><div class="range-value" id="ad-${tid}">${ant}%</div><input type="range" class="range-slider" min="0" max="100" value="${ant}" id="as-${tid}" oninput="document.getElementById('ad-${tid}').textContent=this.value+'%'"></div><div class="detail-section"><div class="detail-section-title">期待理由</div><textarea class="form-textarea" id="ar-${tid}" placeholder="为什么期待这部电影？">${reason}</textarea></div><div class="detail-actions"><button class="submit-btn" onclick="saveAnt(${tid})">保存期待评分</button></div></div>`;openModal('upcoming-detail')}
+async function showUpcomingDetail(tid){const m=uC.find(x=>x.id===tid);if(!m)return;const key=cachedTmdbKey,poster=m.poster_path?`/api/media/tmdb/w500${m.poster_path}`:'',bd=m.backdrop_path?`/api/media/tmdb/w1280${m.backdrop_path}`:poster;let ur=null;try{ur=await dbG('upcoming_ratings',String(tid))}catch(e){}const ant=ur?ur.anticipation:50,reason=ur?ur.reason:'';let imgH='';if(key){try{const r=await tmdbFetch(`movie/${tid}/images`),d=await r.json(),bds=(d.backdrops||[]).slice(0,8);if(bds.length)imgH=`<div class="detail-section"><div class="detail-section-title">剧照</div><div class="screenshot-gallery">${bds.map(b=>`<img src="/api/media/tmdb/w780${b.file_path}" alt="" onclick="event.stopPropagation();openLB('/api/media/tmdb/original${b.file_path}')">`).join('')}</div></div>`}catch(e){}}document.getElementById('upcoming-detail-content').innerHTML=`<div class="detail-hero"><img src="${bd}" alt="" ${!m.backdrop_path?'style="filter:blur(6px) brightness(.4);transform:scale(1.1)"':''}><div class="detail-hero-info">${poster?`<img class="detail-poster" src="${poster}" alt="${m.title}">`:''}<div class="detail-meta"><span style="color:var(--neon-pink);font-size:12px;letter-spacing:2px">${m.release_date||'即将上映'}</span><h2>${m.title||m.original_title}</h2></div></div></div><div class="detail-modal-body">${imgH}${m.overview?`<div class="detail-section"><div class="detail-section-title">简介</div><div class="detail-review">${m.overview}</div></div>`:''}<div class="detail-section"><div class="detail-section-title">期待程度</div><div class="range-value" id="ad-${tid}">${ant}%</div><input type="range" class="range-slider" min="0" max="100" value="${ant}" id="as-${tid}" oninput="document.getElementById('ad-${tid}').textContent=this.value+'%'"></div><div class="detail-section"><div class="detail-section-title">期待理由</div><textarea class="form-textarea" id="ar-${tid}" placeholder="为什么期待这部电影？">${reason}</textarea></div><div class="detail-actions"><button class="submit-btn" onclick="saveAnt(${tid})">保存期待评分</button></div></div>`;openModal('upcoming-detail')}
 async function saveAnt(tid){try{await dbP('upcoming_ratings',{id:String(tid),anticipation:parseInt(document.getElementById(`as-${tid}`).value),reason:document.getElementById(`ar-${tid}`).value.trim(),updatedAt:Date.now()});showToast('期待评分已保存');renderUpcoming()}catch(e){showToast('保存失败','error')}}
 
 /* ═══ LIGHTBOX ═══ */
@@ -1750,7 +1780,7 @@ function closeLightbox(){GameDetail.closeImages()}
 /* ═══ SETTINGS (云端存储) ═══ */
 function openSettings(){document.getElementById('tmdb-api-key').value=cachedTmdbKey||'';document.getElementById('igdb-client-id').value=cachedIgdbClientId||'';document.getElementById('igdb-client-secret').value=cachedIgdbClientSecret||'';openModal('settings')}
 async function saveSettings(){try{await saveTmdbKey(document.getElementById('tmdb-api-key').value.trim());await saveIgdbKeys(document.getElementById('igdb-client-id').value.trim(),document.getElementById('igdb-client-secret').value.trim());closeAllModals();showToast('设置已保存');fetchNowPlaying();fetchUpcoming()}catch(e){showToast('保存失败','error')}}
-async function clearAllData(){if(!confirm('确定要清除所有数据吗？'))return;try{await Promise.all([dbC('games'),dbC('wishlist'),dbC('movies'),dbC('upcoming_ratings'),saveTmdbKey('')]);closeAllModals();showToast('所有数据已清除');renderGames();renderWishlist();renderMovies();fetchNowPlaying();fetchUpcoming()}catch(e){showToast('清除失败','error')}}
+async function clearAllData(){if(!confirm('确定要清除所有数据吗？'))return;try{await Promise.all([dbC('games'),dbC('wishlist'),dbC('movies'),dbC('music'),dbC('upcoming_ratings'),saveTmdbKey('')]);closeAllModals();showToast('所有数据已清除');window.MusicLibrary?.stop();window.MusicLibrary?.load();renderGames();renderWishlist();renderMovies();fetchNowPlaying();fetchUpcoming()}catch(e){showToast('清除失败','error')}}
 async function migrateData(){
   if(!confirm('将开始迁移数据（截图/音乐/封面 → 服务器文件），确认继续？'))return;
   showToast('正在迁移数据，请稍候...');
@@ -1768,6 +1798,7 @@ async function loadData(){
   try{
     await Promise.all([loadTmdbKey(),loadIgdbKeys()]);
     await Promise.all([renderGames(),renderWishlist(),renderMovies(),renderTop10(),fetchNowPlaying(),fetchUpcoming()]);
+    document.dispatchEvent(new Event('oasis:data-loaded'));
   }catch(e){console.error(e);showToast('加载数据失败','error')}
 }
 
@@ -1786,6 +1817,7 @@ init();
 </script>
 <script src="/archive-filters.js"></script>
 <script src="/game-detail.js"></script>
+<script src="/music-library.js"></script>
 <script src="/oasis-experience.js"></script>
 <script src="/cinema-reel.js"></script>
 </body>

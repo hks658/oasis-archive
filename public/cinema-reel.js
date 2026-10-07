@@ -8,7 +8,9 @@
   section.querySelector('.tab-controls').before(switcher);
   const modes = switcher.querySelectorAll('button');
   const refreshers = [];
-  section.classList.add('cinema-reel');
+  const startWithReel = !matchMedia('(max-width:760px), (pointer:coarse)').matches;
+  section.classList.toggle('cinema-reel',startWithReel);
+  modes.forEach((button,index) => button.setAttribute('aria-pressed',String(startWithReel ? index===0 : index===1)));
   modes.forEach((button,index) => button.addEventListener('click', () => {
     section.classList.toggle('cinema-reel',index === 0);
     modes.forEach((item,i) => item.setAttribute('aria-pressed',String(i === index)));
@@ -25,7 +27,7 @@
     let selected = 0, frame = 0;
     function refresh() {
       frame = 0;
-      if (!grid.clientWidth) return;
+      if (!section.classList.contains('cinema-reel') || !grid.clientWidth) return;
       const items = cards();
       const bounds = grid.getBoundingClientRect();
       let distance = Infinity;
@@ -54,6 +56,8 @@
     grid.addEventListener('scroll',queue,{passive:true});
     let wheelFrame = 0, wheelTarget = 0;
     function advanceWheel() {
+      if (!section.classList.contains('cinema-reel') || !grid.clientWidth) {wheelFrame=0;return;}
+      wheelTarget=Math.min(wheelTarget,Math.max(0,grid.scrollWidth-grid.clientWidth));
       const remaining = wheelTarget-grid.scrollLeft;
       if (reduce.matches || Math.abs(remaining) < .5) {
         grid.scrollLeft = wheelTarget; wheelFrame = 0; return;
